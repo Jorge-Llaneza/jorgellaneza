@@ -6,7 +6,9 @@ toggle.addEventListener("click", () => {
 });
 
 const form = document.querySelector(".contact form");
+const formNote = document.querySelector(".form-note");
 form.addEventListener("submit", (e) => {
   e.preventDefault();
-  alert("Thanks! This form isn't wired up to send messages yet — email us directly for now.");
+  form.hidden = true;
+  formNote.hidden = false;
 });

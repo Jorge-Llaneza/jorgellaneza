@@ -109,8 +109,8 @@ a { color: inherit; text-decoration: none; }
   inset: 0;
   background:
     linear-gradient(180deg, rgba(20,20,20,0.55) 0%, rgba(20,20,20,0.75) 60%, rgba(20,20,20,0.95) 100%),
-    radial-gradient(circle at 20% 20%, rgba(90, 135, 225, 0.28), transparent 45%),
-    radial-gradient(circle at 80% 70%, rgba(30, 160, 95, 0.24), transparent 45%);
+    radial-gradient(circle at 20% 20%, rgba(90, 135, 225, 0.16), transparent 45%),
+    radial-gradient(circle at 80% 70%, rgba(30, 160, 95, 0.14), transparent 45%);
   pointer-events: none;
 }
 
@@ -204,6 +204,7 @@ section {
 
 /* HYPE */
 .hype {
+  padding: 64px 0;
   background: radial-gradient(ellipse at center, rgba(30, 160, 95, 0.1), transparent 60%);
   text-align: center;
 }
@@ -268,6 +269,8 @@ section {
   font-size: 1.1rem;
   letter-spacing: 0.05em;
   color: rgba(255,255,255,0.85);
+  background-size: cover;
+  background-position: center;
 }
 
 .card-art.g1 { background: linear-gradient(135deg, #5a87e1, #1ea05f); }
@@ -278,7 +281,11 @@ section {
 .card-body { padding: 20px; }
 
 .card-body h3 {
-  font-size: 1rem;
+  font-family: "Inter", sans-serif;
+  text-transform: none;
+  letter-spacing: normal;
+  font-size: 1.05rem;
+  font-weight: 600;
   margin-bottom: 6px;
 }
 
@@ -393,6 +400,16 @@ section {
   border-color: var(--accent-2);
 }
 
+.form-note {
+  padding: 20px;
+  border-radius: 10px;
+  background: var(--surface);
+  border: 1px solid var(--accent-2);
+  color: var(--text);
+  font-size: 0.95rem;
+  text-align: center;
+}
+
 .contact .socials {
   display: flex;
   gap: 20px;
@@ -436,4 +453,5 @@ footer {
   .nav-toggle { display: block; }
   .about .wrap { grid-template-columns: 1fr; }
   section { padding: 80px 0; }
+  .hype { padding: 48px 0; }
 }
