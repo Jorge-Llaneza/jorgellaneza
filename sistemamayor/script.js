@@ -15,6 +15,8 @@
   const progressLabel = document.getElementById("progress-label");
   const progressFill = document.getElementById("progress-fill");
   const timerLabel = document.getElementById("timer-label");
+  const btnPause = document.getElementById("btn-pause");
+  const pauseOverlay = document.getElementById("pause-overlay");
   const quizCard = document.getElementById("quiz-card");
   const quizNumber = document.getElementById("quiz-number");
   const answerForm = document.getElementById("answer-form");
@@ -38,6 +40,8 @@
   let startTime = 0;
   let tickHandle = null;
   let locked = false;
+  let isPaused = false;
+  let pausedElapsed = 0;
 
   function showScreen(name) {
     Object.entries(screens).forEach(([key, el]) => {
@@ -78,6 +82,11 @@
     mistakes = new Map();
     startTime = Date.now();
     locked = false;
+    isPaused = false;
+    pausedElapsed = 0;
+    btnPause.textContent = "Pausa";
+    pauseOverlay.hidden = true;
+    answerInput.disabled = false;
 
     showScreen("quiz");
     tickHandle = setInterval(() => {
@@ -102,9 +111,30 @@
     locked = false;
   }
 
+  function togglePause() {
+    if (isPaused) {
+      isPaused = false;
+      startTime = Date.now() - pausedElapsed;
+      tickHandle = setInterval(() => {
+        timerLabel.textContent = formatTime(Date.now() - startTime);
+      }, 250);
+      pauseOverlay.hidden = true;
+      answerInput.disabled = false;
+      answerInput.focus();
+      btnPause.textContent = "Pausa";
+    } else {
+      isPaused = true;
+      pausedElapsed = Date.now() - startTime;
+      clearInterval(tickHandle);
+      pauseOverlay.hidden = false;
+      answerInput.disabled = true;
+      btnPause.textContent = "Continuar";
+    }
+  }
+
   function handleSubmit(e) {
     e.preventDefault();
-    if (locked) return;
+    if (locked || isPaused) return;
 
     const [num, word] = current;
     const userAnswer = answerInput.value;
@@ -174,6 +204,7 @@
 
   btnStart.addEventListener("click", startRound);
   btnRetry.addEventListener("click", startRound);
+  btnPause.addEventListener("click", togglePause);
   answerForm.addEventListener("submit", handleSubmit);
   answerInput.addEventListener("keydown", (e) => {
     if (e.key === " ") {

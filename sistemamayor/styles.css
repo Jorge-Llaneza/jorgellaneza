@@ -136,6 +136,24 @@ h3 {
 .progress { font-weight: 700; color: var(--text); }
 .timer { color: var(--accent); }
 
+.btn-pause {
+  font-family: inherit;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text);
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  padding: 6px 14px;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.2s;
+}
+
+.btn-pause:hover { background: var(--surface); }
+.btn-pause:active { transform: translateY(1px); }
+
 .progress-track {
   width: 100%;
   height: 6px;
@@ -189,6 +207,23 @@ h3 {
 .card.is-wrong {
   border-color: var(--bad);
   background: linear-gradient(160deg, rgba(217, 87, 61, 0.14), var(--surface));
+}
+
+.pause-overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(33, 28, 44, 0.86);
+  backdrop-filter: blur(6px);
+  border-radius: 24px;
+  font-family: "JetBrains Mono", monospace;
+  font-size: 0.85rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--accent);
 }
 
 #answer-form {

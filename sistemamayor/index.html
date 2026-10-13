@@ -25,6 +25,7 @@
     <section class="screen" id="screen-quiz">
       <div class="quiz-top">
         <span class="progress" id="progress-label">0 / 0</span>
+        <button type="button" class="btn-pause" id="btn-pause">Pausa</button>
         <span class="timer" id="timer-label">00:00</span>
       </div>
       <div class="progress-track"><div class="progress-fill" id="progress-fill"></div></div>
@@ -32,6 +33,7 @@
       <div class="card" id="quiz-card">
         <span class="card-tag">Número</span>
         <div class="number" id="quiz-number">00</div>
+        <div class="pause-overlay" id="pause-overlay" hidden><span>En pausa</span></div>
       </div>
 
       <form id="answer-form" autocomplete="off">
