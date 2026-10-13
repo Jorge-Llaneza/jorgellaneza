@@ -1,0 +1,25 @@
+// Sistema mayor: número -> palabra asociada.
+const SISTEMA_MAYOR = {
+  "1": "Té", "2": "Ñú", "3": "Moho", "4": "Oca", "5": "Ola",
+  "6": "Oso", "7": "Feo", "8": "Ajo", "9": "Ave",
+  "00": "raro", "01": "rata", "02": "rana", "03": "roma", "04": "roca",
+  "05": "riel", "06": "rosa", "07": "riff", "08": "reja", "09": "rabo",
+  "10": "toro", "11": "teta", "12": "duna", "13": "timo", "14": "taco",
+  "15": "tela", "16": "taza", "17": "tufo", "18": "teja", "19": "tubo",
+  "20": "noria", "21": "nata", "22": "niño", "23": "nemo", "24": "nuca",
+  "25": "nilo", "26": "anís", "27": "NiFe", "28": "nicho", "29": "nube",
+  "30": "mar", "31": "moto", "32": "mono", "33": "momia", "34": "moco",
+  "35": "mula", "36": "mesa", "37": "mafia", "38": "mecha", "39": "mapa",
+  "40": "carro", "41": "cohete", "42": "cono", "43": "cama", "44": "coco",
+  "45": "culo", "46": "queso", "47": "café", "48": "coche", "49": "cubo",
+  "50": "loro", "51": "lata", "52": "luna", "53": "lima", "54": "loco",
+  "55": "lila", "56": "losa", "57": "alfa", "58": "lucha", "59": "lapa",
+  "60": "sarro", "61": "seta", "62": "seno", "63": "sima", "64": "saco",
+  "65": "sol", "66": "seso", "67": "sofá", "68": "soja", "69": "sepia",
+  "70": "foro", "71": "foto", "72": "finn", "73": "fama", "74": "foca",
+  "75": "filo", "76": "fosa", "77": "fofo", "78": "ficha", "79": "fobia",
+  "80": "charo", "81": "chatty", "82": "china", "83": "chema", "84": "chico",
+  "85": "chulo", "86": "jose", "87": "jefe", "88": "juche", "89": "chip",
+  "90": "bar", "91": "bota", "92": "vino", "93": "boom", "94": "vaca",
+  "95": "bola", "96": "vaso", "97": "bifé", "98": "bache", "99": "bebé"
+};

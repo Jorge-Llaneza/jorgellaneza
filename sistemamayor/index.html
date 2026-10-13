@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Sistema Mayor — Entrenador</title>
+  <meta name="robots" content="noindex, nofollow">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+  <div class="scene">
+
+    <section class="screen" id="screen-intro" data-active="true">
+      <span class="eyebrow">Entrenador de memoria</span>
+      <h1>Sistema<br>Mayor</h1>
+      <p class="lead">Se te mostrará un número. Escribe la palabra asociada en el sistema mayor, sin preocuparte por mayúsculas, acentos o puntuación.</p>
+      <p class="meta" id="intro-count"></p>
+      <button class="btn" id="btn-start">Empezar ronda</button>
+    </section>
+
+    <section class="screen" id="screen-quiz">
+      <div class="quiz-top">
+        <span class="progress" id="progress-label">0 / 0</span>
+        <span class="timer" id="timer-label">00:00</span>
+      </div>
+      <div class="progress-track"><div class="progress-fill" id="progress-fill"></div></div>
+
+      <div class="card" id="quiz-card">
+        <span class="card-tag">Número</span>
+        <div class="number" id="quiz-number">00</div>
+      </div>
+
+      <form id="answer-form" autocomplete="off">
+        <input type="text" id="answer-input" placeholder="Escribe la palabra..." autocomplete="off" autocapitalize="off" spellcheck="false">
+        <button type="submit" class="btn btn-small">Comprobar</button>
+      </form>
+
+      <p class="feedback" id="feedback" aria-live="polite"></p>
+    </section>
+
+    <section class="screen" id="screen-result">
+      <span class="eyebrow">Ronda completa</span>
+      <h2>Resultados</h2>
+
+      <div class="stat-grid">
+        <div class="stat-box">
+          <span class="stat-value" id="res-time">00:00</span>
+          <span class="stat-label">Tiempo total</span>
+        </div>
+        <div class="stat-box">
+          <span class="stat-value" id="res-accuracy">0%</span>
+          <span class="stat-label">Precisión</span>
+        </div>
+        <div class="stat-box">
+          <span class="stat-value" id="res-correct">0</span>
+          <span class="stat-label">Aciertos</span>
+        </div>
+        <div class="stat-box">
+          <span class="stat-value" id="res-avg">0.0s</span>
+          <span class="stat-label">Media por número</span>
+        </div>
+      </div>
+
+      <div class="review" id="review-section" hidden>
+        <h3>Para repasar</h3>
+        <ul class="review-list" id="review-list"></ul>
+      </div>
+
+      <button class="btn" id="btn-retry">Otra ronda</button>
+    </section>
+
+  </div>
+
+  <script src="data.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>
