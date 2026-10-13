@@ -175,6 +175,12 @@
   btnStart.addEventListener("click", startRound);
   btnRetry.addEventListener("click", startRound);
   answerForm.addEventListener("submit", handleSubmit);
+  answerInput.addEventListener("keydown", (e) => {
+    if (e.key === " ") {
+      e.preventDefault();
+      answerForm.requestSubmit();
+    }
+  });
 
   showScreen("intro");
 })();
