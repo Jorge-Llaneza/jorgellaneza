@@ -28,12 +28,13 @@
   const reviewSection = document.getElementById("review-section");
   const reviewList = document.getElementById("review-list");
 
-  introCount.textContent = `${TOTAL} números en esta ronda, en orden aleatorio.`;
+  introCount.textContent = `${TOTAL} números en esta ronda, en orden aleatorio. Si fallas una palabra, vuelve a aparecer más adelante hasta que la aciertes.`;
 
-  let order = [];
-  let index = 0;
-  let correctCount = 0;
-  let mistakes = [];
+  let queue = [];
+  let current = null;
+  let totalAttempts = 0;
+  let firstTryCorrect = 0;
+  let mistakes = new Map(); // num -> { word, given, fails }
   let startTime = 0;
   let tickHandle = null;
   let locked = false;
@@ -70,10 +71,11 @@
   }
 
   function startRound() {
-    order = shuffle(entries);
-    index = 0;
-    correctCount = 0;
-    mistakes = [];
+    queue = shuffle(entries);
+    current = null;
+    totalAttempts = 0;
+    firstTryCorrect = 0;
+    mistakes = new Map();
     startTime = Date.now();
     locked = false;
 
@@ -86,11 +88,13 @@
   }
 
   function renderQuestion() {
-    const [num] = order[index];
+    current = queue.shift();
+    const [num] = current;
+    const mastered = TOTAL - queue.length - 1;
     quizCard.classList.remove("is-correct", "is-wrong");
     quizNumber.textContent = num;
-    progressLabel.textContent = `${index + 1} / ${TOTAL}`;
-    progressFill.style.width = `${(index / TOTAL) * 100}%`;
+    progressLabel.textContent = `${mastered} / ${TOTAL}`;
+    progressFill.style.width = `${(mastered / TOTAL) * 100}%`;
     feedback.textContent = "";
     feedback.className = "feedback";
     answerInput.value = "";
@@ -102,27 +106,35 @@
     e.preventDefault();
     if (locked) return;
 
-    const [num, word] = order[index];
+    const [num, word] = current;
     const userAnswer = answerInput.value;
     const isCorrect = normalize(userAnswer) === normalize(word);
 
     locked = true;
+    totalAttempts++;
 
     if (isCorrect) {
-      correctCount++;
+      if (!mistakes.has(num)) firstTryCorrect++;
       quizCard.classList.add("is-correct");
       feedback.textContent = "Correcto";
       feedback.className = "feedback good";
     } else {
-      mistakes.push({ num, word, given: userAnswer.trim() });
+      const entry = mistakes.get(num) || { word, given: "", fails: 0 };
+      entry.given = userAnswer.trim();
+      entry.fails++;
+      mistakes.set(num, entry);
+
       quizCard.classList.add("is-wrong");
       feedback.textContent = `Era "${word}"`;
       feedback.className = "feedback bad";
+
+      // Re-insert a few cards ahead so it doesn't repeat immediately.
+      const insertPos = Math.min(queue.length, 2 + Math.floor(Math.random() * 3));
+      queue.splice(insertPos, 0, current);
     }
 
     setTimeout(() => {
-      index++;
-      if (index >= TOTAL) {
+      if (queue.length === 0) {
         finishRound();
       } else {
         renderQuestion();
@@ -133,22 +145,22 @@
   function finishRound() {
     clearInterval(tickHandle);
     const elapsed = Date.now() - startTime;
-    const accuracy = Math.round((correctCount / TOTAL) * 100);
+    const accuracy = Math.round((firstTryCorrect / TOTAL) * 100);
 
     progressFill.style.width = "100%";
     resTime.textContent = formatTime(elapsed);
     resAccuracy.textContent = `${accuracy}%`;
-    resCorrect.textContent = `${correctCount} / ${TOTAL}`;
-    resAvg.textContent = `${(elapsed / TOTAL / 1000).toFixed(1)}s`;
+    resCorrect.textContent = `${firstTryCorrect} / ${TOTAL}`;
+    resAvg.textContent = `${(elapsed / totalAttempts / 1000).toFixed(1)}s`;
 
-    if (mistakes.length) {
+    if (mistakes.size) {
       reviewSection.hidden = false;
-      reviewList.innerHTML = mistakes
+      reviewList.innerHTML = Array.from(mistakes.entries())
         .map(
-          (m) => `
+          ([num, m]) => `
           <li>
-            <span class="rl-num">${m.num}</span>
-            <span class="rl-answers"><b>${m.word}</b>${m.given ? ` (escribiste: ${m.given})` : " (sin respuesta)"}</span>
+            <span class="rl-num">${num}</span>
+            <span class="rl-answers"><b>${m.word}</b>${m.given ? ` (escribiste: ${m.given})` : " (sin respuesta)"}${m.fails > 1 ? ` · fallada ${m.fails} veces` : ""}</span>
           </li>`
         )
         .join("");
