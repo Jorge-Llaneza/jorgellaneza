@@ -18,7 +18,7 @@ const SISTEMA_MAYOR = {
   "65": "sol", "66": "seso", "67": "sofá", "68": "soja", "69": "sepia",
   "70": "foro", "71": "foto", "72": "finn", "73": "fama", "74": "foca",
   "75": "filo", "76": "fosa", "77": "fofo", "78": "ficha", "79": "fobia",
-  "80": "charo", "81": "chatty", "82": "china", "83": "chema", "84": "chico",
+  "80": "charo", "81": "chatty", "82": "china", "83": "chema", "84": "chica",
   "85": "chulo", "86": "jose", "87": "jefe", "88": "juche", "89": "chip",
   "90": "bar", "91": "bota", "92": "vino", "93": "boom", "94": "vaca",
   "95": "bola", "96": "vaso", "97": "bifé", "98": "bache", "99": "bebé"
