@@ -226,6 +226,8 @@ h3 {
   color: var(--accent);
 }
 
+.pause-overlay[hidden] { display: none; }
+
 #answer-form {
   width: 100%;
   display: flex;
