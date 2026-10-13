@@ -17,6 +17,8 @@
   const timerLabel = document.getElementById("timer-label");
   const btnPause = document.getElementById("btn-pause");
   const pauseOverlay = document.getElementById("pause-overlay");
+  const timeoutSlider = document.getElementById("timeout-slider");
+  const timeoutValueLabel = document.getElementById("timeout-value");
   const quizCard = document.getElementById("quiz-card");
   const quizNumber = document.getElementById("quiz-number");
   const answerForm = document.getElementById("answer-form");
@@ -42,6 +44,10 @@
   let locked = false;
   let isPaused = false;
   let pausedElapsed = 0;
+  let timeoutSeconds = parseFloat(timeoutSlider.value);
+  let questionTimeoutHandle = null;
+  let questionDeadline = 0;
+  let questionRemainingMs = 0;
 
   function showScreen(name) {
     Object.entries(screens).forEach(([key, el]) => {
@@ -84,6 +90,7 @@
     locked = false;
     isPaused = false;
     pausedElapsed = 0;
+    clearTimeout(questionTimeoutHandle);
     btnPause.textContent = "Pausa";
     pauseOverlay.hidden = true;
     answerInput.disabled = false;
@@ -109,6 +116,27 @@
     answerInput.value = "";
     answerInput.focus();
     locked = false;
+
+    scheduleQuestionTimeout(timeoutSeconds * 1000);
+  }
+
+  function scheduleQuestionTimeout(ms) {
+    clearTimeout(questionTimeoutHandle);
+    questionDeadline = Date.now() + ms;
+    questionTimeoutHandle = setTimeout(handleTimeout, ms);
+  }
+
+  function markWrong(num, word, given) {
+    const entry = mistakes.get(num) || { word, given: "", fails: 0 };
+    entry.given = given;
+    entry.fails++;
+    mistakes.set(num, entry);
+
+    quizCard.classList.add("is-wrong");
+
+    // Re-insert a few cards ahead so it doesn't repeat immediately.
+    const insertPos = Math.min(queue.length, 2 + Math.floor(Math.random() * 3));
+    queue.splice(insertPos, 0, current);
   }
 
   function togglePause() {
@@ -118,6 +146,7 @@
       tickHandle = setInterval(() => {
         timerLabel.textContent = formatTime(Date.now() - startTime);
       }, 250);
+      scheduleQuestionTimeout(questionRemainingMs);
       pauseOverlay.hidden = true;
       answerInput.disabled = false;
       answerInput.focus();
@@ -126,6 +155,8 @@
       isPaused = true;
       pausedElapsed = Date.now() - startTime;
       clearInterval(tickHandle);
+      questionRemainingMs = Math.max(0, questionDeadline - Date.now());
+      clearTimeout(questionTimeoutHandle);
       pauseOverlay.hidden = false;
       answerInput.disabled = true;
       btnPause.textContent = "Continuar";
@@ -135,6 +166,7 @@
   function handleSubmit(e) {
     e.preventDefault();
     if (locked || isPaused) return;
+    clearTimeout(questionTimeoutHandle);
 
     const [num, word] = current;
     const userAnswer = answerInput.value;
@@ -149,18 +181,9 @@
       feedback.textContent = "Correcto";
       feedback.className = "feedback good";
     } else {
-      const entry = mistakes.get(num) || { word, given: "", fails: 0 };
-      entry.given = userAnswer.trim();
-      entry.fails++;
-      mistakes.set(num, entry);
-
-      quizCard.classList.add("is-wrong");
+      markWrong(num, word, userAnswer.trim());
       feedback.textContent = `Era "${word}"`;
       feedback.className = "feedback bad";
-
-      // Re-insert a few cards ahead so it doesn't repeat immediately.
-      const insertPos = Math.min(queue.length, 2 + Math.floor(Math.random() * 3));
-      queue.splice(insertPos, 0, current);
     }
 
     setTimeout(() => {
@@ -172,8 +195,29 @@
     }, isCorrect ? 450 : 1100);
   }
 
+  function handleTimeout() {
+    if (locked) return;
+
+    const [num, word] = current;
+    locked = true;
+    totalAttempts++;
+
+    markWrong(num, word, "");
+    feedback.textContent = `Tiempo agotado (${timeoutSeconds.toFixed(1)}s) · era "${word}"`;
+    feedback.className = "feedback bad";
+
+    setTimeout(() => {
+      if (queue.length === 0) {
+        finishRound();
+      } else {
+        renderQuestion();
+      }
+    }, 1100);
+  }
+
   function finishRound() {
     clearInterval(tickHandle);
+    clearTimeout(questionTimeoutHandle);
     const elapsed = Date.now() - startTime;
     const accuracy = Math.round((firstTryCorrect / TOTAL) * 100);
 
@@ -205,6 +249,10 @@
   btnStart.addEventListener("click", startRound);
   btnRetry.addEventListener("click", startRound);
   btnPause.addEventListener("click", togglePause);
+  timeoutSlider.addEventListener("input", () => {
+    timeoutSeconds = parseFloat(timeoutSlider.value);
+    timeoutValueLabel.textContent = `${timeoutSeconds.toFixed(1)}s`;
+  });
   answerForm.addEventListener("submit", handleSubmit);
   answerInput.addEventListener("keydown", (e) => {
     if (e.key === " ") {

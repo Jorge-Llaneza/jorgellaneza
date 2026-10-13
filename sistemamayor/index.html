@@ -42,6 +42,12 @@
       </form>
 
       <p class="feedback" id="feedback" aria-live="polite"></p>
+
+      <div class="timeout-control" id="timeout-control">
+        <span class="timeout-value" id="timeout-value">5.0s</span>
+        <input type="range" id="timeout-slider" class="timeout-slider" min="0.5" max="15" step="0.5" value="5" aria-label="Tiempo límite por número">
+        <span class="timeout-label">Límite</span>
+      </div>
     </section>
 
     <section class="screen" id="screen-result">

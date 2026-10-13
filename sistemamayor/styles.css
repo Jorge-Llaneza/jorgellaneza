@@ -337,3 +337,53 @@ h3 {
   #answer-form { flex-direction: column; }
   .btn-small { width: 100%; }
 }
+
+/* TIMEOUT SLIDER */
+.timeout-control {
+  position: fixed;
+  right: 18px;
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 8px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  z-index: 5;
+}
+
+.timeout-value {
+  font-family: "JetBrains Mono", monospace;
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--accent);
+}
+
+.timeout-slider {
+  writing-mode: vertical-lr;
+  direction: rtl;
+  -moz-orient: vertical;
+  appearance: slider-vertical;
+  width: 6px;
+  height: 140px;
+  background: var(--surface-2);
+  border-radius: 999px;
+  accent-color: var(--accent-2);
+  cursor: pointer;
+}
+
+.timeout-label {
+  font-size: 0.6rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--muted);
+  writing-mode: vertical-lr;
+}
+
+@media (max-width: 600px) {
+  .timeout-control { right: 6px; padding: 10px 6px; gap: 8px; }
+  .timeout-slider { height: 100px; }
+}
