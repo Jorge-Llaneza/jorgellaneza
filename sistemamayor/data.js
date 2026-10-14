@@ -11,7 +11,7 @@ const SISTEMA_MAYOR = {
   "30": "mar", "31": "moto", "32": "mono", "33": "momia", "34": "moco",
   "35": "mula", "36": "mesa", "37": "mafia", "38": "mecha", "39": "mapa",
   "40": "carro", "41": "cohete", "42": "cono", "43": "cama", "44": "coco",
-  "45": "culo", "46": "queso", "47": "café", "48": "coche", "49": "cubo",
+  "45": "culo", "46": "casa", "47": "café", "48": "coche", "49": "cubo",
   "50": "loro", "51": "lata", "52": "luna", "53": "lima", "54": "loco",
   "55": "lila", "56": "losa", "57": "alfa", "58": "lucha", "59": "lapa",
   "60": "sarro", "61": "seta", "62": "seno", "63": "sima", "64": "saco",
