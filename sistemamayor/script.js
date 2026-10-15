@@ -23,6 +23,7 @@
   const quizNumber = document.getElementById("quiz-number");
   const answerForm = document.getElementById("answer-form");
   const answerInput = document.getElementById("answer-input");
+  const btnHideToggle = document.getElementById("btn-hide-toggle");
   const feedback = document.getElementById("feedback");
 
   const resTime = document.getElementById("res-time");
@@ -252,6 +253,13 @@
   timeoutSlider.addEventListener("input", () => {
     timeoutSeconds = parseFloat(timeoutSlider.value);
     timeoutValueLabel.textContent = `${timeoutSeconds.toFixed(1)}s`;
+  });
+  btnHideToggle.addEventListener("click", () => {
+    const hidden = answerInput.type === "text";
+    answerInput.type = hidden ? "password" : "text";
+    btnHideToggle.textContent = hidden ? "Mostrar" : "Ocultar";
+    btnHideToggle.setAttribute("aria-pressed", String(hidden));
+    answerInput.focus();
   });
   answerForm.addEventListener("submit", handleSubmit);
   answerInput.addEventListener("keydown", (e) => {

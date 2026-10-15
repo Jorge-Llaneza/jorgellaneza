@@ -250,6 +250,28 @@ h3 {
   border-color: var(--accent-2);
 }
 
+.btn-hide {
+  flex: 0 0 auto;
+  font-family: inherit;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text);
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 0 16px;
+  cursor: pointer;
+  transition: background 0.2s, border-color 0.2s;
+}
+
+.btn-hide:hover { background: var(--surface); }
+.btn-hide[aria-pressed="true"] {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
 .feedback {
   min-height: 24px;
   margin: 18px 0 0;
@@ -335,7 +357,7 @@ h3 {
 
 @media (max-width: 420px) {
   #answer-form { flex-direction: column; }
-  .btn-small { width: 100%; }
+  .btn-small, .btn-hide { width: 100%; padding: 15px 16px; }
 }
 
 /* TIMEOUT SLIDER */
