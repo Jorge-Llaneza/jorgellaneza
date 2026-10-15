@@ -1,6 +1,7 @@
 (() => {
   const entries = Object.entries(SISTEMA_MAYOR); // [ [num, word], ... ]
   const TOTAL = entries.length;
+  const QUICK_COUNT = 20;
 
   const screens = {
     intro: document.getElementById("screen-intro"),
@@ -10,6 +11,7 @@
 
   const introCount = document.getElementById("intro-count");
   const btnStart = document.getElementById("btn-start");
+  const btnStartQuick = document.getElementById("btn-start-quick");
   const btnRetry = document.getElementById("btn-retry");
 
   const progressLabel = document.getElementById("progress-label");
@@ -32,14 +34,21 @@
   const resAvg = document.getElementById("res-avg");
   const reviewSection = document.getElementById("review-section");
   const reviewList = document.getElementById("review-list");
+  const slowestSection = document.getElementById("slowest-section");
+  const slowestList = document.getElementById("slowest-list");
 
-  introCount.textContent = `${TOTAL} números en esta ronda, en orden aleatorio. Si fallas una palabra, vuelve a aparecer más adelante hasta que la aciertes.`;
+  introCount.textContent = `Ronda completa: los ${TOTAL} números. Ronda rápida: ${QUICK_COUNT} al azar. En orden aleatorio, y si fallas una palabra vuelve a aparecer más adelante hasta que la aciertes.`;
 
   let queue = [];
   let current = null;
+  let roundTotal = TOTAL;
+  let lastMode = "full";
   let totalAttempts = 0;
   let firstTryCorrect = 0;
   let mistakes = new Map(); // num -> { word, given, fails }
+  let wordTimes = new Map(); // num -> { word, ms }
+  let questionStartTime = 0;
+  let questionElapsedAccum = 0;
   let startTime = 0;
   let tickHandle = null;
   let locked = false;
@@ -81,12 +90,15 @@
     return `${minutes}:${seconds}`;
   }
 
-  function startRound() {
-    queue = shuffle(entries);
+  function startRound(mode) {
+    lastMode = mode;
+    queue = mode === "quick" ? shuffle(entries).slice(0, Math.min(QUICK_COUNT, TOTAL)) : shuffle(entries);
+    roundTotal = queue.length;
     current = null;
     totalAttempts = 0;
     firstTryCorrect = 0;
     mistakes = new Map();
+    wordTimes = new Map();
     startTime = Date.now();
     locked = false;
     isPaused = false;
@@ -107,18 +119,30 @@
   function renderQuestion() {
     current = queue.shift();
     const [num] = current;
-    const mastered = TOTAL - queue.length - 1;
+    const mastered = roundTotal - queue.length - 1;
     quizCard.classList.remove("is-correct", "is-wrong");
     quizNumber.textContent = num;
-    progressLabel.textContent = `${mastered} / ${TOTAL}`;
-    progressFill.style.width = `${(mastered / TOTAL) * 100}%`;
+    progressLabel.textContent = `${mastered} / ${roundTotal}`;
+    progressFill.style.width = `${(mastered / roundTotal) * 100}%`;
     feedback.textContent = "";
     feedback.className = "feedback";
     answerInput.value = "";
     answerInput.focus();
     locked = false;
+    questionStartTime = Date.now();
+    questionElapsedAccum = 0;
 
     scheduleQuestionTimeout(timeoutSeconds * 1000);
+  }
+
+  function getQuestionElapsedMs() {
+    return questionElapsedAccum + (isPaused ? 0 : Date.now() - questionStartTime);
+  }
+
+  function recordWordTime(num, word, ms) {
+    const entry = wordTimes.get(num) || { word, ms: 0 };
+    entry.ms += ms;
+    wordTimes.set(num, entry);
   }
 
   function scheduleQuestionTimeout(ms) {
@@ -144,6 +168,7 @@
     if (isPaused) {
       isPaused = false;
       startTime = Date.now() - pausedElapsed;
+      questionStartTime = Date.now();
       tickHandle = setInterval(() => {
         timerLabel.textContent = formatTime(Date.now() - startTime);
       }, 250);
@@ -155,6 +180,7 @@
     } else {
       isPaused = true;
       pausedElapsed = Date.now() - startTime;
+      questionElapsedAccum += Date.now() - questionStartTime;
       clearInterval(tickHandle);
       questionRemainingMs = Math.max(0, questionDeadline - Date.now());
       clearTimeout(questionTimeoutHandle);
@@ -175,6 +201,7 @@
 
     locked = true;
     totalAttempts++;
+    recordWordTime(num, word, getQuestionElapsedMs());
 
     if (isCorrect) {
       if (!mistakes.has(num)) firstTryCorrect++;
@@ -202,6 +229,7 @@
     const [num, word] = current;
     locked = true;
     totalAttempts++;
+    recordWordTime(num, word, getQuestionElapsedMs());
 
     markWrong(num, word, "");
     feedback.textContent = `Tiempo agotado (${timeoutSeconds.toFixed(1)}s) · era "${word}"`;
@@ -220,12 +248,12 @@
     clearInterval(tickHandle);
     clearTimeout(questionTimeoutHandle);
     const elapsed = Date.now() - startTime;
-    const accuracy = Math.round((firstTryCorrect / TOTAL) * 100);
+    const accuracy = Math.round((firstTryCorrect / roundTotal) * 100);
 
     progressFill.style.width = "100%";
     resTime.textContent = formatTime(elapsed);
     resAccuracy.textContent = `${accuracy}%`;
-    resCorrect.textContent = `${firstTryCorrect} / ${TOTAL}`;
+    resCorrect.textContent = `${firstTryCorrect} / ${roundTotal}`;
     resAvg.textContent = `${(elapsed / totalAttempts / 1000).toFixed(1)}s`;
 
     if (mistakes.size) {
@@ -244,11 +272,27 @@
       reviewList.innerHTML = "";
     }
 
+    const slowest = Array.from(wordTimes.entries())
+      .sort((a, b) => b[1].ms - a[1].ms)
+      .slice(0, 10);
+
+    slowestSection.hidden = slowest.length === 0;
+    slowestList.innerHTML = slowest
+      .map(
+        ([num, m]) => `
+        <li>
+          <span class="rl-num">${num}</span>
+          <span class="rl-answers"><b>${m.word}</b> (${(m.ms / 1000).toFixed(1)}s)</span>
+        </li>`
+      )
+      .join("");
+
     showScreen("result");
   }
 
-  btnStart.addEventListener("click", startRound);
-  btnRetry.addEventListener("click", startRound);
+  btnStart.addEventListener("click", () => startRound("full"));
+  btnStartQuick.addEventListener("click", () => startRound("quick"));
+  btnRetry.addEventListener("click", () => startRound(lastMode));
   btnPause.addEventListener("click", togglePause);
   timeoutSlider.addEventListener("input", () => {
     timeoutSeconds = parseFloat(timeoutSlider.value);

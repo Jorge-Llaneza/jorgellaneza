@@ -19,7 +19,10 @@
       <h1>Sistema<br>Mayor</h1>
       <p class="lead">Se te mostrará un número. Escribe la palabra asociada en el sistema mayor, sin preocuparte por mayúsculas, acentos o puntuación.</p>
       <p class="meta" id="intro-count"></p>
-      <button class="btn" id="btn-start">Empezar ronda</button>
+      <div class="mode-buttons">
+        <button class="btn" id="btn-start">Ronda completa</button>
+        <button class="btn btn-ghost" id="btn-start-quick">Ronda rápida (20)</button>
+      </div>
     </section>
 
     <section class="screen" id="screen-quiz">
@@ -77,6 +80,11 @@
       <div class="review" id="review-section" hidden>
         <h3>Para repasar</h3>
         <ul class="review-list" id="review-list"></ul>
+      </div>
+
+      <div class="review" id="slowest-section" hidden>
+        <h3>Palabras más lentas</h3>
+        <ul class="review-list" id="slowest-list"></ul>
       </div>
 
       <button class="btn" id="btn-retry">Otra ronda</button>
