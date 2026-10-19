@@ -2,16 +2,20 @@
   const entries = Object.entries(SISTEMA_MAYOR); // [ [num, word], ... ]
   const TOTAL = entries.length;
   const QUICK_COUNT = 20;
+  const CHAIN_ENTRIES = entries.filter(([num]) => num.length === 2);
+  const CHAIN_GROUP_SIZE = 4;
 
   const screens = {
     intro: document.getElementById("screen-intro"),
     quiz: document.getElementById("screen-quiz"),
+    chain: document.getElementById("screen-chain"),
     result: document.getElementById("screen-result"),
   };
 
   const introCount = document.getElementById("intro-count");
   const btnStart = document.getElementById("btn-start");
   const btnStartQuick = document.getElementById("btn-start-quick");
+  const btnStartChain = document.getElementById("btn-start-chain");
   const btnRetry = document.getElementById("btn-retry");
 
   const progressLabel = document.getElementById("progress-label");
@@ -37,12 +41,26 @@
   const slowestSection = document.getElementById("slowest-section");
   const slowestList = document.getElementById("slowest-list");
 
-  introCount.textContent = `Ronda completa: los ${TOTAL} números. Ronda rápida: ${QUICK_COUNT} al azar. En orden aleatorio, y si fallas una palabra vuelve a aparecer más adelante hasta que la aciertes.`;
+  const chainProgressLabel = document.getElementById("chain-progress-label");
+  const chainProgressFill = document.getElementById("chain-progress-fill");
+  const chainTimerLabel = document.getElementById("chain-timer-label");
+  const chainCard = document.getElementById("chain-card");
+  const chainNumber = document.getElementById("chain-number");
+  const chainDots = Array.from(document.querySelectorAll("#chain-dots .chain-dot"));
+  const chainForm = document.getElementById("chain-form");
+  const chainRows = Array.from(document.querySelectorAll(".chain-row"));
+  const chainInputs = Array.from(document.querySelectorAll(".chain-input"));
+  const chainFeedback = document.getElementById("chain-feedback");
+  const chainStepSlider = document.getElementById("chain-step-slider");
+  const chainStepValueLabel = document.getElementById("chain-step-value");
+
+  introCount.textContent = `Ronda completa: los ${TOTAL} números. Ronda rápida: ${QUICK_COUNT} al azar. Modo cadena: se muestran 4 números de dos cifras, uno por segundo, y luego escribes las 4 palabras en orden. En orden aleatorio, y si fallas una palabra vuelve a aparecer más adelante hasta que la aciertes.`;
 
   let queue = [];
   let current = null;
   let roundTotal = TOTAL;
   let lastMode = "full";
+  let activeMode = "standard"; // "standard" | "chain"
   let totalAttempts = 0;
   let firstTryCorrect = 0;
   let mistakes = new Map(); // num -> { word, given, fails }
@@ -58,6 +76,18 @@
   let questionTimeoutHandle = null;
   let questionDeadline = 0;
   let questionRemainingMs = 0;
+
+  let chainGroups = [];
+  let chainGroupIndex = 0;
+  let chainCurrentGroup = null;
+  let chainWordTotal = 0;
+  let chainCorrectCount = 0;
+  let chainMistakes = new Map();
+  let chainStartTime = 0;
+  let chainTickHandle = null;
+  let chainStepTimeout = null;
+  let chainLocked = false;
+  let chainStepSeconds = parseFloat(chainStepSlider.value);
 
   function showScreen(name) {
     Object.entries(screens).forEach(([key, el]) => {
@@ -91,6 +121,7 @@
   }
 
   function startRound(mode) {
+    activeMode = "standard";
     lastMode = mode;
     queue = mode === "quick" ? shuffle(entries).slice(0, Math.min(QUICK_COUNT, TOTAL)) : shuffle(entries);
     roundTotal = queue.length;
@@ -290,13 +321,173 @@
     showScreen("result");
   }
 
+  function chunk(arr, size) {
+    const out = [];
+    for (let i = 0; i + size <= arr.length; i += size) {
+      out.push(arr.slice(i, i + size));
+    }
+    return out;
+  }
+
+  function startChainRound() {
+    activeMode = "chain";
+    chainGroups = chunk(shuffle(CHAIN_ENTRIES), CHAIN_GROUP_SIZE);
+    chainGroupIndex = 0;
+    chainWordTotal = chainGroups.length * CHAIN_GROUP_SIZE;
+    chainCorrectCount = 0;
+    chainMistakes = new Map();
+    chainStartTime = Date.now();
+
+    showScreen("chain");
+    clearInterval(chainTickHandle);
+    chainTickHandle = setInterval(() => {
+      chainTimerLabel.textContent = formatTime(Date.now() - chainStartTime);
+    }, 250);
+
+    playChainGroup();
+  }
+
+  function playChainGroup() {
+    chainCurrentGroup = chainGroups[chainGroupIndex];
+    chainLocked = false;
+    chainCard.hidden = false;
+    chainForm.hidden = true;
+    chainCard.classList.remove("is-correct", "is-wrong");
+    chainFeedback.textContent = "";
+    chainFeedback.className = "feedback";
+    chainInputs.forEach((input) => { input.value = ""; });
+    chainRows.forEach((row) => {
+      row.classList.remove("is-correct", "is-wrong");
+      row.querySelector(".chain-row-answer").textContent = "";
+    });
+
+    chainProgressLabel.textContent = `${chainGroupIndex} / ${chainGroups.length}`;
+    chainProgressFill.style.width = `${(chainGroupIndex / chainGroups.length) * 100}%`;
+
+    showChainStep(0);
+  }
+
+  function showChainStep(i) {
+    chainDots.forEach((dot, idx) => {
+      dot.classList.toggle("is-active", idx === i);
+      dot.classList.toggle("is-done", idx < i);
+    });
+    chainNumber.textContent = chainCurrentGroup[i][0];
+
+    clearTimeout(chainStepTimeout);
+    chainStepTimeout = setTimeout(() => {
+      if (i + 1 < chainCurrentGroup.length) {
+        showChainStep(i + 1);
+      } else {
+        revealChainForm();
+      }
+    }, chainStepSeconds * 1000);
+  }
+
+  function revealChainForm() {
+    chainDots.forEach((dot) => dot.classList.remove("is-active", "is-done"));
+    chainCard.hidden = true;
+    chainForm.hidden = false;
+    chainInputs[0].focus();
+  }
+
+  function handleChainSubmit(e) {
+    e.preventDefault();
+    if (chainLocked) return;
+    chainLocked = true;
+
+    let allCorrect = true;
+    chainCurrentGroup.forEach(([num, word], idx) => {
+      const input = chainInputs[idx];
+      const row = chainRows[idx];
+      const answerSpan = row.querySelector(".chain-row-answer");
+      const given = input.value.trim();
+      const isCorrect = normalize(given) === normalize(word);
+
+      row.classList.add(isCorrect ? "is-correct" : "is-wrong");
+      if (isCorrect) {
+        chainCorrectCount++;
+      } else {
+        allCorrect = false;
+        chainMistakes.set(num, { word, given });
+        answerSpan.textContent = `${num}: ${word}`;
+      }
+    });
+
+    chainFeedback.textContent = allCorrect ? "Las 4 correctas" : "Revisa los fallos";
+    chainFeedback.className = `feedback ${allCorrect ? "good" : "bad"}`;
+
+    setTimeout(() => {
+      chainGroupIndex++;
+      if (chainGroupIndex >= chainGroups.length) {
+        finishChainRound();
+      } else {
+        playChainGroup();
+      }
+    }, allCorrect ? 700 : 1700);
+  }
+
+  function finishChainRound() {
+    clearInterval(chainTickHandle);
+    clearTimeout(chainStepTimeout);
+    const elapsed = Date.now() - chainStartTime;
+    const accuracy = Math.round((chainCorrectCount / chainWordTotal) * 100);
+
+    chainProgressFill.style.width = "100%";
+    resTime.textContent = formatTime(elapsed);
+    resAccuracy.textContent = `${accuracy}%`;
+    resCorrect.textContent = `${chainCorrectCount} / ${chainWordTotal}`;
+    resAvg.textContent = `${(elapsed / chainWordTotal / 1000).toFixed(1)}s`;
+
+    if (chainMistakes.size) {
+      reviewSection.hidden = false;
+      reviewList.innerHTML = Array.from(chainMistakes.entries())
+        .map(
+          ([num, m]) => `
+          <li>
+            <span class="rl-num">${num}</span>
+            <span class="rl-answers"><b>${m.word}</b>${m.given ? ` (escribiste: ${m.given})` : " (sin respuesta)"}</span>
+          </li>`
+        )
+        .join("");
+    } else {
+      reviewSection.hidden = true;
+      reviewList.innerHTML = "";
+    }
+
+    slowestSection.hidden = true;
+    slowestList.innerHTML = "";
+
+    showScreen("result");
+  }
+
   btnStart.addEventListener("click", () => startRound("full"));
   btnStartQuick.addEventListener("click", () => startRound("quick"));
-  btnRetry.addEventListener("click", () => startRound(lastMode));
+  btnStartChain.addEventListener("click", startChainRound);
+  btnRetry.addEventListener("click", () => {
+    if (activeMode === "chain") {
+      startChainRound();
+    } else {
+      startRound(lastMode);
+    }
+  });
+  chainForm.addEventListener("submit", handleChainSubmit);
+  chainInputs.forEach((input, idx) => {
+    input.addEventListener("keydown", (e) => {
+      if (e.key === "Enter" && idx < chainInputs.length - 1) {
+        e.preventDefault();
+        chainInputs[idx + 1].focus();
+      }
+    });
+  });
   btnPause.addEventListener("click", togglePause);
   timeoutSlider.addEventListener("input", () => {
     timeoutSeconds = parseFloat(timeoutSlider.value);
     timeoutValueLabel.textContent = `${timeoutSeconds.toFixed(1)}s`;
+  });
+  chainStepSlider.addEventListener("input", () => {
+    chainStepSeconds = parseFloat(chainStepSlider.value);
+    chainStepValueLabel.textContent = `${chainStepSeconds.toFixed(1)}s`;
   });
   btnHideToggle.addEventListener("click", () => {
     const hidden = answerInput.type === "text";
