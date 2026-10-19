@@ -273,11 +273,6 @@ section {
   background-position: center;
 }
 
-.card-art.g1 { background: linear-gradient(135deg, #5a87e1, #1ea05f); }
-.card-art.g2 { background: linear-gradient(135deg, #1ea05f, #32373c); }
-.card-art.g3 { background: linear-gradient(135deg, #d71e1e, #5a87e1); }
-.card-art.g4 { background: linear-gradient(135deg, #5a87e1, #d71e1e); }
-
 .card-body { padding: 20px; }
 
 .card-body h3 {
