@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>MIPS64 Pipeline Simulator</title>
+<style>
+:root{--bg:#f6f5f1;--fg:#1d1d1b;--mut:#6b6a64;--card:#fff;--bd:#d6d4cb;--ok:#1a8a3a;--bad:#c62828;--acc:#c62828;
+--IF:#ffffaa;--ID:#aaffff;--EX:#ffaaaa;--MEM:#aaffaa;--WB:#ffaaff;--cellfg:#1d1d1b;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#121211;--fg:#e8e6df;--mut:#928f85;--card:#1b1b19;--bd:#35342f;--ok:#5fd07f;--bad:#ff7a7a;--acc:#ff6b6b}}
+:root[data-theme="dark"]{--bg:#121211;--fg:#e8e6df;--mut:#928f85;--card:#1b1b19;--bd:#35342f;--ok:#5fd07f;--bad:#ff7a7a;--acc:#ff6b6b}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font:14px/1.5 ui-monospace,"SFMono-Regular",Menlo,Consolas,monospace;padding:20px}
+.wrap{max-width:1100px;margin:0 auto}
+h1{font-size:18px;margin:0 0 4px;color:var(--acc)}
+h2{font-size:14px;margin:0 0 8px}
+p.sub{margin:0 0 16px;color:var(--mut)}
+.card{background:var(--card);border:1px solid var(--bd);border-radius:8px;padding:14px;margin-bottom:14px}
+summary{cursor:pointer;font-weight:700;color:var(--acc)}
+textarea,select,input[type=number],input[type=text]{background:var(--bg);color:var(--fg);border:1px solid var(--bd);border-radius:6px;padding:5px 8px;font:inherit;max-width:100%}
+textarea{width:100%;min-height:150px;resize:vertical}
+input[type=number]{width:72px}
+label{display:block;color:var(--mut);margin-bottom:4px}
+.menu{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:12px;margin-top:12px}
+.grp{border:1px solid var(--bd);border-radius:6px;padding:10px;display:flex;flex-direction:column;gap:8px}
+.grp h3{margin:0;font-size:12px;color:var(--mut);text-transform:uppercase;letter-spacing:.06em}
+.grp label{color:var(--fg);margin:0;display:flex;gap:8px;align-items:center;cursor:pointer;flex-wrap:wrap}
+.grp select{width:100%}
+button{font:inherit;color:var(--fg);background:var(--bg);border:1px solid var(--bd);border-radius:6px;padding:6px 12px;cursor:pointer}
+button:hover{border-color:var(--acc)}
+button.pri{background:var(--acc);border-color:var(--acc);color:#fff}
+.pal{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px;align-items:center}
+.pal button.sel{outline:2px solid var(--fg);outline-offset:1px}
+.st{color:var(--cellfg)!important;border-color:#0004!important}
+.IF{background:var(--IF)}.ID{background:var(--ID)}.EX{background:var(--EX)}.MEM{background:var(--MEM)}.WB{background:var(--WB)}
+.scroll{overflow-x:auto;padding-bottom:6px}
+.grid{display:grid;gap:3px;width:max-content;user-select:none;-webkit-user-select:none}
+.hd{color:var(--acc);text-align:center;font-size:12px}
+.ins{white-space:nowrap;padding-right:10px;display:flex;align-items:center;font-weight:700}
+.ins small{font-weight:400;color:var(--mut);margin-left:6px}
+.ins.fl{color:var(--mut);text-decoration:line-through}
+.c{width:46px;height:30px;border:1px solid var(--bd);border-radius:3px;display:flex;align-items:center;justify-content:center;font-size:12px;color:var(--cellfg);cursor:pointer;touch-action:none}
+.c.empty{background:transparent;color:var(--mut)}
+.c.stall{background-image:repeating-linear-gradient(135deg,#0000 0 4px,#0002 4px 6px)}
+.c.ok{outline:2px solid var(--ok);outline-offset:-2px}
+.c.no{outline:2px solid var(--bad);outline-offset:-2px}
+.c.miss{outline:2px dashed var(--bad);outline-offset:-2px;color:var(--bad)}
+.ro .c{cursor:default}
+.btns{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap}
+#res{font-weight:700;margin:10px 0 0}
+.good{color:var(--ok)}.badc{color:var(--bad)}.mut{color:var(--mut)}
+ul{margin:6px 0 0;padding-left:18px}
+.stats{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:10px}
+.stats div{border:1px solid var(--bd);border-radius:6px;padding:4px 10px}
+.stats b{color:var(--acc)}
+.out{margin-top:10px;white-space:pre-wrap}
+</style>
+</head>
+<body>
+<div class="wrap">
+<h1>▌MIPS64 pipeline simulator</h1>
+<p class="sub">Predict the diagram yourself, then compare it with the computed one. Turn features on and off in the menu.</p>
+
+<div class="card">
+  <label for="pre">Examples (slides and Unit 2 exercises)</label>
+  <select id="pre" style="margin-bottom:10px;width:100%"></select>
+  <label for="code">Instructions (one per line, labels like <b>loop:</b>)</label>
+  <textarea id="code" spellcheck="false"></textarea>
+  <div class="mut" style="margin-top:6px;font-size:12px">Branches follow real register values (set them in the menu; all registers start at 0, <b>ld</b> loads 0). Force an outcome by ending a branch line with <b>; taken</b> or <b>; nt</b>. Loops are executed up to the instruction limit.</div>
+</div>
+
+<details class="card" open>
+  <summary>⚙ Settings menu — choose which features are active</summary>
+  <div class="menu">
+    <div class="grp"><h3>Data hazards</h3>
+      <label><input type="checkbox" id="fwd"> Forwarding paths</label>
+      <label><input type="checkbox" id="ren"> Register renaming (no WAW stalls)</label>
+    </div>
+    <div class="grp"><h3>Structural</h3>
+      <label><input type="checkbox" id="mem"> Single memory port (IF vs load/store MEM)</label>
+    </div>
+    <div class="grp"><h3>Control hazards</h3>
+      <label><input type="checkbox" id="early"> Early branches (resolved in ID)</label>
+      <select id="pred"><option value="stall">No prediction (stall fetch)</option><option value="nt">Always not taken</option><option value="bht">2-bit predictor (BHT/BTB, starts at 01)</option></select>
+    </div>
+    <div class="grp"><h3>Execution units</h3>
+      <label>Int mul/div latency <input type="number" id="mulLat" min="1" max="30" value="1"> cycles</label>
+      <label>Floating point (.d/.s) latency <input type="number" id="fpLat" min="1" max="30" value="1"> cycles</label>
+      <label><input type="checkbox" id="pipe"> Pipelined multi-cycle units (EX1…EXn)</label>
+    </div>
+    <div class="grp"><h3>Ordering</h3>
+      <label><input type="checkbox" id="ooo"> Out-of-order execution</label>
+      <label><input type="checkbox" id="oooRet"> Out-of-order retirement (off = precise exceptions)</label>
+    </div>
+    <div class="grp"><h3>Display and program</h3>
+      <label>Clock cycles shown <input type="number" id="cyc" min="1" max="500" value="12"></label>
+      <label><input type="checkbox" id="auto" checked> Extend automatically to fit the solution</label>
+      <label>Max instructions executed <input type="number" id="maxI" min="1" max="500" value="60"></label>
+      <label>Initial registers <input type="text" id="init" placeholder="r1=8, r2=2" style="flex:1;min-width:120px"></label>
+    </div>
+  </div>
+</details>
+
+<div class="card">
+  <h2>Your prediction</h2>
+  <div class="pal" id="pal"></div>
+  <div class="scroll"><div class="grid" id="mine"></div></div>
+  <div class="btns">
+    <button class="pri" id="chk">Check my answer</button>
+    <button id="hint">Hint</button>
+    <button id="rev">Show solution</button>
+    <button id="clr">Clear grid</button>
+  </div>
+  <div id="res"></div>
+</div>
+
+<div class="card" id="solCard" hidden>
+  <h2>Expected solution</h2>
+  <div class="stats" id="stats"></div>
+  <div class="scroll"><div class="grid ro" id="sol"></div></div>
+  <div id="why" class="mut" style="margin-top:10px"></div>
+</div>
+
+<details class="card">
+  <summary>🧮 Performance calculator (exercises 10–13, 15.1–15.3)</summary>
+  <div style="margin-top:10px">
+    <label for="stg">Stage times in ns, comma separated (sequential CPU executes them one after another)</label>
+    <input type="text" id="stg" value="50, 50, 60, 50, 40" style="width:100%">
+    <div class="btns"><button id="calc">Calculate</button></div>
+    <div class="out" id="calcOut"></div>
+    <label for="fq" style="margin-top:14px">Frequency ↔ cycle time and MIPS</label>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+      <input type="number" id="fq" value="2" step="any" style="width:100px"> GHz,
+      <input type="number" id="cpi" value="1" step="any" style="width:80px"> CPI
+      <button id="calc2">Calculate</button>
+    </div>
+    <div class="out" id="calc2Out"></div>
+  </div>
+</details>
+</div>
+
+<script>
+const ST=['IF','ID','EX','MEM','WB'];
+const $=id=>document.getElementById(id);
+const LOAD=/^(ld|lw|lwu|lh|lhu|lb|lbu|l\.d|l\.s)$/,STORE=/^(sd|sw|sh|sb|s\.d|s\.s)$/,BR=/^(beq|bne|beqz|bnez|bgez|bltz|blez|bgtz)$/;
+const MUL=/^(dmul|dmulu|mul|mult|dmult|ddiv|ddivu|div|divu)$/;
+const isReg=t=>/^(r\d+|\$\w+|f\d+)$/i.test(t||'')&&!/^(r0|\$0|\$zero)$/i.test(t);
+
+const D={fwd:0,mem:0,early:0,pred:'stall',mulLat:1,fpLat:1,pipe:0,ooo:0,oooRet:0,ren:0,cyc:12,auto:1,maxI:60,init:''};
+const P1="ori r1, r0, 2 ; r1 = 2\nstartf:\nbeqz r1, endf ; jump to endf if r1 zero\ndaddi r1, r1, -1 ; r1 = r1-1\nj startf ; jump to startf\nendf:\nld r5, 100(r3)";
+const P20="ori r1, r0, 8 ; r1 = 8\ndaddi r2, r0, 2 ; r2 = 2\nloop:\nbeqz r1, dest\ndmul r3, r2, r7\nxor r6, r4, r5\ndadd r6, r7, r6\ndsub r1, r1, r2\nj loop\ndest:\ndmul r5, r4, r2";
+const PRE=[
+ ['Slide 46 · Basic pipeline',"dadd r4, r3, r2\ndsub r12, r13, r14\nxor r5, r5, r5\nand r13, r14, r15",{}],
+ ['Slide 56 · Structural hazard',"ld r11, 120(r0)\ndadd r2, r3, r6\nxor r15, r15, r15\ndsub r4, r1, r9\nand r12, r13, r10",{mem:1}],
+ ['Slide 57 · RAW, no forwarding',"dadd r2, r3, r4\ndsub r1, r10, r2\nor r12, r11, r14\nxor r18, r18, r18",{}],
+ ['Slide 74 · RAW, forwarding',"dadd r2, r3, r4\ndsub r1, r10, r2\nor r12, r11, r14",{fwd:1}],
+ ['Slide 77 · Load-use, forwarding',"ld r2, 120(r3)\ndsub r1, r10, r2\nor r12, r11, r14",{fwd:1}],
+ ['Slide 80 · Two forwarding paths',"dadd r1, r3, r5\nld r2, 120(r0)\ndsub r4, r1, r2",{fwd:1}],
+ ['Slide 60 · Branch not taken',"beq r0, r3, loop ; nt\ndaddi r1, r0, 1\nand r3, r2, r4\nxor r8, r8, r8\nloop: dsub r3, r1, r2",{}],
+ ['Slide 60 · Branch taken',"beq r0, r3, loop ; taken\ndaddi r1, r0, 1\nand r3, r2, r4\nxor r8, r8, r8\nloop: dsub r3, r1, r2",{}],
+ ['Slide 61 · Jump',"j loop\ndaddi r1, r0, 1\nand r3, r2, r4\nxor r8, r8, r8\nloop: dsub r3, r1, r2",{}],
+ ['Slide 90 · Early branch + RAW',"daddi r1, r1, 4\nbeq r1, r6, target ; nt\nor r3, r4, r9\ntarget: and r12, r2, r5",{fwd:1,early:1}],
+ ['Slide 93 · Always-not-taken miss',"beq r4, r5, target ; taken\ndadd r9, r0, r7\ndsub r11, r10, r5\nor r12, r5, r14\ntarget: dadd r7, r1, r3",{pred:'nt'}],
+ ['Slide 65 · Pipelined mul unit',"xor r1, r4, r5\ndmul r1, r2, r3\ndmul r8, r9, r10\ndadd r9, r11, r12",{mulLat:5,pipe:1,ooo:1,oooRet:1,ren:1}],
+ ['Ex 15.4 · Loop with dmul (mul = 3 cycles)',"daddi r1, r0, 200\nloop:\nld r2, 0(r2)\ndmul r2, r3, r1\ndaddi r1, r1, -1\ndmul r2, r3, r2\nbnez r1, loop\ndadd r9, r2, r3",{mulLat:3,oooRet:1,cyc:15,auto:0,init:'r1=0, r2=0'}],
+ ['Ex 16.1/16.2 · Mul unit, OoO execution and retirement',"dmul r2, r5, r6\nxor r1, r10, r3\ndmul r4, r6, r8\nld r3, 100(r2)",{mulLat:4,ooo:1,oooRet:1}],
+ ['Ex 16.3 · Same, precise exceptions',"dmul r2, r5, r6\nxor r1, r10, r3\ndmul r4, r6, r8\nld r3, 100(r2)",{mulLat:4,ooo:1}],
+ ['Ex 16.4 · Pipelined mul unit + precise exceptions',"dmul r2, r5, r6\nxor r1, r10, r3\ndmul r4, r6, r8\nld r3, 100(r2)",{mulLat:4,ooo:1,pipe:1}],
+ ['Ex 17.2 · Original order (stall)',"dadd r9, r5, r7\nxor r4, r6, r7\nori r9, r6, 1\nld r3, 100(r4)",{}],
+ ['Ex 17.4 · Reordered by the compiler',"xor r4, r6, r7\ndadd r9, r5, r7\nori r9, r6, 1\nld r3, 100(r4)",{}],
+ ['Ex 18 · Forwarding EX→EX and MEM→EX',"dadd r9, r5, r7\nxor r2, r6, r7\nld r4, 100(r9)\ndsub r2, r4, r9",{fwd:1}],
+ ['Ex 18 · Same without forwarding',"dadd r9, r5, r7\nxor r2, r6, r7\nld r4, 100(r9)\ndsub r2, r4, r9",{}],
+ ['Ex 19.1 · Early branches + forwarding',P1,{fwd:1,early:1,cyc:20}],
+ ['Ex 19.3 · Always not taken',P1,{fwd:1,early:1,pred:'nt',cyc:20}],
+ ['Ex 19.4 · 2-bit predictor',P1,{fwd:1,early:1,pred:'bht',cyc:20}],
+ ['Ex 20.3 · No forwarding, mul 3 cycles pipelined, OoO',P20,{early:1,pred:'nt',mulLat:3,pipe:1,ooo:1,oooRet:1,cyc:25}],
+ ['Ex 20.5 · Same with all forwarding paths',P20,{fwd:1,early:1,pred:'nt',mulLat:3,pipe:1,ooo:1,oooRet:1,cyc:13,auto:0}],
+ ['Ex 21.1 · ddiv (4 cycles), forwarding, imprecise',"daddi r3, r0, 5\nddiv r2, r4, r5\nxor r3, r6, r8\ndsub r2, r9, r10",{fwd:1,mulLat:4,ooo:1,oooRet:1}],
+ ['Ex 21.2 · Same with register renaming',"daddi r3, r0, 5\nddiv r2, r4, r5\nxor r3, r6, r8\ndsub r2, r9, r10",{fwd:1,mulLat:4,ooo:1,oooRet:1,ren:1}]
+];
+
+//SIM-START
+function parse(txt){
+  const out=[],lab={};
+  txt.split('\n').forEach(raw=>{
+    const s=raw.trim();if(!s)return;
+    const cm=s.match(/;\s*(taken|t|nt)\s*$/i);
+    const force=cm?(/^nt$/i.test(cm[1])?0:1):null;
+    let b=s.replace(/;.*$/,'').trim();
+    const m=b.match(/^(\w+):\s*(.*)$/);
+    if(m){lab[m[1].toLowerCase()]=out.length;b=m[2];if(!b)return}
+    const a0=b.toLowerCase().split(/[,\s()]+/).filter(Boolean),op=a0[0],a=a0.slice(1);
+    let dest=null,src=[],load=false,kind='alu',target=null,unit='gen';
+    if(op==='j'){kind='j';target=a[0]}
+    else if(BR.test(op)){kind='br';src=a.slice(0,/z$/.test(op)?1:2);target=a[a.length-1]}
+    else if(LOAD.test(op)){dest=a[0];src=[a[2]];load=true;kind='ld'}
+    else if(STORE.test(op)){src=[a[0],a[2]];kind='st'}
+    else if(/i$|iu$/.test(op)){dest=a[0];src=[a[1]]}
+    else{dest=a[0];src=[a[1],a[2]]}
+    if(kind==='alu'){if(MUL.test(op))unit='mul';else if(/\.(d|s)$/.test(op))unit='fp'}
+    out.push({line:b.replace(/\s+/g,' '),op,a,kind,target,force,unit,load,dest:isReg(dest)?dest:null,src:src.filter(isReg)});
+  });
+  return{out,lab};
+}
+function runVal(x,R){
+  const v=t=>/^(r0|\$0|\$zero)$/.test(t)?0:(R[t]||0),n=t=>Number(t)||0,a=x.a,o=x.op;let r=null;
+  if(/^(dadd|add|daddu|addu)$/.test(o))r=v(a[1])+v(a[2]);
+  else if(/^(dsub|sub|dsubu|subu)$/.test(o))r=v(a[1])-v(a[2]);
+  else if(o==='and')r=v(a[1])&v(a[2]);else if(o==='or')r=v(a[1])|v(a[2]);else if(o==='xor')r=v(a[1])^v(a[2]);
+  else if(/^(dmul|dmulu|mul|mult|dmult)$/.test(o))r=v(a[1])*v(a[2]);
+  else if(MUL.test(o))r=v(a[2])?Math.trunc(v(a[1])/v(a[2])):0;
+  else if(/^(daddi|addi|daddiu|addiu)$/.test(o))r=v(a[1])+n(a[2]);
+  else if(o==='ori')r=v(a[1])|n(a[2]);else if(o==='andi')r=v(a[1])&n(a[2]);else if(o==='xori')r=v(a[1])^n(a[2]);
+  else if(x.load)r=0;else if(x.dest)r=0;
+  if(r!==null&&x.dest)R[x.dest]=r;
+  if(x.kind!=='br')return null;
+  if(o==='beq')return v(a[0])===v(a[1]);if(o==='bne')return v(a[0])!==v(a[1]);
+  if(o==='beqz')return v(a[0])===0;if(o==='bnez')return v(a[0])!==0;
+  if(o==='bgez')return v(a[0])>=0;if(o==='bltz')return v(a[0])<0;
+  if(o==='blez')return v(a[0])<=0;return v(a[0])>0;
+}
+function simulate(P,o){
+  const L=P.out,R=Object.assign({},o.init),rows=[],notes=[],ex=[],cnt={};
+  const busy={gen:new Set(),mul:new Set(),fp:new Set()},memC=new Set(),wbC=new Set(),port=new Set(),bht={},ren={};
+  let pc=0,prev=null,redir=0,tk=false,maxC=0,steps=0,rq=32,lastWb=0;
+  const put=(row,c,l,s)=>{row.cells[c]={l,s:!!s};if(c>maxC)maxC=c};
+  const wrong=(start,idS,Rr)=>{
+    for(let j=0;start+j<L.length;j++){
+      const c0=idS+j;if(c0>Rr)break;
+      const w={x:L[start+j],cells:{},fl:true,n:0};rows.push(w);
+      ST.forEach((l,k)=>{if(c0+k<=Rr)put(w,c0+k,l)});
+    }
+  };
+  while(pc<L.length&&steps<o.maxI){
+    steps++;
+    const x=L[pc];cnt[pc]=(cnt[pc]||0)+1;
+    const row={x,cells:{},fl:false,n:cnt[pc]};rows.push(row);
+    const ifS=prev?prev.idS:1;
+    let f=Math.max(ifS,redir);const showFrom=tk?f:ifS;tk=false;redir=0;
+    const f0=f;if(o.mem)while(port.has(f))f++;
+    const why={id:[],ex:[]};
+    if(f>f0)why.id.push('single memory port busy during fetch');
+    const idS=Math.max(f+1,prev?prev.exFirst:0);
+    const early=x.kind==='br'&&o.early;
+    const Lat=x.unit==='mul'?o.mulLat:x.unit==='fp'?o.fpLat:1,pipe=Lat>1&&o.pipe;
+    let idNeed=0,exNeed=0,dep=null;
+    x.src.forEach(reg=>{for(let k=ex.length-1;k>=0;k--){const p=ex[k];if(p.x.dest===reg){
+      const av=p.x.load?p.mem+1:p.execEnd+1;
+      if(early)idNeed=Math.max(idNeed,o.fwd?av:p.wb);
+      else if(o.fwd)exNeed=Math.max(exNeed,av);
+      else idNeed=Math.max(idNeed,p.wb);
+      dep=dep||{reg,p:p.x.line};break}}});
+    const b1=Math.max(idS+1,idNeed+1);
+    if(idNeed+1>idS+1)why.id.push(`RAW on ${dep.reg} (from “${dep.p}”)`);
+    const b2=Math.max(b1,prev?(o.ooo?prev.exFirst+1:prev.execEndAll+1):0);
+    if(b2>b1)why.id.push('previous instruction still in EX');
+    let e=b2,s;
+    for(;;){s=Math.max(e,exNeed);let bz=false;
+      if(pipe)bz=busy[x.unit].has(s);else for(let c=s;c<s+Lat;c++)if(busy[x.unit].has(c))bz=true;
+      if(!bz)break;e++}
+    if(e>b2)why.id.push(`${x.unit==='gen'?'EX':x.unit==='mul'?'mul/div':'FP'} unit busy`);
+    const exFirst=e,execEnd=s+Lat-1;
+    if(s>exFirst)why.ex.push(`waiting for ${dep?dep.reg:'operand'} through forwarding${dep?` (from “${dep.p}”)`:''}`);
+    if(pipe)busy[x.unit].add(s);else for(let c=s;c<=execEnd;c++)busy[x.unit].add(c);
+    let wbMin=0;
+    if(!o.ren&&x.dest)for(let k=ex.length-1;k>=0;k--)if(ex[k].x.dest===x.dest){wbMin=Math.max(wbMin,ex[k].wb+1);break}
+    if(!o.oooRet)wbMin=Math.max(wbMin,lastWb+1);
+    let w=Math.max(execEnd+2,wbMin);
+    while(memC.has(w-1)||wbC.has(w))w++;
+    if(w>execEnd+2)why.ex.push(!o.oooRet?'in-order retirement / MEM-WB conflict':'WAW ordering / MEM-WB conflict');
+    const mem=w-1;memC.add(mem);wbC.add(w);lastWb=Math.max(lastWb,w);
+    for(let c=showFrom;c<idS;c++)put(row,c,'IF',c>showFrom);
+    for(let c=idS;c<exFirst;c++)put(row,c,'ID',c>idS);
+    for(let c=exFirst;c<s;c++)put(row,c,'EX',1);
+    for(let k=0;k<Lat;k++)put(row,s+k,pipe?'EX'+(k+1):'EX',!pipe&&k>0);
+    for(let c=execEnd+1;c<mem;c++)put(row,c,pipe?'EX'+Lat:'EX',1);
+    put(row,mem,'MEM');put(row,w,'WB');
+    if(o.mem&&(x.kind==='ld'||x.kind==='st'))port.add(mem);
+    if(o.ren&&x.dest){ren[x.dest]='rr'+(rq++)}
+    const st=(exFirst-idS-1);
+    if(why.id.length&&st>0)notes.push(`${x.line}: ${st} stall${st>1?'s':''} in ID — ${why.id.join('; ')}`);
+    else if(why.id.length&&f>f0)notes.push(`${x.line}: fetch delayed — ${why.id.join('; ')}`);
+    const xs=(s-exFirst)+(mem-1-execEnd);
+    if(why.ex.length&&xs>0)notes.push(`${x.line}: ${xs} stall${xs>1?'s':''} in EX — ${why.ex.join('; ')}`);
+    else if(dep&&o.fwd&&!st&&!xs)notes.push(`${x.line}: ${dep.reg} forwarded from “${dep.p}”, no stall`);
+    const r={x,idS,exFirst,execEnd,execEndAll:mem-1,mem,wb:w};ex.push(r);prev=r;
+    const cond=runVal(x,R);let next=pc+1;
+    if(x.kind==='br'||x.kind==='j'){
+      const Rr=x.kind==='j'?idS:(early?exFirst-1:mem);
+      let tgt=P.lab[(x.target||'').toLowerCase()];
+      let taken=x.kind==='j'?true:(x.force!==null?!!x.force:!!cond);
+      if(tgt===undefined){taken=false;notes.push(`${x.line}: unknown label, treated as not taken`)}
+      const jk=x.kind==='j'?'jump':'branch';
+      let predT=false;
+      if(x.kind==='br'&&o.pred==='bht'){const sv=bht[pc];predT=sv!==undefined&&sv>=2;
+        if(sv===undefined)bht[pc]=1;
+        bht[pc]=taken?Math.min(3,bht[pc]+1):Math.max(0,bht[pc]-1)}
+      if(x.kind==='br'&&o.pred==='stall'){
+        if(taken){const w2={x:L[pc+1]||x,cells:{},fl:true,n:0};
+          if(pc+1<L.length&&tgt!==pc+1){rows.push(w2);for(let c=idS;c<=Rr;c++)put(w2,c,'IF',c>idS)}
+          redir=Rr+1;tk=true;notes.push(`${x.line}: taken, resolved in cycle ${Rr} → target fetched in cycle ${Rr+1}`)}
+        else{redir=Rr+1;notes.push(`${x.line}: not taken, but fetch waits for resolution (cycle ${Rr})`)}
+      }else{
+        if(predT&&taken)notes.push(`${x.line}: predicted taken, hit → no stall`);
+        else if(predT&&!taken){wrong(tgt,idS,Rr);redir=Rr+1;notes.push(`${x.line}: predicted taken, was not taken → flush, refetch in cycle ${Rr+1}`)}
+        else if(taken){wrong(pc+1,idS,Rr);redir=Rr+1;tk=true;notes.push(`${x.line}: ${jk} taken (not predicted) → ${Math.max(0,Rr-idS+1)} wrong-path cycle(s), target fetched in cycle ${Rr+1}`)}
+        else notes.push(`${x.line}: not taken, prediction hit → no stall`);
+      }
+      if(taken)next=tgt;
+    }
+    pc=next;
+  }
+  if(steps>=o.maxI&&pc<L.length)notes.push(`Stopped after ${o.maxI} executed instructions (limit in the menu).`);
+  Object.keys(bht).forEach(k=>notes.push(`BTB/BHT entry: “${L[k].line}” → ${bht[k].toString(2).padStart(2,'0')}`));
+  if(o.ren){const m=Object.keys(ren).map(k=>`${k}→${ren[k]}`);if(m.length)notes.push('Last physical register of each destination (FIFO from rr32): '+m.join(', '))}
+  return{rows,notes,total:lastWb,n:ex.length,maxC};
+}
+//SIM-END
+
+let sel='IF',N=12,grid=[],P,sim,painting=false,erase=false;
+function getO(){
+  const init={};($('init').value||'').split(/[,\s]+/).forEach(t=>{const m=t.match(/^(\$?\w+)=(-?\w+)$/);if(m)init[m[1].toLowerCase()]=Number(m[2])||0});
+  return{fwd:$('fwd').checked,mem:$('mem').checked,early:$('early').checked,pred:$('pred').value,ren:$('ren').checked,
+    pipe:$('pipe').checked,ooo:$('ooo').checked,oooRet:$('oooRet').checked,
+    mulLat:Math.max(1,+$('mulLat').value||1),fpLat:Math.max(1,+$('fpLat').value||1),maxI:Math.max(1,+$('maxI').value||60),init};
+}
+const stages=()=>{const o=getO(),m=Math.max(o.mulLat,o.fpLat);const ex=(o.pipe&&m>1)?Array.from({length:m},(_,k)=>'EX'+(k+1)):[];return['IF','ID','EX',...ex,'MEM','WB']};
+const base=l=>l.replace(/\d+$/,'');
+function build(){
+  const keep=grid;
+  P=parse($('code').value);sim=simulate(P,getO());
+  const c=Math.max(1,+$('cyc').value||12);
+  N=$('auto').checked?Math.max(c,sim.maxC+1):c;
+  grid=sim.rows.map((_,i)=>Array.from({length:N},(_,k)=>(keep[i]&&keep[i][k])||''));
+  render();$('res').textContent='';
+  if(!$('solCard').hidden)showSol();
+  buildPal();
+}
+const head=()=>'<div></div>'+Array.from({length:N},(_,c)=>`<div class="hd">${c+1}</div>`).join('');
+const cols=g=>g.style.gridTemplateColumns=`max-content repeat(${N},46px)`;
+const esc=s=>s.replace(/</g,'&lt;');
+const lbl=r=>`<div class="ins ${r.fl?'fl':''}">${esc(r.x.line)}${r.n>1?`<small>#${r.n}</small>`:''}${r.fl?'<small>(flushed)</small>':''}</div>`;
+function render(marks){
+  const g=$('mine');cols(g);let h=head();
+  sim.rows.forEach((r,i)=>{
+    h+=lbl(r);
+    for(let c=0;c<N;c++){
+      const v=grid[i][c],m=marks?marks[i][c]:'',e=r.cells[c+1];
+      const show=m==='miss'?(e?e.l:''):v;
+      h+=`<div class="c ${m!=='miss'&&v?base(v)+' st':'empty'} ${m}" data-i="${i}" data-c="${c}">${show||'·'}</div>`;
+    }
+  });
+  g.innerHTML=h;
+}
+function paint(el){
+  if(!el||el.dataset.i===undefined)return;
+  const i=+el.dataset.i,c=+el.dataset.c;
+  grid[i][c]=(erase||sel==='✕')?'':sel;
+  if($('mine').querySelector('.ok,.no,.miss'))return render();
+  const v=grid[i][c];el.className='c '+(v?base(v)+' st':'empty');el.textContent=v||'·';
+}
+$('mine').addEventListener('pointerdown',e=>{
+  const el=e.target.closest('.c');if(!el)return;
+  e.preventDefault();painting=true;erase=grid[+el.dataset.i][+el.dataset.c]===sel;paint(el);
+});
+$('mine').addEventListener('pointermove',e=>{if(painting)paint(document.elementFromPoint(e.clientX,e.clientY)?.closest('.c'))});
+addEventListener('pointerup',()=>painting=false);
+
+function buildPal(){
+  const S=stages();if(!S.includes(sel)&&sel!=='✕')sel='IF';
+  $('pal').innerHTML=[...S,'✕'].map((s,k)=>`<button class="${s!=='✕'?base(s)+' st':''} ${s===sel?'sel':''}" data-s="${s}">${s==='✕'?'✕ erase':s}${k<9?` <span style="opacity:.6">${k+1}</span>`:''}</button>`).join('')+`<span class="mut">Click or drag to paint. Repeat a stage for a stall.</span>`;
+}
+$('pal').addEventListener('click',e=>{const b=e.target.closest('button');if(b){sel=b.dataset.s;buildPal()}});
+addEventListener('keydown',e=>{
+  if(/TEXTAREA|SELECT|INPUT/.test(e.target.tagName))return;
+  const k='123456789'.indexOf(e.key),S=[...stages(),'✕'];if(k>-1&&S[k]){sel=S[k];buildPal()}
+});
+
+$('chk').onclick=()=>{
+  let ok=0,total=0,bad=0;
+  const marks=sim.rows.map((r,i)=>Array.from({length:N},(_,c)=>{
+    const e=r.cells[c+1],v=grid[i][c];
+    if(e){total++;if(v===e.l){ok++;return'ok'}return v?'no':'miss'}
+    if(v){bad++;return'no'}return'';
+  }));
+  render(marks);
+  const cut=sim.maxC>N?` <span class="mut">(the solution continues past cycle ${N}; raise “Clock cycles shown”)</span>`:'';
+  $('res').innerHTML=(ok===total&&!bad
+    ?`<span class="good">✓ Perfect — all ${total} cells match (${sim.total} cycles).</span>`
+    :`<span class="badc">${ok}/${total} cells correct${bad?`, ${bad} wrong or extra`:''}.</span> <span class="mut">Green = right, red = wrong, dashed = missing (shows the expected stage).</span>`)+cut;
+};
+$('hint').onclick=()=>{
+  for(let c=0;c<N;c++)for(let i=0;i<sim.rows.length;i++){
+    const e=sim.rows[i].cells[c+1],v=grid[i][c];
+    if((e?e.l:'')!==v){
+      $('res').innerHTML=`<span class="badc">Hint:</span> first mistake is in cycle ${c+1}, row “${esc(sim.rows[i].x.line)}” — `+(e?`it should be <b>${e.l}</b>${e.s?' (a stall: that stage repeats)':''}.`:'that cell should be empty.');
+      return;
+    }
+  }
+  $('res').innerHTML='<span class="good">No mistakes found so far.</span>';
+};
+$('rev').onclick=()=>{$('solCard').hidden=false;showSol();$('solCard').scrollIntoView({behavior:'smooth'})};
+$('clr').onclick=()=>{grid=sim.rows.map(()=>Array(N).fill(''));render();$('res').textContent=''};
+
+function showSol(){
+  const g=$('sol');cols(g);let h=head();
+  sim.rows.forEach(r=>{
+    h+=lbl(r);
+    for(let c=1;c<=N;c++){const e=r.cells[c];h+=`<div class="c ${e?base(e.l)+' st':'empty'} ${e&&e.s?'stall':''}">${e?e.l:'·'}</div>`}
+  });
+  g.innerHTML=h;
+  const n=sim.n,T=sim.total;
+  $('stats').innerHTML=`<div>Cycles <b>${T}</b></div><div>Instructions executed <b>${n}</b></div><div>CPI <b>${n?(T/n).toFixed(2):'–'}</b></div><div>Ideal (no hazards) <b>${n?n+4:0}</b></div><div>Non-pipelined (5 cyc/instr) <b>${5*n}</b></div>`;
+  $('why').innerHTML=sim.notes.length?`<ul>${sim.notes.map(t=>`<li>${esc(t)}</li>`).join('')}</ul>`:'No hazards: each instruction enters the pipeline one cycle after the previous one.';
+}
+
+function setOpts(p){
+  const v=Object.assign({},D,p);
+  ['fwd','mem','early','pipe','ooo','oooRet','ren','auto'].forEach(k=>$(k).checked=!!v[k]);
+  $('pred').value=v.pred;$('mulLat').value=v.mulLat;$('fpLat').value=v.fpLat;$('cyc').value=v.cyc;$('maxI').value=v.maxI;$('init').value=v.init;
+}
+$('pre').innerHTML='<option value="">— custom —</option>'+PRE.map((p,k)=>`<option value="${k}">${p[0]}</option>`).join('');
+$('pre').onchange=()=>{
+  const p=PRE[$('pre').value];if(!p)return;
+  $('code').value=p[1];setOpts(p[2]);grid=[];$('solCard').hidden=true;build();
+};
+let t;
+$('code').addEventListener('input',()=>{$('pre').value='';clearTimeout(t);t=setTimeout(build,250)});
+['fwd','mem','early','pred','ren','pipe','ooo','oooRet','mulLat','fpLat','cyc','auto','maxI','init'].forEach(k=>$(k).addEventListener('change',()=>{if(!['cyc','auto'].includes(k))$('pre').value='';build()}));
+
+$('calc').onclick=()=>{
+  const s=$('stg').value.split(/[,\s]+/).map(Number).filter(x=>x>0);if(!s.length)return;
+  const sum=s.reduce((a,b)=>a+b,0),mx=Math.max(...s),n=s.length,f=x=>+x.toFixed(2);
+  $('calcOut').textContent=`Sequential CPU\n  Time per instruction: ${f(sum)} ns\n  Throughput: ${f(1000/sum)} MIPS (${f(1e9/sum)} instr/s)\n\nPipelined CPU (${n} stages, cycle = slowest stage)\n  Clock cycle: ${f(mx)} ns → frequency ${f(1000/mx)} MHz (${f(1/mx)} GHz)\n  Time per instruction (latency): ${f(n*mx)} ns\n  Ideal throughput: ${f(1000/mx)} MIPS\n  Ideal throughput speedup: ${f(sum/mx)}`;
+};
+$('calc2').onclick=()=>{
+  const g=+$('fq').value,c=+$('cpi').value||1;if(!g)return;
+  $('calc2Out').textContent=`Cycle time: ${+(1/g).toFixed(4)} ns\nMIPS: ${+(g*1000/c).toFixed(2)}  (at CPI ${c})\nInstructions per cycle (IPC): ${+(1/c).toFixed(3)}`;
+};
+$('pre').value='0';$('pre').onchange();$('calc').onclick();$('calc2').onclick();
+</script>
+</body>
+</html>
