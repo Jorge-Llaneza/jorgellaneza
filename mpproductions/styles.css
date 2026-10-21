@@ -405,6 +405,18 @@ section {
   text-align: center;
 }
 
+.form-note.error {
+  border-color: #d9534f;
+}
+
+.hidden-field {
+  position: absolute;
+  left: -9999px;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+}
+
 .contact .socials {
   display: flex;
   gap: 20px;
