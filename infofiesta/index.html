@@ -1,0 +1,589 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>INFOFIESTA</title>
+  <meta name="description" content="Cuenta atrás para la INFOFIESTA: sábado 14 de noviembre, 23:00 (hora peninsular).">
+  <meta name="theme-color" content="#111111">
+  <link rel="icon" type="image/svg+xml" href="favicon.svg">
+
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="INFOFIESTA">
+  <meta property="og:description" content="Sábado 14 de noviembre, 23:00. Empieza la cuenta atrás.">
+  <meta property="og:url" content="https://jorgellaneza.es/infofiesta/">
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="INFOFIESTA">
+  <meta name="twitter:description" content="Sábado 14 de noviembre, 23:00. Empieza la cuenta atrás.">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Anton&family=Inter:wght@500;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #111111;
+      --bg-2: #2b2b2b;
+      --text: #ebebeb;
+      --muted: #8f8f8f;
+      --accent: #5a87e1;
+      --accent-2: #1ea05f;
+      --accent-2-hi: #3fd08a;
+    }
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+    body {
+      margin: 0;
+      overflow: hidden;
+      background: radial-gradient(ellipse 120% 80% at 50% 110%, #1d2533 0%, var(--bg-2) 35%, var(--bg) 75%);
+      background-color: var(--bg);
+      color: var(--text);
+      font-family: "Inter", -apple-system, BlinkMacSystemFont, sans-serif;
+      -webkit-font-smoothing: antialiased;
+    }
+    .sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+
+    /* ---------- atmosphere ---------- */
+    #fx { position: fixed; inset: 0; width: 100%; height: 100%; z-index: 2; pointer-events: none; }
+
+    .beams { position: fixed; inset: 0; z-index: 1; pointer-events: none; overflow: hidden; mix-blend-mode: screen; }
+    .beam {
+      position: absolute;
+      bottom: -5vh;
+      width: 26vw;
+      height: 150vh;
+      margin-left: -13vw;
+      transform-origin: 50% 100%;
+      clip-path: polygon(47% 100%, 53% 100%, 100% 0, 0 0);
+      filter: blur(8px);
+      opacity: .55;
+      animation: sway 7s ease-in-out infinite alternate;
+    }
+    .beam.b { background: linear-gradient(to top, rgba(90,135,225,.55), rgba(90,135,225,.12) 55%, transparent 85%); }
+    .beam.g { background: linear-gradient(to top, rgba(30,160,95,.55), rgba(30,160,95,.12) 55%, transparent 85%); }
+    .beam:nth-child(1) { left: 8%;  --from: -8deg;  --to: 38deg;  animation-duration: 6.5s; }
+    .beam:nth-child(2) { left: 34%; --from: -30deg; --to: 14deg;  animation-duration: 8.2s; animation-delay: -3s; }
+    .beam:nth-child(3) { left: 66%; --from: 30deg;  --to: -14deg; animation-duration: 7.4s; animation-delay: -1.5s; }
+    .beam:nth-child(4) { left: 92%; --from: 8deg;   --to: -38deg; animation-duration: 5.9s; animation-delay: -4s; }
+    @keyframes sway { from { transform: rotate(var(--from)); } to { transform: rotate(var(--to)); } }
+
+    .floor {
+      position: fixed;
+      left: -50%; right: -50%; bottom: 0;
+      height: 42vh;
+      z-index: 0;
+      pointer-events: none;
+      background-image:
+        linear-gradient(rgba(90,135,225,.35) 2px, transparent 2px),
+        linear-gradient(90deg, rgba(90,135,225,.22) 2px, transparent 2px);
+      background-size: 80px 80px;
+      transform: perspective(300px) rotateX(62deg);
+      transform-origin: 50% 100%;
+      -webkit-mask-image: linear-gradient(to top, #000 10%, transparent 85%);
+              mask-image: linear-gradient(to top, #000 10%, transparent 85%);
+      animation: roll 1s linear infinite;
+    }
+    @keyframes roll { to { background-position: 0 80px, 0 0; } }
+
+    .vignette {
+      position: fixed; inset: 0; z-index: 3; pointer-events: none;
+      background: radial-gradient(ellipse at center, transparent 45%, rgba(0,0,0,.7) 100%);
+    }
+    .flash {
+      position: fixed; inset: 0; z-index: 20; pointer-events: none;
+      background: #fff; opacity: 0;
+    }
+
+    .shock {
+      position: fixed; z-index: 4; pointer-events: none;
+      width: 40px; height: 40px; margin: -20px 0 0 -20px;
+      border-radius: 50%;
+      border: 3px solid var(--accent);
+      box-shadow: 0 0 30px var(--accent), inset 0 0 30px var(--accent-2);
+      animation: shock 1.1s cubic-bezier(.1,.7,.3,1) forwards;
+    }
+    @keyframes shock { from { transform: scale(0); opacity: 1; } to { transform: scale(60); opacity: 0; } }
+
+    /* ---------- stage ---------- */
+    .stage {
+      position: relative;
+      z-index: 5;
+      height: 100%;
+      min-height: 100svh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: clamp(12px, 3.5vh, 40px);
+      padding: max(16px, env(safe-area-inset-top)) 16px max(16px, env(safe-area-inset-bottom));
+      text-align: center;
+    }
+    .stage.shake { animation: shake .45s cubic-bezier(.36,.07,.19,.97); }
+    @keyframes shake {
+      10%, 90% { transform: translate(-2px, 1px); }
+      20%, 80% { transform: translate(4px, -2px); }
+      30%, 50%, 70% { transform: translate(-7px, 3px); }
+      40%, 60% { transform: translate(7px, -3px); }
+    }
+
+    .eyebrow {
+      font-weight: 700;
+      font-size: clamp(.72rem, 1.6vw, 1rem);
+      letter-spacing: .35em;
+      text-transform: uppercase;
+      color: var(--accent-2-hi);
+      opacity: 0;
+      animation: rise .8s 1.3s ease-out forwards;
+    }
+    .eyebrow b { color: var(--text); font-weight: 700; }
+
+    .title-wrap { position: relative; }
+    .halo {
+      position: absolute; left: 50%; top: 55%;
+      width: 120%; height: 160%;
+      transform: translate(-50%, -50%);
+      background: radial-gradient(ellipse at center, rgba(90,135,225,.35), rgba(30,160,95,.12) 45%, transparent 70%);
+      opacity: .6;
+      pointer-events: none;
+    }
+    .title-wrap.beat .halo { animation: halo .9s ease-out; }
+    @keyframes halo { 0% { opacity: 1; transform: translate(-50%,-50%) scale(1.08); } 100% { opacity: .6; transform: translate(-50%,-50%) scale(1); } }
+
+    h1 {
+      position: relative;
+      margin: 0;
+      font-family: "Anton", Impact, sans-serif;
+      font-weight: 400;
+      font-size: min(21vw, 33vh);
+      line-height: .9;
+      letter-spacing: .01em;
+      font-kerning: none;
+      white-space: nowrap;
+      color: #fff;
+      user-select: none;
+    }
+    .title-wrap.beat h1 { animation: thump .5s cubic-bezier(.2,.8,.3,1); }
+    @keyframes thump { 0% { transform: scale(1.018); } 100% { transform: scale(1); } }
+
+    h1 .l {
+      display: inline-block;
+      text-shadow:
+        0 .008em 0 #4a74c9,
+        0 .016em 0 #3f66b6,
+        0 .024em 0 #3558a1,
+        0 .032em 0 #2b4a8c,
+        0 .040em 0 #233d75,
+        0 .048em 0 #1b305e,
+        0 .056em 0 #15264a,
+        0 .08em .03em rgba(0,0,0,.7),
+        0 0 .2em rgba(90,135,225,.45),
+        0 0 .5em rgba(30,160,95,.25);
+      opacity: 0;
+      animation: slam .55s cubic-bezier(.2,1.4,.4,1) forwards;
+      animation-delay: calc(var(--i) * 75ms + 150ms);
+    }
+    @keyframes slam {
+      0%   { opacity: 0; transform: translateY(-.25em) scale(3.2); filter: blur(12px); }
+      60%  { opacity: 1; filter: blur(0); }
+      100% { opacity: 1; transform: none; filter: none; }
+    }
+    /* colour layer that sweeps across the letters */
+    h1::after {
+      content: attr(data-text);
+      position: absolute; inset: 0;
+      color: transparent;
+      background:
+        linear-gradient(100deg, transparent 38%, rgba(90,135,225,.95) 46%, #f2fff8 50%, rgba(30,160,95,.95) 54%, transparent 62%) 0 0 / 300% 100% no-repeat,
+        linear-gradient(180deg, #fff 0%, #fff 48%, #b9cff7 78%, #7ddcaa 100%);
+      -webkit-background-clip: text;
+              background-clip: text;
+      opacity: 0;
+      animation: fadein .6s 1.1s forwards, shine 4.5s 1.6s ease-in-out infinite;
+      pointer-events: none;
+    }
+    @keyframes shine { 0% { background-position: 120% 0, 0 0; } 60%, 100% { background-position: -20% 0, 0 0; } }
+    @keyframes fadein { to { opacity: 1; } }
+    @keyframes rise { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
+
+    /* ---------- clock ---------- */
+    .clock {
+      display: flex;
+      align-items: flex-start;
+      justify-content: center;
+      gap: clamp(4px, 1.4vw, 18px);
+      opacity: 0;
+      animation: rise .9s 1.45s ease-out forwards;
+    }
+    .unit { display: flex; flex-direction: column; align-items: center; }
+    .num {
+      font-family: "Anton", Impact, sans-serif;
+      font-size: min(12.5vw, 17vh);
+      line-height: 1;
+      font-kerning: none;
+      color: var(--text);
+      text-shadow: 0 .03em 0 #1b305e, 0 .06em .02em rgba(0,0,0,.6), 0 0 .35em rgba(90,135,225,.35);
+    }
+    .unit.secs .num { color: var(--accent-2-hi); text-shadow: 0 .03em 0 #0e4f2f, 0 .06em .02em rgba(0,0,0,.6), 0 0 .4em rgba(30,160,95,.55); }
+    .d { display: inline-block; width: .56em; text-align: center; }
+    .d.tick { animation: tick .55s cubic-bezier(.15,.9,.3,1.2); }
+    @keyframes tick {
+      0%   { transform: translateY(-.18em) scale(1.25); filter: brightness(2.2) blur(2px); opacity: .2; }
+      100% { transform: none; filter: none; opacity: 1; }
+    }
+    .lbl {
+      margin-top: .55em;
+      font-size: clamp(.58rem, 1.25vw, .85rem);
+      font-weight: 700;
+      letter-spacing: .3em;
+      text-transform: uppercase;
+      color: var(--muted);
+      padding-left: .3em;
+    }
+    .sep {
+      font-family: "Anton", Impact, sans-serif;
+      font-size: min(10vw, 13vh);
+      line-height: 1.15;
+      color: var(--accent);
+      opacity: .35;
+      transition: opacity .15s;
+    }
+    .clock.beat .sep { opacity: 1; text-shadow: 0 0 .3em var(--accent); }
+
+    .foot {
+      font-size: clamp(.68rem, 1.3vw, .85rem);
+      letter-spacing: .12em;
+      color: var(--muted);
+      opacity: 0;
+      animation: rise .8s 1.7s ease-out forwards;
+    }
+
+    /* ---------- last 10 seconds ---------- */
+    #final {
+      position: fixed; inset: 0; z-index: 15;
+      display: none;
+      align-items: center; justify-content: center;
+      pointer-events: none;
+      background: radial-gradient(ellipse at center, rgba(17,17,17,.2), rgba(0,0,0,.85) 75%);
+    }
+    body.final #final { display: flex; }
+    body.final .stage { filter: blur(6px) brightness(.45); transition: filter .6s; }
+    #final span {
+      font-family: "Anton", Impact, sans-serif;
+      font-size: min(80vh, 70vw);
+      line-height: 1;
+      color: #fff;
+      text-shadow:
+        0 .01em 0 #4a74c9, 0 .02em 0 #3558a1, 0 .03em 0 #233d75, 0 .04em 0 #15264a,
+        0 .06em .03em rgba(0,0,0,.8),
+        0 0 .15em rgba(90,135,225,.7),
+        0 0 .4em rgba(30,160,95,.4);
+    }
+    #final span.go { animation: count 1s cubic-bezier(.2,.9,.3,1) forwards; }
+    @keyframes count {
+      0%   { transform: scale(2.6); opacity: 0; filter: blur(20px); }
+      22%  { transform: scale(1); opacity: 1; filter: none; }
+      80%  { transform: scale(.92); opacity: 1; }
+      100% { transform: scale(.7); opacity: 0; }
+    }
+
+    /* ---------- it's on ---------- */
+    .party { display: none; }
+    body.done .clock, body.done .foot { display: none; }
+    body.done .party {
+      display: block;
+      margin: 0;
+      font-family: "Anton", Impact, sans-serif;
+      font-weight: 400;
+      font-size: min(8.5vw, 12vh);
+      line-height: 1;
+      letter-spacing: .02em;
+      text-transform: uppercase;
+      color: var(--accent-2-hi);
+      text-shadow: 0 .04em 0 #0e4f2f, 0 0 .4em rgba(30,160,95,.6);
+      animation: rise .6s ease-out, pump .5s .6s ease-in-out infinite alternate;
+    }
+    @keyframes pump { from { transform: scale(1); } to { transform: scale(1.05); } }
+
+    /* portrait phones: stack the clock 2x2 so the digits can go big */
+    @media (max-aspect-ratio: 4/5) {
+      .stage { gap: 5vh; }
+      .clock { display: grid; grid-template-columns: repeat(2, auto); gap: 4vh 9vw; }
+      .sep { display: none; }
+      .num { font-size: min(26vw, 14vh); }
+      .lbl { font-size: .72rem; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .beam, .floor, h1::after { animation: none !important; }
+      h1::after { opacity: 1; background-position: 120% 0, 0 0; }
+      h1 .l, .eyebrow, .clock, .foot { animation-duration: .01s !important; animation-delay: 0s !important; }
+      .d.tick, .title-wrap.beat h1, .title-wrap.beat .halo, .stage.shake, body.done .party { animation: none !important; }
+      .shock { display: none; }
+    }
+  </style>
+</head>
+<body>
+  <canvas id="fx" aria-hidden="true"></canvas>
+  <div class="floor" aria-hidden="true"></div>
+  <div class="beams" aria-hidden="true">
+    <div class="beam b"></div><div class="beam g"></div><div class="beam g"></div><div class="beam b"></div>
+  </div>
+  <div class="vignette" aria-hidden="true"></div>
+
+  <main class="stage" id="stage">
+    <p class="eyebrow" id="eyebrow">Sábado <b>14</b> de noviembre · <b>23:00</b></p>
+
+    <div class="title-wrap" id="titleWrap">
+      <div class="halo" aria-hidden="true"></div>
+      <h1 id="title" data-text="INFOFIESTA" aria-label="INFOFIESTA"></h1>
+    </div>
+
+    <p class="sr" id="srText">Cuenta atrás hasta el sábado 14 de noviembre de 2026 a las 23:00, hora peninsular española.</p>
+
+    <div class="clock" id="clock" aria-hidden="true"></div>
+    <p class="party" id="party">¡Que empiece la fiesta!</p>
+
+    <p class="foot">Hora peninsular española</p>
+  </main>
+
+  <div id="final" aria-hidden="true"><span id="finalNum"></span></div>
+  <div class="flash" id="flash" aria-hidden="true"></div>
+
+  <script>
+    (function () {
+      // Saturday 14 Nov 2026, 23:00 in Madrid (CET, UTC+1 — DST already over).
+      let TARGET = Date.parse("2026-11-14T23:00:00+01:00");
+      // Preview helper: ?t=15 starts the countdown 15 seconds from now.
+      const preview = new URLSearchParams(location.search).get("t");
+      if (preview !== null && !isNaN(+preview)) TARGET = Date.now() + (+preview) * 1000;
+
+      const reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
+      const $ = (s) => document.getElementById(s);
+      const stage = $("stage"), titleWrap = $("titleWrap"), clock = $("clock");
+      const finalNum = $("finalNum"), flashEl = $("flash");
+
+      const retrigger = (el, cls) => { el.classList.remove(cls); void el.offsetWidth; el.classList.add(cls); };
+
+      /* ---------- title letters ---------- */
+      const title = $("title");
+      [..."INFOFIESTA"].forEach((ch, i) => {
+        const s = document.createElement("span");
+        s.className = "l";
+        s.style.setProperty("--i", i);
+        s.setAttribute("aria-hidden", "true");
+        s.textContent = ch;
+        title.appendChild(s);
+      });
+
+      /* ---------- clock ---------- */
+      const UNITS = [["days", "Días"], ["hours", "Horas"], ["mins", "Minutos"], ["secs", "Segundos"]];
+      const cells = {};
+      UNITS.forEach(([key, label], i) => {
+        if (i) {
+          const sep = document.createElement("div");
+          sep.className = "sep";
+          sep.textContent = ":";
+          clock.appendChild(sep);
+        }
+        const u = document.createElement("div");
+        u.className = "unit " + key;
+        u.innerHTML = '<div class="num"></div><div class="lbl">' + label + "</div>";
+        clock.appendChild(u);
+        cells[key] = { num: u.querySelector(".num"), unit: u, digits: [] };
+      });
+
+      function setDigits(key, str) {
+        const c = cells[key];
+        while (c.digits.length < str.length) {
+          const d = document.createElement("span");
+          d.className = "d";
+          c.num.appendChild(d);
+          c.digits.push(d);
+        }
+        while (c.digits.length > str.length) c.num.removeChild(c.digits.pop());
+        str.split("").forEach((ch, i) => {
+          const d = c.digits[i];
+          if (d.textContent !== ch) {
+            d.textContent = ch;
+            if (started && !reduced) retrigger(d, "tick");
+          }
+        });
+      }
+
+      const pad = (n) => String(n).padStart(2, "0");
+      let started = false, lastSecs = null, isDone = false;
+
+      function remaining() { return Math.max(0, Math.ceil((TARGET - Date.now()) / 1000)); }
+
+      function render() {
+        const s = remaining();
+        if (s === lastSecs) return;
+        const prev = lastSecs;
+        lastSecs = s;
+
+        const d = Math.floor(s / 86400), h = Math.floor(s / 3600) % 24, m = Math.floor(s / 60) % 60, sec = s % 60;
+        setDigits("days", pad(d));
+        setDigits("hours", pad(h));
+        setDigits("mins", pad(m));
+        setDigits("secs", pad(sec));
+        document.title = s > 0 ? (d ? d + "d " : "") + pad(h) + ":" + pad(m) + ":" + pad(sec) + " · INFOFIESTA" : "¡INFOFIESTA!";
+
+        if (s === 0) { if (!isDone) celebrate(prev !== null); return; }
+        if (prev === null || !started) return;
+
+        // every second: a heartbeat
+        retrigger(titleWrap, "beat");
+        retrigger(clock, "beat");
+        const r = cells.secs.unit.getBoundingClientRect();
+        burst(r.left + r.width / 2, r.top + r.height * .4, reduced ? 0 : 14, 3);
+
+        // every minute: shockwave
+        if (sec === 59) {
+          shock(innerWidth / 2, clock.getBoundingClientRect().top + 40);
+          if (!reduced) retrigger(stage, "shake");
+        }
+
+        // final ten seconds
+        if (s <= 10) {
+          document.body.classList.add("final");
+          finalNum.textContent = s;
+          retrigger(finalNum, "go");
+          doFlash(.35);
+          burst(innerWidth / 2, innerHeight / 2, reduced ? 0 : 60 + (10 - s) * 12, 7);
+          if (!reduced) retrigger(stage, "shake");
+        }
+      }
+
+      function celebrate(live) {
+        isDone = true;
+        document.body.classList.remove("final");
+        document.body.classList.add("done");
+        $("eyebrow").innerHTML = "Sábado <b>14</b> de noviembre · <b>ya es la hora</b>";
+        $("srText").textContent = "¡Ya ha empezado la INFOFIESTA!";
+        if (live) {
+          doFlash(1);
+          shock(innerWidth / 2, innerHeight / 2);
+          if (!reduced) retrigger(stage, "shake");
+          for (let i = 0; i < 6; i++) setTimeout(() => burst(innerWidth * (.15 + Math.random() * .7), innerHeight * (.2 + Math.random() * .4), 140, 9), i * 140);
+        }
+        fireworks = true;
+      }
+
+      function doFlash(strength) {
+        flashEl.style.setProperty("opacity", "0");
+        flashEl.animate([{ opacity: strength }, { opacity: 0 }], { duration: 700, easing: "ease-out" });
+      }
+
+      function shock(x, y) {
+        const el = document.createElement("div");
+        el.className = "shock";
+        el.style.left = x + "px";
+        el.style.top = y + "px";
+        document.body.appendChild(el);
+        setTimeout(() => el.remove(), 1200);
+      }
+
+      /* ---------- particles ---------- */
+      const cv = $("fx"), cx = cv.getContext("2d");
+      const COLORS = ["90,135,225", "63,208,138", "30,160,95", "235,235,235", "140,175,240"];
+      const pick = (a) => a[(Math.random() * a.length) | 0];
+      let W = 0, H = 0, embers = [], sparks = [], rockets = [], fireworks = false, nextRocket = 0;
+
+      function resize() {
+        const dpr = Math.min(devicePixelRatio || 1, 2);
+        W = innerWidth; H = innerHeight;
+        cv.width = W * dpr; cv.height = H * dpr;
+        cx.setTransform(dpr, 0, 0, dpr, 0, 0);
+        const n = Math.round(Math.min(160, (W * H) / 9000) * (reduced ? .3 : 1));
+        embers = Array.from({ length: n }, () => ember(true));
+      }
+      function ember(anywhere) {
+        return {
+          x: Math.random() * W,
+          y: anywhere ? Math.random() * H : H + 10,
+          r: .6 + Math.random() * 2.2,
+          vy: .25 + Math.random() * .9,
+          ph: Math.random() * 6.28,
+          a: .25 + Math.random() * .6,
+          c: pick(COLORS)
+        };
+      }
+
+      function burst(x, y, n, speed) {
+        for (let i = 0; i < n && sparks.length < 1800; i++) {
+          const ang = Math.random() * Math.PI * 2, v = speed * (.3 + Math.random() * .7);
+          const life = 40 + Math.random() * 40;
+          sparks.push({ x, y, vx: Math.cos(ang) * v, vy: Math.sin(ang) * v, life, max: life, c: pick(COLORS), r: 1 + Math.random() * 1.8 });
+        }
+      }
+
+      function launch() {
+        const x = W * (.1 + Math.random() * .8);
+        rockets.push({ x, y: H + 10, vx: (Math.random() - .5) * 1.5, vy: -(H / 75) * (.75 + Math.random() * .3), c: pick(COLORS) });
+      }
+
+      function frame(t) {
+        cx.clearRect(0, 0, W, H);
+        cx.globalCompositeOperation = "lighter";
+
+        for (const e of embers) {
+          e.y -= e.vy;
+          e.x += Math.sin(e.ph + t * .0012) * .35;
+          if (e.y < -10) Object.assign(e, ember(false));
+          const a = e.a * (.55 + .45 * Math.sin(t * .004 + e.ph));
+          cx.fillStyle = "rgba(" + e.c + "," + a + ")";
+          cx.beginPath(); cx.arc(e.x, e.y, e.r, 0, 6.283); cx.fill();
+        }
+
+        if (fireworks && !reduced && t > nextRocket) { launch(); nextRocket = t + 350 + Math.random() * 650; }
+        else if (fireworks && reduced && t > nextRocket) { burst(W * Math.random(), H * (.2 + Math.random() * .3), 50, 4); nextRocket = t + 2500; }
+
+        for (let i = rockets.length - 1; i >= 0; i--) {
+          const k = rockets[i];
+          k.x += k.vx; k.y += k.vy; k.vy += .12;
+          cx.strokeStyle = "rgba(" + k.c + ",.9)";
+          cx.lineWidth = 2;
+          cx.beginPath(); cx.moveTo(k.x, k.y); cx.lineTo(k.x - k.vx * 3, k.y - k.vy * 3); cx.stroke();
+          if (k.vy >= -1) { burst(k.x, k.y, 110, 7); rockets.splice(i, 1); }
+        }
+
+        for (let i = sparks.length - 1; i >= 0; i--) {
+          const p = sparks[i];
+          p.x += p.vx; p.y += p.vy;
+          p.vx *= .965; p.vy = p.vy * .965 + .06;
+          if (--p.life <= 0) { sparks.splice(i, 1); continue; }
+          cx.strokeStyle = "rgba(" + p.c + "," + (p.life / p.max) + ")";
+          cx.lineWidth = p.r;
+          cx.beginPath(); cx.moveTo(p.x, p.y); cx.lineTo(p.x - p.vx * 2.5, p.y - p.vy * 2.5); cx.stroke();
+        }
+
+        requestAnimationFrame(frame);
+      }
+
+      addEventListener("resize", resize);
+      resize();
+      requestAnimationFrame(frame);
+
+      /* ---------- go ---------- */
+      render();
+      // intro: once the letters land, hit it
+      setTimeout(() => {
+        started = true;
+        if (isDone) return;
+        doFlash(.5);
+        const r = title.getBoundingClientRect();
+        shock(r.left + r.width / 2, r.top + r.height / 2);
+        if (!reduced) {
+          retrigger(stage, "shake");
+          for (let i = 0; i < 5; i++) burst(r.left + r.width * (i + .5) / 5, r.top + r.height / 2, 50, 8);
+        }
+      }, reduced ? 0 : 1050);
+
+      (function loop() {
+        render();
+        if (!isDone) setTimeout(loop, 1000 - ((Date.now() - TARGET) % 1000 + 1000) % 1000 + 8);
+      })();
+      document.addEventListener("visibilitychange", render);
+    })();
+  </script>
+</body>
+</html>
