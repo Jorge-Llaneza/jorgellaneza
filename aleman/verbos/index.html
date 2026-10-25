@@ -1,0 +1,239 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Verben — 21 verbos alemanes</title>
+  <meta name="description" content="21 verbos alemanes: del español al alemán y del alemán al español. Combos, niveles y una ruta de Aachen a Berlín.">
+  <meta name="theme-color" content="#1b1d1f">
+  <link rel="icon" type="image/svg+xml" href="favicon.svg">
+
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Verben">
+  <meta property="og:description" content="21 verbos alemanes: español → alemán y alemán → español. Cada acierto te acerca a Berlín.">
+  <meta property="og:url" content="https://jorgellaneza.es/aleman/verbos/">
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="Verben">
+  <meta name="twitter:description" content="21 verbos alemanes: español → alemán y alemán → español. Cada acierto te acerca a Berlín.">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700;800&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header class="topbar">
+    <a class="home-link" href="/" aria-label="Volver a jorgellaneza.es">&larr;</a>
+    <div class="player" id="player" title="Nivel y experiencia">
+      <span class="mini-sign"><span class="mini-lvl" id="lvl-num">1</span><span id="lvl-city">Aachen</span></span>
+      <span class="xp">
+        <span class="xp-bar"><span class="xp-fill" id="xp-fill"></span></span>
+        <span class="xp-label" id="xp-label">0 / 80 XP</span>
+      </span>
+    </div>
+    <div class="chips">
+      <span class="chip" id="streak-chip" title="Racha de días">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2c1 4 5 6 5 11a5 5 0 0 1-10 0c0-2.5 1.2-3.8 2-5 .3 1.6 1 2.6 2 3 0-3.5-.5-6 1-9z"/></svg>
+        <span id="streak-num">0</span>
+      </span>
+      <span class="chip goal" id="goal-chip" title="Objetivo diario">
+        <svg viewBox="0 0 36 36" aria-hidden="true"><circle cx="18" cy="18" r="14" class="ring-bg"/><circle cx="18" cy="18" r="14" class="ring" id="goal-ring"/></svg>
+        <span id="goal-num">0/100</span>
+      </span>
+      <button type="button" class="icon-btn" id="btn-sound" aria-pressed="true" title="Efectos de sonido">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9h4l5-4v14l-5-4H4z"/><path class="on" d="M16 8.5a5 5 0 0 1 0 7M18.5 6a8.5 8.5 0 0 1 0 12" fill="none"/><path class="off" d="M16 9l6 6M22 9l-6 6" fill="none"/></svg>
+      </button>
+      <button type="button" class="icon-btn" id="btn-voice" aria-pressed="true" title="Pronunciación en alemán">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 4h14a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2h-8l-5 4v-4H5a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2z"/><text x="12" y="13.6" text-anchor="middle">DE</text></svg>
+      </button>
+    </div>
+  </header>
+
+  <main>
+    <!-- ============ HOME ============ -->
+    <section class="screen" id="screen-home" data-active="true">
+      <div class="hero">
+        <p class="eyebrow">Alemán · 21 verbos</p>
+        <h1>Verben</h1>
+        <p class="lead">Del español al alemán y del alemán al español. Cada acierto suma kilómetros en la ruta de <b>Aachen</b> a <b>Berlín</b>; los verbos que más fallas salen más.</p>
+      </div>
+
+      <div class="launch">
+        <div class="seg" role="radiogroup" aria-label="Sentido de la traducción" id="dir-seg">
+          <button type="button" role="radio" data-dir="esde">ES <span>&rarr;</span> DE</button>
+          <button type="button" role="radio" data-dir="dees">DE <span>&rarr;</span> ES</button>
+          <button type="button" role="radio" data-dir="mix">Mixto</button>
+        </div>
+        <button type="button" class="btn-go" id="btn-train">
+          <span class="go-main">Losfahren</span>
+          <span class="go-sub" id="train-sub">12 preguntas · empiezas con opciones, acabas escribiendo</span>
+        </button>
+      </div>
+
+      <ul class="modes">
+        <li>
+          <button type="button" class="mode" data-mode="blitz">
+            <span class="mode-name">Blitz</span>
+            <span class="mode-desc">60 segundos, cuatro opciones, ambos sentidos. Solo cuenta la velocidad.</span>
+            <span class="mode-rec" id="rec-blitz">Récord 0</span>
+          </button>
+        </li>
+        <li>
+          <button type="button" class="mode" data-mode="survival">
+            <span class="mode-name">Überleben</span>
+            <span class="mode-desc">Tres vidas, todo escrito. El reloj se acorta con cada acierto.</span>
+            <span class="mode-rec" id="rec-survival">Récord 0</span>
+          </button>
+        </li>
+        <li>
+          <button type="button" class="mode" data-mode="perf">
+            <span class="mode-name">Perfekt</span>
+            <span class="mode-desc">Elige <i>hat</i> o <i>ist</i> y escribe el participio.</span>
+            <span class="mode-rec" id="rec-perf">0/21</span>
+          </button>
+        </li>
+      </ul>
+
+      <section class="block">
+        <h2>Ruta</h2>
+        <p class="route-text" id="route-text"></p>
+        <ol class="route" id="route"></ol>
+      </section>
+
+      <section class="block">
+        <div class="block-head">
+          <h2>Colección</h2>
+          <span class="legend"><i class="lg esde"></i>ES→DE <i class="lg dees"></i>DE→ES <i class="lg perf"></i>Perfekt</span>
+        </div>
+        <p class="muted small">Cada barra se llena con cinco aciertos escritos. Toca un verbo para oírlo.</p>
+        <div class="collection" id="collection"></div>
+      </section>
+
+      <section class="block">
+        <div class="block-head">
+          <h2>Erfolge</h2>
+          <span class="muted" id="ach-count"></span>
+        </div>
+        <ul class="ach-list" id="ach-list"></ul>
+      </section>
+
+      <footer class="foot">
+        <span>El progreso se guarda en este navegador.</span>
+        <button type="button" class="link-btn" id="btn-reset">Borrar progreso</button>
+      </footer>
+    </section>
+
+    <!-- ============ PLAY ============ -->
+    <section class="screen" id="screen-play">
+      <div class="hud">
+        <button type="button" class="quit" id="btn-quit" aria-label="Salir de la ronda">&times;</button>
+        <span class="hud-mode" id="hud-mode">Training</span>
+        <span class="hud-status" id="hud-status"></span>
+        <span class="hud-score"><b id="hud-score">0</b> pts</span>
+      </div>
+      <div class="track"><div class="track-fill" id="track-fill"></div></div>
+
+      <div class="stage">
+        <div class="combo" id="combo" hidden><b id="combo-n">3</b> seguidos <span id="combo-x">×2</span></div>
+
+        <div class="sign" id="sign" data-dir="esde">
+          <span class="sign-dir" id="sign-dir">Español → Deutsch</span>
+          <div class="sign-word" id="sign-word"></div>
+          <span class="sign-hint" id="sign-hint"></span>
+        </div>
+        <div class="float-layer" id="float-layer" aria-hidden="true"></div>
+      </div>
+
+      <div class="answer">
+        <div class="choices" id="choices"></div>
+
+        <form class="type-form" id="type-form" autocomplete="off">
+          <div class="aux" id="aux-pick" role="radiogroup" aria-label="Verbo auxiliar">
+            <button type="button" role="radio" data-aux="hat">hat</button>
+            <button type="button" role="radio" data-aux="ist">ist</button>
+          </div>
+          <input type="text" id="answer-input" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" enterkeyhint="go" aria-label="Tu respuesta">
+          <div class="umlauts" id="umlauts">
+            <button type="button" data-ch="ä">ä</button>
+            <button type="button" data-ch="ö">ö</button>
+            <button type="button" data-ch="ü">ü</button>
+            <button type="button" data-ch="ß">ß</button>
+          </div>
+          <div class="actions">
+            <button type="button" class="btn-ghost" id="btn-hint">Tipp <small>½ pts</small></button>
+            <button type="button" class="btn-ghost" id="btn-skip">No lo sé</button>
+            <button type="submit" class="btn-check" id="btn-check">Comprobar</button>
+          </div>
+        </form>
+
+        <div class="feedback" id="feedback" hidden>
+          <div class="fb-head">
+            <strong id="fb-title">Richtig!</strong>
+            <span class="fb-points" id="fb-points"></span>
+          </div>
+          <p class="fb-msg" id="fb-msg"></p>
+          <div class="fb-verb">
+            <button type="button" class="speak" id="btn-speak" aria-label="Escuchar en alemán">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9h4l5-4v14l-5-4H4z"/><path d="M16 8.5a5 5 0 0 1 0 7" fill="none"/></svg>
+            </button>
+            <div>
+              <div class="fb-de"><b id="fb-de"></b> · <span id="fb-pp"></span></div>
+              <div class="fb-tr" id="fb-es"></div>
+              <div class="fb-note" id="fb-note"></div>
+            </div>
+          </div>
+          <button type="button" class="btn-next" id="btn-next">Weiter <span>&rarr;</span></button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ RESULT ============ -->
+    <section class="screen" id="screen-result">
+      <p class="eyebrow" id="res-mode">Training</p>
+      <h1 class="res-title" id="res-title">Gut gemacht!</h1>
+      <p class="lead" id="res-sub"></p>
+
+      <dl class="stats">
+        <div><dt>Puntos</dt><dd id="res-score">0</dd></div>
+        <div><dt>Aciertos</dt><dd id="res-acc">0/0</dd></div>
+        <div><dt>Mejor combo</dt><dd id="res-combo">0</dd></div>
+        <div><dt>XP</dt><dd id="res-xp">+0</dd></div>
+      </dl>
+
+      <div class="res-level" id="res-level">
+        <div class="arrival" id="arrival" hidden>
+          <span class="arrival-label">Nueva parada</span>
+          <span class="big-sign" id="arrival-city">Köln</span>
+        </div>
+        <div class="res-bar-row">
+          <span id="res-lvl">Nivel 1 · Aachen</span>
+          <span id="res-next"></span>
+        </div>
+        <div class="xp-bar big"><span class="xp-fill" id="res-fill"></span></div>
+      </div>
+
+      <div class="res-ach" id="res-ach" hidden>
+        <h2>Erfolge desbloqueados</h2>
+        <ul class="ach-list" id="res-ach-list"></ul>
+      </div>
+
+      <div class="res-mistakes" id="res-mistakes" hidden>
+        <h2>Para repasar</h2>
+        <ul class="mistakes" id="mistake-list"></ul>
+      </div>
+
+      <div class="res-actions">
+        <button type="button" class="btn-go small" id="btn-again"><span class="go-main">Otra ronda</span></button>
+        <button type="button" class="btn-ghost" id="btn-review" hidden>Repasar fallos</button>
+        <button type="button" class="btn-ghost" id="btn-home">Volver a la ruta</button>
+      </div>
+    </section>
+  </main>
+
+  <div class="toasts" id="toasts" aria-live="polite"></div>
+  <canvas class="confetti" id="confetti" aria-hidden="true"></canvas>
+
+  <script src="data.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>

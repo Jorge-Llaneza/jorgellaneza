@@ -2,11 +2,252 @@
 <html lang="en">
 <head>
   <meta charset="utf-8">
-  <title>MP Productions</title>
-  <meta http-equiv="refresh" content="0; url=/mpproductions">
-  <script>location.replace("/mpproductions");</script>
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Jorge Llaneza</title>
+  <meta name="description" content="Static sites hung off jorgellaneza.es: a countdown, three study tools and a music production page.">
+  <meta name="theme-color" content="#2b2b2b">
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Jorge Llaneza">
+  <meta property="og:description" content="Static sites hung off jorgellaneza.es. Do not take most of them seriously.">
+  <meta property="og:url" content="https://jorgellaneza.es/">
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="Jorge Llaneza">
+  <meta name="twitter:description" content="Static sites hung off jorgellaneza.es. Do not take most of them seriously.">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Anton&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #2b2b2b;
+      --surface: #32373c;
+      --text: #ebebeb;
+      --muted: #9a9a9a;
+      --accent: #5a87e1;
+      --accent-2: #1ea05f;
+      --accent-2-hi: #3fd08a;
+      --border: rgba(255, 255, 255, 0.12);
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background:
+        radial-gradient(circle at 12% 8%, rgba(90, 135, 225, 0.14), transparent 40%),
+        radial-gradient(circle at 92% 95%, rgba(30, 160, 95, 0.12), transparent 45%),
+        var(--bg);
+      background-color: var(--bg);
+      color: var(--text);
+      font-family: "Inter", -apple-system, BlinkMacSystemFont, sans-serif;
+      line-height: 1.5;
+      -webkit-font-smoothing: antialiased;
+    }
+    a { color: inherit; text-decoration: none; }
+    .wrap {
+      max-width: 1120px;
+      margin: 0 auto;
+      padding: max(56px, env(safe-area-inset-top)) 24px max(40px, env(safe-area-inset-bottom));
+    }
+
+    header { margin-bottom: clamp(40px, 8vh, 80px); }
+    .eyebrow {
+      display: block;
+      color: var(--accent-2-hi);
+      font-size: 0.8rem;
+      font-weight: 600;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      margin-bottom: 16px;
+    }
+    h1 {
+      display: inline-block;
+      font-family: "Anton", "Inter", sans-serif;
+      font-weight: 400;
+      text-transform: uppercase;
+      letter-spacing: 0.01em;
+      font-size: clamp(3.4rem, 13vw, 10rem);
+      line-height: 0.9;
+      margin: 0;
+      background: linear-gradient(120deg, #ffffff 45%, var(--accent) 75%, var(--accent-2) 100%);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+    }
+    .intro {
+      margin: 22px 0 0;
+      max-width: 34ch;
+      color: var(--muted);
+      font-size: 1.1rem;
+    }
+    .intro b { color: var(--text); font-weight: 500; }
+
+    .sites { list-style: none; margin: 0; padding: 0; border-top: 1px solid var(--border); }
+    .sites li { border-bottom: 1px solid var(--border); }
+    .site {
+      position: relative;
+      display: grid;
+      grid-template-columns: 7.5rem 1fr auto 2.5rem;
+      align-items: center;
+      gap: 24px;
+      padding: 26px 12px;
+      transition: background-color 0.2s;
+    }
+    .site::before {
+      content: "";
+      position: absolute;
+      left: 0; top: 0; bottom: 0;
+      width: 3px;
+      background: linear-gradient(var(--accent), var(--accent-2));
+      transform: scaleY(0);
+      transition: transform 0.25s;
+    }
+    .site:hover, .site:focus-visible { background-color: rgba(255, 255, 255, 0.035); }
+    .site:hover::before, .site:focus-visible::before { transform: scaleY(1); }
+    .site:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
+
+    .date {
+      font-size: 0.8rem;
+      font-variant-numeric: tabular-nums;
+      letter-spacing: 0.08em;
+      color: var(--muted);
+    }
+    .name {
+      display: block;
+      font-family: "Anton", "Inter", sans-serif;
+      text-transform: uppercase;
+      letter-spacing: 0.02em;
+      font-size: clamp(1.9rem, 5vw, 3.4rem);
+      line-height: 1;
+    }
+    .desc {
+      display: block;
+      margin-top: 8px;
+      color: var(--muted);
+      font-size: 0.98rem;
+      max-width: 52ch;
+    }
+    .tag {
+      font-size: 0.72rem;
+      font-weight: 600;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--accent);
+      border: 1px solid rgba(90, 135, 225, 0.45);
+      border-radius: 999px;
+      padding: 5px 12px;
+      white-space: nowrap;
+    }
+    .tag.green { color: var(--accent-2-hi); border-color: rgba(30, 160, 95, 0.5); }
+    .arrow {
+      font-size: 1.6rem;
+      color: var(--muted);
+      transition: transform 0.2s, color 0.2s;
+      justify-self: end;
+    }
+    .site:hover .arrow, .site:focus-visible .arrow { transform: translateX(6px); color: var(--text); }
+
+    footer {
+      margin-top: 48px;
+      display: flex;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
+      color: var(--muted);
+      font-size: 0.85rem;
+    }
+    footer span { max-width: 62ch; }
+    footer span a { color: var(--accent); border-bottom-color: rgba(90, 135, 225, 0.6); font-weight: 500; }
+    footer span a:hover { color: #8fb0ef; border-color: #8fb0ef; }
+    footer a { border-bottom: 1px solid var(--border); transition: color 0.2s, border-color 0.2s; }
+    footer a:hover { color: var(--text); border-color: var(--accent); }
+
+    @media (max-width: 720px) {
+      .wrap { padding-left: 16px; padding-right: 16px; }
+      .site { grid-template-columns: 1fr auto; gap: 10px 16px; padding: 22px 8px; }
+      .date { grid-column: 1; grid-row: 1; }
+      .tag { grid-column: 2; grid-row: 1; justify-self: end; }
+      .site > div { grid-column: 1 / -1; grid-row: 2; }
+      .arrow { display: none; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .site::before, .arrow { transition: none; }
+    }
+  </style>
 </head>
 <body>
-  <p>Redirecting to <a href="/mpproductions">/mpproductions</a>...</p>
+  <div class="wrap">
+    <header>
+      <span class="eyebrow">jorgellaneza.es</span>
+      <h1>Jorge<br>Llaneza</h1>
+      <p class="intro">A handful of static sites built for one-off reasons. <b>Do not take most of them seriously.</b></p>
+    </header>
+
+    <main>
+      <ul class="sites">
+        <li>
+          <a class="site" href="/aleman/verbos/">
+            <time class="date" datetime="2026-10-25">25 Oct 2026</time>
+            <div>
+              <span class="name">Verben</span>
+              <span class="desc">21 German verbs, Spanish to German and back. Combos, three game modes and a level route from Aachen to Berlin.</span>
+            </div>
+            <span class="tag">Study tool</span>
+            <span class="arrow" aria-hidden="true">&rarr;</span>
+          </a>
+        </li>
+        <li>
+          <a class="site" href="/infofiesta/">
+            <time class="date" datetime="2026-10-23">23 Oct 2026</time>
+            <div>
+              <span class="name">Infofiesta</span>
+              <span class="desc">Countdown to Saturday 14 November, 23:00. The last ten seconds get loud.</span>
+            </div>
+            <span class="tag green">Countdown</span>
+            <span class="arrow" aria-hidden="true">&rarr;</span>
+          </a>
+        </li>
+        <li>
+          <a class="site" href="/ed/">
+            <time class="date" datetime="2026-10-20">20 Oct 2026</time>
+            <div>
+              <span class="name">Data Structures Dojo</span>
+              <span class="desc">Build a graph by tapping, then step through Dijkstra, Floyd, DFS and Prim. BST and AVL drills included.</span>
+            </div>
+            <span class="tag">Study tool</span>
+            <span class="arrow" aria-hidden="true">&rarr;</span>
+          </a>
+        </li>
+        <li>
+          <a class="site" href="/mips/">
+            <time class="date" datetime="2026-10-20">20 Oct 2026</time>
+            <div>
+              <span class="name">MIPS64 Pipeline</span>
+              <span class="desc">Fill in the pipeline diagram yourself, then check it against the computed one. Forwarding and other features toggle on and off.</span>
+            </div>
+            <span class="tag">Study tool</span>
+            <span class="arrow" aria-hidden="true">&rarr;</span>
+          </a>
+        </li>
+        <li>
+          <a class="site" href="/mpproductions/">
+            <time class="date" datetime="2026-10-08">8 Oct 2026</time>
+            <div>
+              <span class="name">MP Productions</span>
+              <span class="desc">Music production, mixing and releases. Portfolio and a contact form that actually sends.</span>
+            </div>
+            <span class="tag green">Music</span>
+            <span class="arrow" aria-hidden="true">&rarr;</span>
+          </a>
+        </li>
+      </ul>
+    </main>
+
+    <footer>
+      <span>Site fully vibe coded with Claude Code (Kinda obvious innit?). Although I do have some nice hand-crafted projects on my <a href="https://github.com/Jorge-Llaneza">personal github</a></span>
+      <a href="https://github.com/Jorge-Llaneza/jorgellaneza">Source on GitHub</a>
+    </footer>
+  </div>
 </body>
 </html>
