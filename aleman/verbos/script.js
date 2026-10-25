@@ -109,6 +109,8 @@
     if (!a) return { kind: "empty" };
     const t = foldDe(verb.de);
     if (a === t) return { kind: "exact" };
+    const near = Object.keys(verb.near || {}).find((w) => foldDe(w) === a);
+    if (near) return { kind: "near", msg: verb.near[near] };
     const other = VERBOS.find((v) => v !== verb && foldDe(v.de) === a);
     if (other) return { kind: sharesEs(other, verb) ? "synonym" : "wrong", other };
     if (lev(a, t) <= tolerance(t)) {
@@ -591,6 +593,18 @@
       : Q.card.dir === "dees" ? checkEs(text, Q.verb)
         : checkPerf(Q.aux, text, Q.verb);
     if (res.kind === "empty") return;
+    if (res.kind === "near") {
+      // casi el verbo buscado: aviso sin penalizar y se deja reintentar
+      const hint = $("sign-hint");
+      hint.innerHTML = "";
+      const b = document.createElement("b");
+      b.textContent = res.msg;
+      hint.appendChild(b);
+      restartAnim($("sign"), "bad");
+      SFX.meh();
+      input.select();
+      return;
+    }
     resolve(res, Q.type === "perf" ? `${Q.aux} ${text}` : text);
   }
 
