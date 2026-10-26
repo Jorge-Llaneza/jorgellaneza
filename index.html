@@ -149,13 +149,24 @@
     .site:hover .arrow, .site:focus-visible .arrow { transform: translateX(6px); color: var(--text); }
 
     footer {
-      margin-top: 48px;
+      position: relative;
+      margin-top: clamp(80px, 14vh, 140px);
+      padding-top: 28px;
       display: flex;
       justify-content: space-between;
+      align-items: baseline;
       flex-wrap: wrap;
       gap: 12px;
       color: var(--muted);
-      font-size: 0.85rem;
+      font-size: 0.8rem;
+    }
+    footer::before {
+      content: "";
+      position: absolute;
+      left: 0; top: 0;
+      width: 48px;
+      height: 3px;
+      background: linear-gradient(90deg, var(--accent), var(--accent-2));
     }
     footer span { max-width: 62ch; }
     footer span a { color: var(--accent); border-bottom-color: rgba(90, 135, 225, 0.6); font-weight: 500; }
