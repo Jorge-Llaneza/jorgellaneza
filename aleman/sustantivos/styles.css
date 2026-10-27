@@ -743,7 +743,40 @@ h2 { margin: 0 0 6px; font-family: var(--display); font-weight: 700; font-size: 
   .mistakes li { grid-template-columns: 1fr; gap: 2px; }
   .hud { grid-template-columns: auto 1fr auto; gap: 10px; }
   .hud-mode { display: none; }
+
+  /* Partida en móvil: billete compacto para que los botones de respuesta quepan sin
+     desplazar, y Weiter fijo abajo para que siempre esté a mano. */
+  .stage { margin-top: 26px; }
+  .ticket { min-height: 124px; }
+  .ticket-body { padding: 14px 12px 16px; gap: 4px; }
+  .ticket-word { font-size: clamp(2rem, 9vw, 3rem); }
+  .ticket-hint { min-height: 0; }
+  .answer { margin-top: 14px; }
+  .gbtn { padding: 14px 8px 10px; }
+  .feedback { margin-top: 12px; padding: 12px 14px; animation-name: fade-in; }
+  .fb-head strong { font-size: 1.5rem; }
+  .fb-noun { margin-top: 10px; padding-top: 10px; }
+  .fb-de { font-size: 1.3rem; }
+  .btn-next {
+    position: fixed;
+    z-index: 30;
+    left: 16px;
+    right: 16px;
+    bottom: max(12px, env(safe-area-inset-bottom));
+    width: auto;
+    margin: 0;
+    box-shadow: 0 0 0 8px var(--sea), 0 -10px 24px rgba(0, 0, 0, 0.5);
+  }
+  #screen-play:has(.feedback:not([hidden])) { padding-bottom: 76px; }
+  body:has(#screen-play[data-active="true"] .feedback:not([hidden])) .toasts { bottom: calc(max(12px, env(safe-area-inset-bottom)) + 70px); }
 }
+@media (max-width: 640px) and (max-height: 640px) {
+  .stage { margin-top: 22px; }
+  .ticket { min-height: 96px; }
+  .ticket-label { display: none; }
+  .track { margin-top: 8px; }
+}
+@keyframes fade-in { from { opacity: 0; } }
 @media (max-width: 420px) { .xp { display: none; } }
 @media (max-width: 340px) { #goal-chip { display: none; } }
 

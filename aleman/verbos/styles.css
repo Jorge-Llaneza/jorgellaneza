@@ -854,7 +854,38 @@ h2 {
   .hud { gap: 10px; }
   .hud-mode { display: none; }
   .hud { grid-template-columns: auto 1fr auto; }
+
+  /* Partida en móvil: señal compacta para que los botones de respuesta quepan sin
+     desplazar, y Weiter fijo abajo para que siempre esté a mano. */
+  .stage { margin-top: 26px; }
+  .sign { min-height: 124px; padding: 16px 16px 18px; gap: 4px; }
+  .sign-word { font-size: clamp(2.1rem, 9.5vw, 3.2rem); }
+  .sign-hint { min-height: 0; }
+  .answer { margin-top: 14px; }
+  .feedback { margin-top: 12px; padding: 12px 14px; animation-name: fade-in; }
+  .fb-head strong { font-size: 1.55rem; }
+  .fb-verb { margin-top: 10px; padding-top: 10px; }
+  .fb-de { font-size: 1.3rem; }
+  .btn-next {
+    position: fixed;
+    z-index: 30;
+    left: 16px;
+    right: 16px;
+    bottom: max(12px, env(safe-area-inset-bottom));
+    width: auto;
+    margin: 0;
+    box-shadow: 0 0 0 8px var(--asphalt), 0 -10px 24px rgba(0, 0, 0, 0.5);
+  }
+  #screen-play:has(.feedback:not([hidden])) { padding-bottom: 76px; }
+  body:has(#screen-play[data-active="true"] .feedback:not([hidden])) .toasts { bottom: calc(max(12px, env(safe-area-inset-bottom)) + 70px); }
 }
+@media (max-width: 640px) and (max-height: 640px) {
+  .stage { margin-top: 22px; }
+  .sign { min-height: 96px; }
+  .sign-dir { display: none; }
+  .track { margin-top: 8px; }
+}
+@keyframes fade-in { from { opacity: 0; } }
 @media (max-width: 420px) {
   .xp { display: none; }
 }
