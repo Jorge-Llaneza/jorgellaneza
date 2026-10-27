@@ -8,7 +8,7 @@ A collection of static sites served from GitHub Pages, pointed at by the persona
 
 Each top-level directory is an independent site, self-contained (own `index.html`, `styles.css`, `script.js`, assets):
 
-- `mpproductions/` — marketing/landing page for MP Productions (music production outfit). Single-page site with nav toggle, portfolio grid, and a contact form that is intentionally not wired up to send anything (`script.js` just swaps in a note on submit).
+- `mpproductions/` — marketing/landing page for MP Productions (music production outfit). Single-page site with nav toggle, portfolio grid, a contact form that sends via Web3Forms, and a newsletter signup in the "Coming Soon" section that posts to Buttondown (the Buttondown username lives in the form's `action` URL in `index.html`; while it is still `YOUR_BUTTONDOWN_USERNAME`, `script.js` blocks the submit and shows a not-set-up note).
 - `sistemamayor/` — a Spanish-language memory-training quiz app for the "sistema mayor" mnemonic technique (number → word associations). `data.js` defines the `SISTEMA_MAYOR` map (string number key → associated Spanish word); `script.js` holds all the quiz logic (state machine across intro/quiz/result screens, shuffled queue with wrong answers re-inserted a few slots ahead, per-question countdown timer, pause/resume, mistake review at the end).
 - `index.html` (repo root) and `404.html` — redirect/fallback pages for the domain root.
 

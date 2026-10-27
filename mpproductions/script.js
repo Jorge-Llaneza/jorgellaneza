@@ -39,3 +39,25 @@ form.addEventListener("submit", async (e) => {
     submitBtn.textContent = "Send message";
   }
 });
+
+const newsletterForm = document.querySelector("#newsletter-form");
+const newsletterNote = document.querySelector(".newsletter-note");
+
+newsletterForm.addEventListener("submit", (e) => {
+  if (newsletterForm.action.includes("YOUR_BUTTONDOWN_USERNAME")) {
+    e.preventDefault();
+    newsletterNote.textContent = "Newsletter signup isn't set up yet. Please use the contact form below.";
+    newsletterNote.classList.add("error");
+    newsletterNote.hidden = false;
+    return;
+  }
+
+  // The form posts to Buttondown in a new tab; swap the form out once it has gone.
+  setTimeout(() => {
+    newsletterForm.hidden = true;
+    document.querySelector(".newsletter-fine").hidden = true;
+    newsletterNote.textContent = "Almost done: check your inbox and click the confirmation link to join the list.";
+    newsletterNote.classList.remove("error");
+    newsletterNote.hidden = false;
+  }, 0);
+});
