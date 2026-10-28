@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>DNI a ciegas — Retención y cálculo</title>
+  <meta name="description" content="Un DNI de 8 cifras aparece a trozos y en voz alta, luego se oculta. Retenlo, divide entre 23 y teclea la letra contra el reloj.">
+  <meta name="robots" content="noindex, nofollow">
+  <meta property="og:title" content="DNI a ciegas — Retención y cálculo">
+  <meta property="og:description" content="Ocho cifras, a trozos y en voz alta. Luego, a ciegas: ¿qué letra le toca?">
+  <meta property="og:type" content="website">
+  <meta name="theme-color" content="#efe9dc">
+  <link rel="icon" type="image/svg+xml" href="favicon.svg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <main class="scene">
+
+    <!-- INTRO -->
+    <section class="screen" id="screen-intro" data-active="true" aria-labelledby="intro-title">
+      <p class="eyebrow">Retención y cálculo · módulo 23</p>
+      <h1 id="intro-title">DNI<br>a ciegas</h1>
+
+      <ol class="steps">
+        <li><b>Escucha.</b> Las 8 cifras salen en trozos de 1, 2 o 3, uno cada vez, y una voz los lee. El resto queda tapado con <code>?</code>.</li>
+        <li><b>Retén.</b> Tras el último trozo se oculta todo. El número tienes que llevarlo tú.</li>
+        <li><b>Calcula.</b> Divide entre 23 y teclea la letra. El reloj corre desde el primer trozo hasta tu tecla.</li>
+      </ol>
+
+      <button class="btn btn-start" id="btn-start" type="button">Empezar <kbd>Enter</kbd></button>
+
+      <section class="settings" aria-labelledby="settings-title">
+        <h2 id="settings-title">Ajustes</h2>
+
+        <div class="row" id="voice-row">
+          <label class="check"><input type="checkbox" id="opt-voice" checked> <span>Leer en voz alta</span></label>
+          <select id="opt-voice-name" aria-label="Voz"></select>
+        </div>
+        <p class="note" id="voice-note" hidden></p>
+
+        <div class="row">
+          <span class="row-label" id="lbl-read">Cómo lee «412»</span>
+          <div class="seg" role="radiogroup" aria-labelledby="lbl-read">
+            <label><input type="radio" name="read" value="number" checked><span>cuatrocientos doce</span></label>
+            <label><input type="radio" name="read" value="digits"><span>cuatro, uno, dos</span></label>
+          </div>
+        </div>
+
+        <div class="row">
+          <label class="row-label" for="opt-rate">Velocidad de la voz</label>
+          <input type="range" id="opt-rate" min="0.7" max="1.8" step="0.1" value="1.1">
+          <output id="out-rate" for="opt-rate">1,1×</output>
+        </div>
+
+        <div class="row">
+          <span class="row-label" id="lbl-adv">Pasar de trozo</span>
+          <div class="seg" role="radiogroup" aria-labelledby="lbl-adv">
+            <label><input type="radio" name="advance" value="manual" checked><span>con Enter</span></label>
+            <label><input type="radio" name="advance" value="auto"><span>solo, al acabar la voz</span></label>
+          </div>
+        </div>
+
+        <div class="row">
+          <label class="check"><input type="checkbox" id="opt-ears"> <span>Sólo de oído: no enseñar las cifras</span></label>
+        </div>
+
+        <div class="row">
+          <button class="link" id="btn-test-voice" type="button">Probar la voz</button>
+        </div>
+      </section>
+
+      <section class="history" aria-labelledby="hist-title">
+        <div class="hist-head">
+          <h2 id="hist-title">Tus DNIs</h2>
+          <button class="link" id="btn-reset" type="button">Borrar historial</button>
+        </div>
+        <dl class="numbers" id="hist-numbers"></dl>
+        <p class="note" id="hist-empty">Aún no has hecho ninguno. Los tiempos se guardan sólo en este navegador.</p>
+        <ol class="log" id="hist-log"></ol>
+      </section>
+    </section>
+
+    <!-- PLAY -->
+    <section class="screen" id="screen-play" aria-label="Partida">
+      <header class="play-top">
+        <span id="play-count"></span>
+        <span id="play-session"></span>
+      </header>
+
+      <div class="card" id="card">
+        <span class="card-label">DNI</span>
+        <div class="card-row">
+          <span class="digits" id="digits" aria-live="off"></span>
+          <span class="dash">-</span>
+          <span class="slot" id="slot">?</span>
+        </div>
+        <p class="phase" id="phase" aria-live="polite"></p>
+      </div>
+
+      <div class="result" id="result" hidden>
+        <p class="result-time" id="result-time"></p>
+        <p class="result-line" id="result-line"></p>
+      </div>
+
+      <button class="btn btn-next" id="btn-next" type="button"></button>
+
+      <div class="keys" id="keys" aria-label="Letras del DNI"></div>
+
+      <p class="hint" id="hint"><kbd>Enter</kbd> avanzar · <kbd>Espacio</kbd> repetir voz · <kbd>Esc</kbd> salir</p>
+    </section>
+
+  </main>
+  <script src="script.js"></script>
+</body>
+</html>

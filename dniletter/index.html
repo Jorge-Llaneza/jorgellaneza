@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Letra del DNI — Entrenador de velocidad</title>
+  <meta name="description" content="Te sale un resto entre 0 y 22 y tecleas la letra del DNI que le toca. Se mide cada respuesta en milisegundos.">
+  <meta name="robots" content="noindex, nofollow">
+  <meta property="og:title" content="Letra del DNI — Entrenador de velocidad">
+  <meta property="og:description" content="Resto 0–22 → letra del DNI. Cada respuesta cronometrada en milisegundos.">
+  <meta property="og:type" content="website">
+  <meta name="theme-color" content="#efe9dc">
+  <link rel="icon" type="image/svg+xml" href="favicon.svg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <main class="scene">
+
+    <!-- INTRO -->
+    <section class="screen" id="screen-intro" data-active="true" aria-labelledby="intro-title">
+      <p class="eyebrow">DNI · NIE · módulo 23</p>
+      <h1 id="intro-title">¿Qué letra<br>le toca al <span class="ink-num">17</span>?</h1>
+      <p class="lead">Divides el número del DNI entre 23 y el resto decide la letra. Aquí sólo entrenas el último paso: ves el resto, tecleas la letra. El cronómetro arranca cuando aparece el número y se para con tu primera tecla.</p>
+
+      <fieldset class="source">
+        <legend>Qué te enseño</legend>
+        <label><input type="radio" name="source" value="mod" checked> <span>El resto (0–22)</span></label>
+        <label><input type="radio" name="source" value="dni"> <span>El DNI entero (8 cifras)</span></label>
+      </fieldset>
+
+      <div class="modes">
+        <button class="mode mode-main" data-mode="round">
+          <kbd>1</kbd>
+          <strong>Ronda de 23</strong>
+          <span>Los 23 restos, cada uno una vez, en orden aleatorio. Un fallo vuelve a salir tres turnos después.</span>
+          <em class="best" id="best-round"></em>
+        </button>
+        <button class="mode" data-mode="sprint">
+          <kbd>2</kbd>
+          <strong>Sprint 60 s</strong>
+          <span>Todos los aciertos que puedas en un minuto.</span>
+          <em class="best" id="best-sprint"></em>
+        </button>
+        <button class="mode" data-mode="weak">
+          <kbd>3</kbd>
+          <strong>Puntos flojos</strong>
+          <span>25 preguntas, sesgadas hacia los restos en los que más tardas o fallas.</span>
+        </button>
+      </div>
+
+      <section class="map" aria-labelledby="map-title">
+        <div class="map-head">
+          <h2 id="map-title">Tu mapa</h2>
+          <button class="link" id="btn-reset" type="button">Borrar historial</button>
+        </div>
+        <p class="map-note" id="map-note"></p>
+        <ol class="strip" id="map-strip"></ol>
+      </section>
+
+      <details class="table">
+        <summary>Ver la tabla completa</summary>
+        <p class="table-string" aria-label="T R W A G, M Y F P D, X B N J Z, S Q V H L, C K E">TRWAG MYFPD XBNJZ SQVHL CKE</p>
+        <ol class="strip strip-ref" id="ref-strip"></ol>
+        <p class="table-note">La I, la Ñ, la O y la U no se usan: se confunden con 1, N, 0 y V. Para un NIE, cambia X por 0, Y por 1 y Z por 2 antes de dividir.</p>
+      </details>
+    </section>
+
+    <!-- PLAY -->
+    <section class="screen" id="screen-play" aria-label="Partida">
+      <header class="play-top">
+        <span class="play-mode" id="play-mode"></span>
+        <span class="play-progress" id="play-progress"></span>
+      </header>
+      <div class="bar" aria-hidden="true"><div class="bar-fill" id="bar-fill"></div></div>
+
+      <div class="prompt" id="prompt" aria-live="polite">
+        <span class="prompt-label" id="prompt-label">resto</span>
+        <div class="prompt-row">
+          <span class="prompt-num" id="prompt-num">–</span>
+          <span class="prompt-sep" id="prompt-sep">→</span>
+          <span class="slot" id="slot">?</span>
+        </div>
+        <p class="feedback" id="feedback">&nbsp;</p>
+      </div>
+
+      <p class="live">
+        <span>último <b id="live-last">—</b></span>
+        <span>mediana <b id="live-median">—</b></span>
+        <span>fallos <b id="live-errors">0</b></span>
+      </p>
+
+      <div class="keys" id="keys" aria-label="Letras del DNI"></div>
+
+      <p class="hint">Con teclado físico vas más rápido. <kbd>Esc</kbd> para salir.</p>
+    </section>
+
+    <!-- RESULT -->
+    <section class="screen" id="screen-result" aria-labelledby="result-title">
+      <p class="eyebrow" id="result-eyebrow"></p>
+      <h2 class="result-big" id="result-title"></h2>
+      <p class="result-sub" id="result-sub"></p>
+
+      <dl class="numbers" id="result-numbers"></dl>
+
+      <section class="map" aria-labelledby="session-map-title">
+        <div class="map-head">
+          <h2 id="session-map-title">Esta partida, resto a resto</h2>
+        </div>
+        <p class="map-note">Más oscuro = más lento. Subrayado rojo = fallado al menos una vez.</p>
+        <ol class="strip" id="result-strip"></ol>
+      </section>
+
+      <p class="slowest" id="result-slowest"></p>
+
+      <div class="result-actions">
+        <button class="btn" id="btn-again">Otra vez <kbd>Enter</kbd></button>
+        <button class="btn btn-ghost" id="btn-menu">Menú <kbd>Esc</kbd></button>
+      </div>
+    </section>
+
+  </main>
+  <script src="script.js"></script>
+</body>
+</html>
