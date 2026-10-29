@@ -392,8 +392,11 @@ h1 em { font-weight: 500; color: var(--accent); }
 @media (max-width: 820px) {
   .app { padding-left: 16px; padding-right: 16px; }
   .menu-grid { grid-template-columns: 1fr; gap: 28px; }
-  .hud { gap: 16px; }
-  .hud-val { font-size: 1.2rem; }
+  .hud { gap: 12px; flex-wrap: nowrap; }
+  .hud-val { font-size: 1.15rem; }
+  .hud-label { font-size: 0.6rem; letter-spacing: 0.08em; }
+  .quit { padding: 5px 10px; }
+  .quit kbd, .start kbd, .link-btn kbd { display: none; }
   .hud-pool { display: none; }
   .piano { height: 130px; }
   .result-cols { grid-template-columns: 1fr; }

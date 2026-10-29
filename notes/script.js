@@ -554,7 +554,10 @@
   function renderStaff(wrong) {
     const svg = $('staff');
     const clef = db.settings.clef;
-    const W = 680;
+    // Phones get three notes on a shorter staff so the notes stay big enough to read.
+    const narrow = (svg.clientWidth || svg.parentNode.clientWidth) < 560;
+    const shown = narrow ? 3 : PREVIEW;
+    const W = narrow ? 400 : 680;
     const staves = clef === 'g'
       ? [{ clef: 't', top: 62 }, { clef: 'b', top: 62 + 4 * S + 6 * S }]
       : [{ clef, top: 78 }];
@@ -564,7 +567,7 @@
     const yOf = (d, st) => st.top + 4 * S - (d - STAFF_REF[st.clef]) * S / 2;
     const x0 = 14, x1 = W - 14;
     const xs = [];
-    for (let i = 0; i < PREVIEW; i++) xs.push(180 + i * 106);
+    for (let i = 0; i < shown; i++) xs.push(narrow ? 132 + i * 100 : 180 + i * 106);
 
     // cursor band behind the note to read now
     const bandTop = staves[0].top - 3.5 * S;
@@ -596,7 +599,7 @@
     }
     el('line', { class: 'st-bar', x1: x1, x2: x1, y1: staves[0].top, y2: staves[staves.length - 1].top + 4 * S }, svg);
 
-    session.queue.slice(0, PREVIEW).forEach((it, i) => {
+    session.queue.slice(0, shown).forEach((it, i) => {
       const st = staves.find((s) => s.clef === it.clef);
       const ref = STAFF_REF[it.clef];
       const x = xs[i];
@@ -714,7 +717,14 @@
   }
   function hintKey(m) {
     const k = keyEls.get(m);
-    if (k) k.classList.add('hint');
+    if (!k) return;
+    k.classList.add('hint');
+    // On phones the piano scrolls sideways; bring the right key into view.
+    const wrap = $('piano-wrap');
+    const left = k.offsetLeft - (k.classList.contains('bk') ? k.offsetWidth / 2 : 0);
+    if (left < wrap.scrollLeft || left + k.offsetWidth > wrap.scrollLeft + wrap.clientWidth) {
+      wrap.scrollTo({ left: left - wrap.clientWidth / 2 + k.offsetWidth / 2, behavior: 'smooth' });
+    }
   }
   function clearHints() {
     for (const k of keyEls.values()) k.classList.remove('hint');
@@ -949,6 +959,13 @@
   $('to-menu').addEventListener('click', toMenu);
   $('quit').addEventListener('click', endSession);
   window.addEventListener('pagehide', () => { stopMic(); save(); });
+  let resizeTimer = 0;
+  window.addEventListener('resize', () => {
+    clearTimeout(resizeTimer);
+    resizeTimer = setTimeout(() => {
+      if (current === 'play' && session && !session.ended) renderStaff(!session.firstTry);
+    }, 120);
+  });
 
   if (db.settings.input === 'midi') initMidi();
   syncForm();
