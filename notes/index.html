@@ -1,0 +1,205 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Notes · sight-reading trainer</title>
+  <meta name="description" content="A note appears on the staff, you play it: on a MIDI keyboard, a real piano through the microphone, your computer keyboard or the piano on screen. Starts with three notes and adds more as you get fast.">
+  <meta name="theme-color" content="#f3eee3">
+  <link rel="icon" type="image/svg+xml" href="favicon.svg">
+
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Notes · sight-reading trainer">
+  <meta property="og:description" content="Read the note, play it. MIDI, microphone, computer keyboard or on-screen piano. Treble, bass or grand staff.">
+  <meta property="og:url" content="https://jorgellaneza.es/notes/">
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="Notes · sight-reading trainer">
+  <meta name="twitter:description" content="Read the note, play it. MIDI, microphone, computer keyboard or on-screen piano.">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,800&family=IBM+Plex+Mono:wght@400;600&family=IBM+Plex+Sans:wght@400;500;600&family=Noto+Music&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <main class="app">
+
+    <!-- MENU -->
+    <section class="screen" id="screen-menu" data-active="true" aria-labelledby="menu-title">
+      <header class="masthead">
+        <p class="eyebrow">Sight-reading trainer</p>
+        <h1 id="menu-title">Read the note.<br><em>Play it.</em></h1>
+        <p class="lead">A note lands on the staff and you play it before your brain starts spelling out &ldquo;every good boy&rdquo;. You start with three notes per clef. More arrive only once you can name every note in play in about two seconds.</p>
+      </header>
+
+      <div class="menu-grid">
+        <form class="settings" id="settings" onsubmit="return false">
+          <fieldset>
+            <legend>Answer with</legend>
+            <div class="chips">
+              <label><input type="radio" name="input" value="piano"><span>Screen piano</span></label>
+              <label><input type="radio" name="input" value="keys"><span>Computer keyboard</span></label>
+              <label><input type="radio" name="input" value="midi"><span>MIDI keyboard</span></label>
+              <label><input type="radio" name="input" value="mic"><span>Microphone</span></label>
+            </div>
+            <p class="hint" id="input-hint"></p>
+          </fieldset>
+
+          <fieldset>
+            <legend>Clef</legend>
+            <div class="chips">
+              <label><input type="radio" name="clef" value="t"><span><i class="glyph">&#x1D11E;</i> Treble</span></label>
+              <label><input type="radio" name="clef" value="b"><span><i class="glyph">&#x1D122;</i> Bass</span></label>
+              <label><input type="radio" name="clef" value="g"><span>Grand staff</span></label>
+            </div>
+          </fieldset>
+
+          <fieldset>
+            <legend>Which notes</legend>
+            <div class="chips">
+              <label><input type="radio" name="pool" value="adaptive"><span>Unlock as I go</span></label>
+              <label><input type="radio" name="pool" value="weak"><span>My 6 weakest</span></label>
+              <label><input type="radio" name="pool" value="all"><span>Whole range</span></label>
+            </div>
+          </fieldset>
+
+          <fieldset>
+            <legend>Session</legend>
+            <div class="chips">
+              <label><input type="radio" name="session" value="sprint"><span>60-second sprint</span></label>
+              <label><input type="radio" name="session" value="set"><span>40 notes</span></label>
+              <label><input type="radio" name="session" value="free"><span>No limit</span></label>
+            </div>
+          </fieldset>
+
+          <fieldset>
+            <legend>Note names</legend>
+            <div class="chips">
+              <label><input type="radio" name="names" value="letters"><span>C D E F</span></label>
+              <label><input type="radio" name="names" value="solfege"><span>Do Re Mi Fa</span></label>
+            </div>
+          </fieldset>
+
+          <fieldset class="toggles">
+            <legend>Extras</legend>
+            <label><input type="checkbox" name="accidentals"> <span>Sharps and flats</span></label>
+            <label><input type="checkbox" name="octave"> <span>Octave must match</span></label>
+            <label><input type="checkbox" name="sound"> <span>Play the pitch after each answer</span></label>
+            <label><input type="checkbox" name="labels"> <span>Label every piano key (not just C)</span></label>
+          </fieldset>
+
+          <button type="button" class="start" id="start">Start <kbd>Enter</kbd></button>
+          <p class="best-line" id="best-line"></p>
+        </form>
+
+        <aside class="side">
+          <section class="progress" aria-labelledby="progress-title">
+            <h2 id="progress-title">Your notes</h2>
+            <p class="legend">
+              <span class="sw sw-new"></span> not yet seen
+              <span class="sw sw-weak"></span> shaky
+              <span class="sw sw-ok"></span> getting there
+              <span class="sw sw-fluent"></span> fluent
+              <span class="sw sw-locked"></span> locked
+            </p>
+            <h3><i class="glyph">&#x1D11E;</i> Treble</h3>
+            <div class="note-map" id="map-t"></div>
+            <h3><i class="glyph">&#x1D122;</i> Bass</h3>
+            <div class="note-map" id="map-b"></div>
+            <button type="button" class="link-btn" id="reset">Wipe progress</button>
+          </section>
+
+          <section class="how" aria-labelledby="how-title">
+            <h2 id="how-title">What the game does to you</h2>
+            <ol>
+              <li><b>Three landmarks first.</b> Middle C, the G line and the C above it (treble); middle C, the F line and bass C (bass). Every other note gets read relative to these.</li>
+              <li><b>New notes come in small groups,</b> only when every note in play has been answered right and fast three times running (under 2 s on the computer keyboard, 2.5 s on a piano, 3 s through the mic). The first time a note shows up, its name is printed under it. After that you're on your own.</li>
+              <li><b>Misses get fixed on the spot.</b> You see the right name and key, play it, and the same note comes back three notes later.</li>
+              <li><b>Notes you know show up less.</b> Shaky and slow ones show up more. Ones you haven't seen in a day or more get pulled back in, so long gaps don't wipe what you learned.</li>
+              <li><b>You always see the next four notes.</b> Your eyes learn to sit one note ahead of your hands, which is what real reading needs.</li>
+              <li><b>Every answer sounds.</b> The dot, the key and the pitch get stored together.</li>
+              <li><b>Short sessions.</b> One 60-second sprint a day beats a single hour on Sunday.</li>
+            </ol>
+          </section>
+        </aside>
+      </div>
+    </section>
+
+    <!-- PLAY -->
+    <section class="screen" id="screen-play" aria-label="Practice">
+      <div class="hud">
+        <div class="hud-cell">
+          <span class="hud-label" id="hud-clock-label">Time</span>
+          <span class="hud-val" id="hud-clock">1:00</span>
+        </div>
+        <div class="hud-cell">
+          <span class="hud-label">Correct</span>
+          <span class="hud-val" id="hud-score">0</span>
+        </div>
+        <div class="hud-cell">
+          <span class="hud-label">Streak</span>
+          <span class="hud-val" id="hud-streak">0</span>
+        </div>
+        <div class="hud-cell">
+          <span class="hud-label">Last</span>
+          <span class="hud-val" id="hud-last">&ndash;</span>
+        </div>
+        <div class="hud-cell hud-pool">
+          <span class="hud-label">In play</span>
+          <span class="hud-val" id="hud-pool">3</span>
+        </div>
+        <button type="button" class="quit" id="quit" aria-label="End session">End <kbd>Esc</kbd></button>
+      </div>
+
+      <div class="stage">
+        <svg id="staff" role="img" aria-label="Staff with the notes to read"></svg>
+        <p class="feedback" id="feedback" aria-live="polite">&nbsp;</p>
+        <p class="toast" id="toast" role="status"></p>
+      </div>
+
+      <div class="input-status" id="input-status" aria-live="polite"></div>
+
+      <div class="piano-wrap" id="piano-wrap">
+        <div class="piano" id="piano" aria-label="Piano keyboard"></div>
+      </div>
+      <p class="keys-hint" id="keys-hint"></p>
+    </section>
+
+    <!-- RESULT -->
+    <section class="screen" id="screen-result" aria-labelledby="result-title">
+      <p class="eyebrow" id="result-eyebrow">Session over</p>
+      <h2 class="result-title" id="result-title"><span id="r-npm">0</span> <small>correct notes per minute</small></h2>
+      <p class="result-best" id="r-best"></p>
+
+      <dl class="stats">
+        <div><dt>Right first time</dt><dd id="r-correct">0</dd></div>
+        <div><dt>Accuracy</dt><dd id="r-acc">0%</dd></div>
+        <div><dt>Median answer</dt><dd id="r-median">&ndash;</dd></div>
+        <div><dt>Best streak</dt><dd id="r-streak">0</dd></div>
+      </dl>
+
+      <div class="result-cols">
+        <section>
+          <h3>Mixed up</h3>
+          <ul class="confusions" id="r-confusions"></ul>
+        </section>
+        <section>
+          <h3>Slowest notes this session</h3>
+          <ul class="slow" id="r-slow"></ul>
+        </section>
+      </div>
+
+      <p class="unlocked" id="r-unlocked"></p>
+
+      <div class="result-actions">
+        <button type="button" class="start" id="again">Again <kbd>Enter</kbd></button>
+        <button type="button" class="link-btn" id="to-menu">Settings <kbd>Esc</kbd></button>
+      </div>
+    </section>
+
+  </main>
+
+  <noscript><p class="noscript">This trainer runs in JavaScript. Turn it on to play.</p></noscript>
+  <script src="script.js"></script>
+</body>
+</html>
