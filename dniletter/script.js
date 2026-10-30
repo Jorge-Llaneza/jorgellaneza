@@ -140,7 +140,7 @@
     const seen = stats.perR.filter((s) => s.n).length;
     const items = stats.perR.map((s, r) => ({ r, ms: s.n ? s.ema : null, err: s.err > 0 }));
     $("map-note").textContent = seen
-      ? "Tiempo típico por resto (media móvil de tus últimas respuestas, en ms). Más oscuro = más lento; subrayado = lo has fallado alguna vez."
+      ? "Tiempo típico por resto (media móvil de tus últimas respuestas, en ms). Color más intenso = más lento; subrayado = lo has fallado alguna vez."
       : "Aún no hay datos. Juega una ronda y aquí verás en qué restos te atascas.";
     $("btn-reset").hidden = !seen;
     renderStrip($("map-strip"), items, true);
