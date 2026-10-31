@@ -1,4 +1,4 @@
-(() => {
+KV.ready.then(() => {
   "use strict";
 
   const STORE_KEY = "verben-v1";
@@ -30,7 +30,7 @@
 
   function load() {
     try {
-      const raw = localStorage.getItem(STORE_KEY);
+      const raw = KV.getItem(STORE_KEY);
       if (raw) {
         const d = defaults();
         const s = Object.assign(d, JSON.parse(raw));
@@ -45,7 +45,7 @@
     return defaults();
   }
   function save() {
-    try { localStorage.setItem(STORE_KEY, JSON.stringify(S)); } catch (e) { /* ignorar */ }
+    try { KV.setItem(STORE_KEY, JSON.stringify(S)); } catch (e) { /* ignorar */ }
   }
 
   // ---------------------------------------------------------------- niveles y días
@@ -1020,4 +1020,4 @@
   // ---------------------------------------------------------------- arranque
   rollDay();
   renderHome();
-})();
+});

@@ -1,4 +1,4 @@
-(function () {
+KV.ready.then(function () {
   "use strict";
 
   // Index = DNI number mod 23.
@@ -28,14 +28,14 @@
 
   function loadStats() {
     try {
-      const raw = JSON.parse(localStorage.getItem(STORE_KEY));
+      const raw = JSON.parse(KV.getItem(STORE_KEY));
       if (raw && Array.isArray(raw.perR) && raw.perR.length === 23) return raw;
     } catch (e) { /* storage blocked or corrupt */ }
     return emptyStats();
   }
 
   function saveStats() {
-    try { localStorage.setItem(STORE_KEY, JSON.stringify(stats)); } catch (e) { /* ignore */ }
+    try { KV.setItem(STORE_KEY, JSON.stringify(stats)); } catch (e) { /* ignore */ }
   }
 
   let stats = loadStats();
@@ -433,4 +433,4 @@
   });
 
   renderIntro();
-})();
+});

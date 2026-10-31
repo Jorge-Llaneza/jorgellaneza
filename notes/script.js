@@ -1,4 +1,4 @@
-(() => {
+KV.ready.then(() => {
   'use strict';
 
   // ---------- music basics ----------
@@ -68,7 +68,7 @@
   const db = load();
   function load() {
     try {
-      const raw = JSON.parse(localStorage.getItem(STORE_KEY));
+      const raw = JSON.parse(KV.getItem(STORE_KEY));
       if (raw && typeof raw === 'object') {
         return {
           settings: { ...DEFAULTS.settings, ...raw.settings },
@@ -81,7 +81,7 @@
     return JSON.parse(JSON.stringify(DEFAULTS));
   }
   function save() {
-    try { localStorage.setItem(STORE_KEY, JSON.stringify(db)); } catch (e) { /* ignore */ }
+    try { KV.setItem(STORE_KEY, JSON.stringify(db)); } catch (e) { /* ignore */ }
   }
   const peek = (k) => db.stats[k];
   function stat(k) {
@@ -969,4 +969,4 @@
 
   if (db.settings.input === 'midi') initMidi();
   syncForm();
-})();
+});

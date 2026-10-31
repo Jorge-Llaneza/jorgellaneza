@@ -1,0 +1,24 @@
+{
+  "name": "Notes · sight-reading trainer",
+  "short_name": "Notes",
+  "description": "Sight-reading drill for treble, bass and grand staff.",
+  "lang": "en",
+  "start_url": "/notes/",
+  "scope": "/notes/",
+  "id": "/notes/",
+  "display": "standalone",
+  "background_color": "#f3eee3",
+  "theme_color": "#f3eee3",
+  "icons": [
+    {
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}

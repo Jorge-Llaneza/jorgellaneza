@@ -1,0 +1,24 @@
+{
+  "name": "Verben — verbos alemanes",
+  "short_name": "Verben",
+  "description": "21 verbos alemanes, de español a alemán y al revés.",
+  "lang": "es",
+  "start_url": "/aleman/verbos/",
+  "scope": "/aleman/verbos/",
+  "id": "/aleman/verbos/",
+  "display": "standalone",
+  "background_color": "#1b1d1f",
+  "theme_color": "#1b1d1f",
+  "icons": [
+    {
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}

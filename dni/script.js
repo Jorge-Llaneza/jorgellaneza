@@ -1,4 +1,4 @@
-(function () {
+KV.ready.then(function () {
   "use strict";
 
   // Index = DNI number mod 23.
@@ -61,7 +61,7 @@
 
   function load() {
     try {
-      const raw = JSON.parse(localStorage.getItem(STORE_KEY));
+      const raw = JSON.parse(KV.getItem(STORE_KEY));
       if (raw && Array.isArray(raw.history)) {
         return { settings: Object.assign({}, DEFAULT_SETTINGS, raw.settings), history: raw.history };
       }
@@ -70,7 +70,7 @@
   }
 
   function save() {
-    try { localStorage.setItem(STORE_KEY, JSON.stringify(store)); } catch (e) { /* ignore */ }
+    try { KV.setItem(STORE_KEY, JSON.stringify(store)); } catch (e) { /* ignore */ }
   }
 
   const store = load();
@@ -430,4 +430,4 @@
   loadVoices();
   if (synth) synth.addEventListener("voiceschanged", loadVoices);
   renderHistory();
-})();
+});

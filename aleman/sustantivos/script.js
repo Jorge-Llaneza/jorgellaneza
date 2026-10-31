@@ -1,4 +1,4 @@
-(() => {
+KV.ready.then(() => {
   "use strict";
 
   const STORE_KEY = "substantive-v1";
@@ -36,7 +36,7 @@
 
   function load() {
     try {
-      const raw = localStorage.getItem(STORE_KEY);
+      const raw = KV.getItem(STORE_KEY);
       if (raw) {
         const s = Object.assign(defaults(), JSON.parse(raw));
         s.best = Object.assign(defaults().best, s.best);
@@ -46,7 +46,7 @@
     return defaults();
   }
   function save() {
-    try { localStorage.setItem(STORE_KEY, JSON.stringify(S)); } catch (e) { /* ignorar */ }
+    try { KV.setItem(STORE_KEY, JSON.stringify(S)); } catch (e) { /* ignorar */ }
   }
 
   // ---------------------------------------------------------------- niveles y días
@@ -1054,4 +1054,4 @@
   // ---------------------------------------------------------------- arranque
   rollDay();
   renderHome();
-})();
+});

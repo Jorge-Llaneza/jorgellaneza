@@ -19,6 +19,14 @@ Each top-level directory is an independent site, self-contained (own `index.html
 - Answer matching in `sistemamayor/script.js` (`normalize()`) strips case, accents, and non-alphanumeric characters before comparing — keep that in mind when adding words with unusual punctuation.
 - No linter or formatter is configured; match the existing style in the file you're editing.
 
+## Saved data (IndexedDB)
+
+Apps that persist state (`aleman/*`, `dni`, `dniletter`, `notes`, `teaching`) don't use `localStorage`. They use `kv.js`, a localStorage-shaped wrapper (`KV.getItem/setItem/removeItem`) over one shared IndexedDB database (`jorgellaneza`, store `kv`, string values). Reads come from an in-memory copy, so app code must start after `KV.ready` (the scripts are wrapped in `KV.ready.then(...)`; `teaching` keeps its main script as `type="text/plain"` and injects it once ready; its lab iframes use `parent.KV`). On load, `kv.js` moves any leftover `localStorage` keys into IndexedDB.
+
+`kv.js` is copied verbatim into each site directory and the repo root — this is the one deliberate exception to "no shared code", and the copies must stay identical. The root `index.html` uses it for the "Download data" / "Load data" backup buttons (JSON file `{site, version, exported, data}`; loading replaces the whole database). New apps that save state should use `kv.js` with a key that doesn't collide with existing ones.
+
+`kv.js` also calls `navigator.storage.persist()` on startup (`KV.persisted`); the root page shows the result. To make that likely to be granted, the root and every app that saves state is installable: each has its own `manifest.webmanifest` (scope = its own directory) plus `icon-192.png` / `icon-512.png` rendered from its `favicon.svg` (teaching's from its red "MP" touch icon). There is no service worker, so installed apps don't work offline.
+
 ## Design guardrails
 
 `DESLOPIFY.md` at the repo root is a checklist against generic "AI-looking" design and copy (gradient clichés, 3-card grids, hedging copy, missing favicon/OG tags/404, etc.). Read it before generating or restyling any page, and run its checklist before shipping visual/copy changes. A matching skill (`deslopify`) is also configured under `.claude/skills/`.
