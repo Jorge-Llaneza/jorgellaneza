@@ -63,7 +63,7 @@ kbd {
 .app {
   max-width: 1100px;
   margin: 0 auto;
-  padding: max(32px, env(safe-area-inset-top)) 24px max(32px, env(safe-area-inset-bottom));
+  padding: max(64px, calc(env(safe-area-inset-top) + 54px)) 24px max(32px, env(safe-area-inset-bottom));
 }
 .screen { display: none; }
 .screen[data-active="true"] { display: block; }
@@ -405,3 +405,28 @@ h1 em { font-weight: 500; color: var(--accent); }
 @media (prefers-reduced-motion: reduce) {
   * { transition: none !important; }
 }
+
+/* Back to jorgellaneza.es: fixed so it's reachable from every screen. */
+.home-link {
+  position: fixed;
+  top: max(10px, env(safe-area-inset-top));
+  left: max(12px, env(safe-area-inset-left));
+  z-index: 50;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 36px;
+  padding: 0 12px;
+  font-family: var(--mono);
+  font-size: 0.78rem;
+  letter-spacing: 0.03em;
+  line-height: 1;
+  color: var(--muted);
+  text-decoration: none;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  transition: color 0.15s, border-color 0.15s;
+}
+.home-link:hover { color: var(--ink); border-color: var(--ink); }
+.home-link:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }

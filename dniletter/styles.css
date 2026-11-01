@@ -36,7 +36,7 @@ body {
   line-height: 1.5;
   display: flex;
   justify-content: center;
-  padding: 40px 16px 56px;
+  padding: 64px 16px 56px;
 }
 
 .scene { width: 100%; max-width: 560px; }
@@ -339,7 +339,7 @@ h1 {
 .btn-ghost { background: transparent; color: var(--ink); }
 
 @media (max-width: 460px) {
-  body { padding-top: 24px; }
+  body { padding-top: 60px; }
   .modes { grid-template-columns: 1fr; }
   .keys { grid-template-columns: repeat(6, 1fr); }
   .key { padding: 12px 0; }
@@ -348,3 +348,28 @@ h1 {
   .numbers div:nth-child(n+3) { border-top: 1px solid var(--line); }
   .bar { margin-bottom: 24px; }
 }
+
+/* Back to jorgellaneza.es: fixed so it's reachable from every screen. */
+.home-link {
+  position: fixed;
+  top: max(10px, env(safe-area-inset-top));
+  left: max(12px, env(safe-area-inset-left));
+  z-index: 50;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 36px;
+  padding: 0 12px;
+  font-family: var(--mono);
+  font-size: 0.78rem;
+  letter-spacing: 0.03em;
+  line-height: 1;
+  color: var(--muted);
+  text-decoration: none;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  transition: color 0.15s, border-color 0.15s;
+}
+.home-link:hover { color: var(--ink); border-color: var(--ink); }
+.home-link:focus-visible { outline: 2px solid var(--stamp); outline-offset: 2px; }

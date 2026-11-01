@@ -104,6 +104,31 @@
     @keyframes shock { from { transform: scale(0); opacity: 1; } to { transform: scale(60); opacity: 0; } }
 
     /* ---------- stage ---------- */
+
+    /* Back to jorgellaneza.es: fixed so it's reachable from every screen. */
+    .home-link {
+      position: fixed;
+      top: max(10px, env(safe-area-inset-top));
+      left: max(12px, env(safe-area-inset-left));
+      z-index: 30;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      min-height: 36px;
+      padding: 0 12px;
+      font-family: inherit;
+      font-size: 0.78rem;
+      letter-spacing: 0.03em;
+      line-height: 1;
+      color: var(--muted);
+      text-decoration: none;
+      background: rgba(17, 17, 17, 0.6);
+      border: 1px solid rgba(255, 255, 255, 0.14);
+      border-radius: 999px;
+      transition: color 0.15s, border-color 0.15s;
+    }
+    .home-link:hover { color: var(--text); border-color: var(--text); }
+    .home-link:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
     .stage {
       position: relative;
       z-index: 5;
@@ -322,6 +347,7 @@
   </style>
 </head>
 <body>
+  <a class="home-link" href="/" title="Volver a jorgellaneza.es"><span aria-hidden="true">&larr;</span> jorgellaneza.es</a>
   <canvas id="fx" aria-hidden="true"></canvas>
   <div class="floor" aria-hidden="true"></div>
   <div class="beams" aria-hidden="true">

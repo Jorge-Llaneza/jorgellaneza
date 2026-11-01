@@ -18,6 +18,7 @@ Each top-level directory is an independent site, self-contained (own `index.html
 - `sistemamayor`: word/number pairs live only in `data.js` (`SISTEMA_MAYOR`); quiz behavior (timing, scoring, shuffling, pause) lives only in `script.js`. When changing a single word mapping, edit `data.js` directly rather than touching `script.js`.
 - Answer matching in `sistemamayor/script.js` (`normalize()`) strips case, accents, and non-alphanumeric characters before comparing — keep that in mind when adding words with unusual punctuation.
 - No linter or formatter is configured; match the existing style in the file you're editing.
+- Every site must link back to the root `/`, reachable from every screen, including mid-drill on a phone (many drills have no other way out). Most use a fixed `.home-link` pill ("← jorgellaneza.es") styled with the site's own tokens, plus extra top padding so it doesn't cover content. The `aleman/*` sites and `teaching` put an arrow in their top bar instead, and `mpproductions` uses a nav item plus a footer link.
 
 ## Saved data (IndexedDB)
 

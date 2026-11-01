@@ -55,8 +55,9 @@ a { color: inherit; }
   background: rgba(14, 26, 36, 0.95);
   border-bottom: 1px solid var(--line);
 }
-.home-link { text-decoration: none; color: var(--muted); font-size: 1.3rem; line-height: 1; padding: 4px; }
+.home-link { display: inline-flex; align-items: center; justify-content: center; flex: none; min-width: 40px; min-height: 40px; margin-left: -8px; text-decoration: none; color: var(--muted); font-size: 1.4rem; line-height: 1; border-radius: 8px; }
 .home-link:hover { color: var(--text); }
+.home-link:focus-visible { outline: 2px solid currentColor; outline-offset: -2px; }
 .player { display: flex; align-items: center; gap: 12px; min-width: 0; flex: 1; overflow: hidden; }
 .stub {
   display: inline-flex;

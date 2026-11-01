@@ -49,13 +49,21 @@ a { color: inherit; }
   border-bottom: 1px solid var(--line);
 }
 .home-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+  min-width: 40px;
+  min-height: 40px;
+  margin-left: -8px;
   text-decoration: none;
   color: var(--muted);
-  font-size: 1.3rem;
+  font-size: 1.4rem;
   line-height: 1;
-  padding: 4px;
+  border-radius: 8px;
 }
 .home-link:hover { color: var(--text); }
+.home-link:focus-visible { outline: 2px solid currentColor; outline-offset: -2px; }
 .player {
   display: flex;
   align-items: center;

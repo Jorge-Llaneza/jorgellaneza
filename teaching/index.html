@@ -11,6 +11,7 @@ body{margin:0;background:var(--bg);color:var(--fg);font:14px/1.5 ui-monospace,"S
 button{font:inherit;color:var(--fg);background:var(--bg);border:1px solid var(--bd);border-radius:6px;padding:6px 12px;cursor:pointer}
 button:hover{border-color:var(--acc)}
 .top{display:flex;align-items:center;gap:8px;padding:8px 14px;border-bottom:1px solid var(--bd);background:var(--card);flex-wrap:wrap}
+.top .home{display:inline-flex;align-items:center;justify-content:center;min-width:36px;min-height:36px;margin-left:-6px;font-size:18px;color:var(--mut);text-decoration:none;border-radius:6px}.top .home:hover{color:var(--acc)}
 .brand{font-size:16px;font-weight:700;color:var(--acc);background:none;border:0;padding:4px 6px;letter-spacing:.02em}
 .tabs{display:flex;gap:6px;overflow-x:auto;flex:1 1 100%;order:3;min-width:0;padding:2px;scrollbar-width:thin}.tr{margin-left:auto}
 .tabs button{white-space:nowrap}.tabs button.sel{background:var(--acc);color:var(--on,#fff);border-color:var(--acc)}
@@ -95,7 +96,8 @@ html[data-hw] #cam,html[data-hw] #scan{display:block}html[data-hw][data-cam="0"]
 html[data-hw] #hwp:not(.open){padding:2px}
 body{height:100dvh}
 @media (max-width:700px){
- .top{display:grid;grid-template-columns:1fr auto;gap:6px 8px;padding:6px 10px}
+ .top{display:grid;grid-template-columns:auto 1fr auto;gap:6px 8px;padding:6px 10px}
+ .top .home{min-width:32px;min-height:32px;margin-left:-4px}
  .brand{font-size:12px;padding:4px 2px;justify-self:start}
  #th{display:none}.chip{padding:5px 10px;font-size:13px}
  .tabs{grid-column:1/-1;grid-row:2;flex:none;scrollbar-width:none}.tabs::-webkit-scrollbar{display:none}
@@ -164,7 +166,7 @@ html[data-rm] *,html[data-rm] *::before,html[data-rm] *::after{animation:none!im
 .newtag{background:#ff4d6d;color:#fff;border-radius:6px;padding:0 6px;font-size:11px;font-weight:700;letter-spacing:.05em}.newtag.you{background:var(--acc);color:var(--on,#fff)}.road .lvrow{padding:8px 0}.lvh{margin-bottom:4px}
 #bnav,#labsheet{display:none}
 @media (max-width:700px){
- .tabs{display:none!important}.top{grid-template-columns:1fr auto}.tr{grid-column:2;grid-row:1}
+ .tabs{display:none!important}.top{grid-template-columns:auto 1fr auto}.tr{grid-column:3;grid-row:1}
  #bnav{display:grid;grid-template-columns:repeat(5,1fr);border-top:1px solid var(--bd);background:var(--card);padding:2px 2px calc(2px + env(safe-area-inset-bottom,0px));flex:none}
  #bnav button{border:0;background:none;padding:6px 2px;font-size:11px;display:flex;flex-direction:column;align-items:center;gap:2px;border-radius:6px}#bnav button i{font-style:normal;font-size:18px}#bnav button.sel{color:var(--acc);font-weight:700}
  body{padding-bottom:0}
@@ -177,7 +179,7 @@ html[data-font=serif] body,html[data-font=serif] button,html[data-font=serif] in
 .pus{display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin:8px 0}.pus button{padding:4px 10px}.opts button.gone{visibility:hidden}
 .pv{font-size:34px;line-height:1.1;min-height:38px}.th .sw{display:flex;gap:4px}
 </style></head><body>
-<div class="top"><button class="brand" id="brand">▌MP PRODUCTIONS TEACHING</button><div class="tabs" id="tabs"></div><div class="tr"><button id="chip" class="chip" title="Study level"></button><select id="th" aria-label="Theme"></select></div></div>
+<div class="top"><a class="home" href="/" title="Back to jorgellaneza.es" aria-label="Back to jorgellaneza.es">&larr;</a><button class="brand" id="brand">▌MP PRODUCTIONS TEACHING</button><div class="tabs" id="tabs"></div><div class="tr"><button id="chip" class="chip" title="Study level"></button><select id="th" aria-label="Theme"></select></div></div>
 <div id="home"></div>
 <div id="views"></div>
 <nav id="bnav"><button data-n=""><i>🏠</i>Home</button><button data-n="labs"><i>🧪</i>Labs</button><button data-n="arcade"><i>🕹</i>Arcade</button><button data-n="notebook"><i>📓</i>Notebook</button><button data-n="shop"><i>🎁</i>Shop</button></nav><div id="labsheet"></div>
