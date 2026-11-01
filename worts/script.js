@@ -494,6 +494,7 @@ KV.ready.then(() => {
     hint.textContent = card.dir === "esde" ? verb.hint : "";
 
     $("feedback").hidden = true;
+    $("screen-play").classList.remove("answered");
     const choices = $("choices");
     const form = $("type-form");
     choices.innerHTML = "";
@@ -576,6 +577,7 @@ KV.ready.then(() => {
   function resolve(res, given) {
     if (Q.answered) return;
     Q.answered = true;
+    $("screen-play").classList.add("answered");
     const { card, verb, type } = Q;
     const elapsed = (performance.now() - Q.start) / 1000;
     const ok = ["exact", "typo", "synonym"].includes(res.kind);

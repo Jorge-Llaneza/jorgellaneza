@@ -843,35 +843,14 @@ h2 {
   .hud-mode { display: none; }
   .hud { grid-template-columns: auto 1fr auto; }
 
-  /* Partida en móvil: señal compacta para que los botones de respuesta quepan sin
-     desplazar, y Weiter fijo abajo para que siempre esté a mano. */
-  .stage { margin-top: 26px; }
-  .sign { min-height: 124px; padding: 16px 16px 18px; gap: 4px; }
-  .sign-word { font-size: clamp(2.1rem, 9.5vw, 3.2rem); }
+  /* Partida en móvil: señal compacta y feedback más apretado. */
+  .sign { padding-left: 16px; padding-right: 16px; gap: 4px; }
   .sign-hint { min-height: 0; }
-  .answer { margin-top: 14px; }
-  .feedback { margin-top: 12px; padding: 12px 14px; animation-name: fade-in; }
+  .feedback { padding: 12px 14px; animation-name: fade-in; }
   .fb-head strong { font-size: 1.55rem; }
   .fb-verb { margin-top: 10px; padding-top: 10px; }
   .fb-de { font-size: 1.3rem; }
-  .btn-next {
-    position: fixed;
-    z-index: 30;
-    left: 16px;
-    right: 16px;
-    bottom: max(12px, env(safe-area-inset-bottom));
-    width: auto;
-    margin: 0;
-    box-shadow: 0 0 0 8px var(--asphalt), 0 -10px 24px rgba(0, 0, 0, 0.5);
-  }
-  #screen-play:has(.feedback:not([hidden])) { padding-bottom: 76px; }
   body:has(#screen-play[data-active="true"] .feedback:not([hidden])) .toasts { bottom: calc(max(12px, env(safe-area-inset-bottom)) + 70px); }
-}
-@media (max-width: 640px) and (max-height: 640px) {
-  .stage { margin-top: 22px; }
-  .sign { min-height: 96px; }
-  .sign-dir { display: none; }
-  .track { margin-top: 8px; }
 }
 @keyframes fade-in { from { opacity: 0; } }
 @media (max-width: 420px) {
@@ -879,6 +858,116 @@ h2 {
 }
 @media (max-width: 340px) {
   #goal-chip { display: none; }
+}
+
+/* ---------- partida y resultado en una sola pantalla ----------
+   El cuerpo ocupa justo el alto visible y no desplaza; la señal y los márgenes
+   se encogen con la altura. Si el feedback o la lista de fallos no caben, solo
+   esa caja desplaza por dentro. */
+body:has(#screen-play[data-active="true"]),
+body:has(#screen-result[data-active="true"]) {
+  height: 100vh;
+  height: 100dvh;
+  min-height: 0;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+body:has(#screen-play[data-active="true"]) .topbar,
+body:has(#screen-result[data-active="true"]) .topbar { flex: none; }
+body:has(#screen-play[data-active="true"]) main,
+body:has(#screen-result[data-active="true"]) main {
+  flex: 1;
+  min-height: 0;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  padding-top: clamp(10px, 2.5dvh, 28px);
+  padding-bottom: max(12px, env(safe-area-inset-bottom));
+}
+#screen-play[data-active="true"],
+#screen-result[data-active="true"] {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+#screen-play > *, #screen-result > * { flex: none; }
+
+.track { margin-top: clamp(8px, 1.4dvh, 12px); }
+.stage { margin-top: clamp(24px, 4dvh, 34px); }
+.sign {
+  min-height: clamp(76px, 17dvh, 200px);
+  padding-top: clamp(10px, 2.4dvh, 26px);
+  padding-bottom: clamp(12px, 2.8dvh, 30px);
+}
+.sign-word { font-size: clamp(1.9rem, min(11vw, 9dvh), 5rem); }
+#screen-play .answer {
+  flex: 1 1 auto;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  margin-top: clamp(10px, 2dvh, 20px);
+}
+.answer > * { flex: none; }
+.feedback {
+  flex: 0 1 auto;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  margin-top: clamp(8px, 1.6dvh, 16px);
+}
+.feedback > * { flex: none; }
+.fb-verb { flex: 0 1 auto; min-height: 0; overflow-y: auto; }
+.btn-next { margin-top: clamp(8px, 1.6dvh, 14px); }
+
+/* Ya respondida: fuera lo que no se puede usar (Weiter está en el feedback). */
+#screen-play.answered .umlauts,
+#screen-play.answered .actions { display: none; }
+
+@media (max-height: 820px) {
+  #screen-play.answered .choice.dim { display: none; }
+  #screen-play.answered .sign { min-height: clamp(64px, 11dvh, 150px); }
+  #screen-play.answered .sign-word { font-size: clamp(1.7rem, min(9vw, 6.5dvh), 3.6rem); }
+  #screen-play.answered .sign-dir { display: none; }
+}
+@media (max-height: 700px) {
+  .choice { padding-top: 10px; padding-bottom: 9px; font-size: 1.15rem; }
+  #answer-input { padding: 8px 14px; font-size: 1.6rem; }
+  .umlauts button { height: 34px; }
+  .btn-ghost, .actions .btn-check { padding-top: 8px; padding-bottom: 8px; }
+  .fb-head strong { font-size: 1.35rem; }
+  .fb-note { display: none; }
+  .btn-next { padding: 10px; font-size: 1.2rem; }
+}
+@media (max-height: 600px) {
+  .sign-dir { display: none; }
+}
+
+/* resultado */
+#screen-result .res-title { font-size: clamp(2.3rem, min(13vw, 9dvh), 6.4rem); }
+#screen-result .lead { margin-top: 6px; margin-bottom: 0; }
+.stats { margin-top: clamp(10px, 2.4dvh, 28px); }
+.stats div { padding: clamp(8px, 1.5dvh, 14px) 16px; }
+.stats dd { font-size: clamp(1.6rem, 4.5dvh, 2.3rem); }
+.stats div:first-child dd { font-size: clamp(1.9rem, 5.5dvh, 2.9rem); }
+.res-level { margin-top: clamp(10px, 2.4dvh, 28px); }
+.arrival { margin-bottom: clamp(8px, 1.6dvh, 20px); }
+.big-sign { font-size: clamp(1.8rem, min(9vw, 6dvh), 3.6rem); padding: clamp(10px, 2dvh, 18px) 26px; }
+#screen-result > .res-scroll {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  margin-top: clamp(10px, 2.4dvh, 30px);
+}
+.res-scroll .res-ach, .res-scroll .res-mistakes { margin-top: 0; }
+.res-scroll .res-ach + .res-mistakes { margin-top: 20px; }
+.res-scroll h2 { margin-top: 0; }
+#screen-result .res-actions { margin-top: clamp(10px, 2dvh, 24px); }
+@media (max-width: 640px) {
+  #screen-result .res-actions { flex-wrap: nowrap; gap: 8px; }
+  #screen-result .res-actions > * { flex: 1 1 0; min-width: 0; padding-left: 8px; padding-right: 8px; text-align: center; justify-content: center; align-items: center; }
+  #screen-result .res-actions .go-main { font-size: 1.25rem; }
 }
 
 @media (prefers-reduced-motion: reduce) {
