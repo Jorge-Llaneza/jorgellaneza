@@ -1,0 +1,24 @@
+{
+  "name": "Wörter — palabras alemanas",
+  "short_name": "Wörter",
+  "description": "20 palabras alemanas de todos los días, de alemán a español, al revés o mezcladas.",
+  "lang": "es",
+  "start_url": "/worts/",
+  "scope": "/worts/",
+  "id": "/worts/",
+  "display": "standalone",
+  "background_color": "#14181d",
+  "theme_color": "#14181d",
+  "icons": [
+    {
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
