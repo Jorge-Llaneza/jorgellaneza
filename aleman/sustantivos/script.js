@@ -145,28 +145,65 @@ KV.ready.then(() => {
 
   // ---------------------------------------------------------------- maestría por carta
   const cardKey = (c) => NOUNS[c.i].de + ":" + c.dir;
+  // Repaso espaciado. Cada carta guarda m (nivel 0-5), s (cuándo cambió de nivel por última vez)
+  // y t (cuándo se vio por última vez). Para subir desde el nivel m hay que acertar cuando ya han
+  // pasado GAP[m] desde s; antes el acierto puntúa pero no sube, porque acertar cinco veces en
+  // una tarde no prueba que se recuerde. GAP[m] es también el plazo tras el que toca repasarla.
+  const MIN = 6e4, HOUR = 36e5, DAY = 864e5;
+  const GAP = [0, 0, 10 * MIN, 20 * HOUR, 68 * HOUR, 21 * DAY]; // 20 h y 68 h: margen para jugar a otra hora
+  const NEW_CAP = 4;         // cartas nuevas como mucho por ronda
   function getM(c) { const st = S.mastery[cardKey(c)]; return st ? st.m : 0; }
-  function setM(c, m) { S.mastery[cardKey(c)] = { m: Math.max(0, Math.min(MAX_M, m)), t: Date.now() }; }
-
-  // Muestreo ponderado sin reemplazo: lo menos dominado y lo que hace más que no ves sale antes.
-  function pickCards(dirs, n, avoid = []) {
-    const pool = [];
-    NOUNS.forEach((_, i) => dirs.forEach((dir) => pool.push({ i, dir })));
-    const scored = pool.map((c) => {
-      const st = S.mastery[cardKey(c)];
+  function setM(c, m) { const now = Date.now(); S.mastery[cardKey(c)] = { m: Math.max(0, Math.min(MAX_M, m)), s: now, t: now }; }
+  // Se ha visto sin acierto limpio: no cambia el nivel ni el plazo.
+  function seenM(c) { const st = S.mastery[cardKey(c)]; if (st) st.t = Date.now(); else setM(c, 0); }
+  const isDue = (st, now) => now - (st.s ?? st.t) >= GAP[st.m];
+  // Acierto limpio: sube un nivel si ya tocaba (cap: hasta dónde puede subir este tipo de pregunta).
+  function creditM(c, cap) {
+    const st = S.mastery[cardKey(c)];
+    if (!st || isDue(st, Date.now())) {
       const m = st ? st.m : 0;
-      const ageH = st ? (Date.now() - st.t) / 36e5 : 48;
-      const w = (MAX_M + 1 - m) ** 2 + Math.min(ageH, 48) / 6;
-      return { c, k: Math.random() ** (1 / w) };
-    }).sort((a, b) => b.k - a.k);
+      if (m < cap) return setM(c, m + 1);
+      if (m === MAX_M && cap === MAX_M) return setM(c, m); // repaso del nivel máximo: el plazo empieza de nuevo
+    }
+    seenM(c);
+  }
+
+  // Elige n cartas: primero hasta newLeft nuevas, luego las que toca repasar (lo más flojo y lo
+  // más atrasado antes), luego el resto (lo que hace más que no ves) y, si aún faltan, más nuevas.
+  function pickCards(dirs, n, avoid = [], newLeft = NEW_CAP) {
+    const now = Date.now();
+    const fresh = [], due = [], rest = [];
+    NOUNS.forEach((_, i) => dirs.forEach((dir) => {
+      const c = { i, dir };
+      const st = S.mastery[cardKey(c)];
+      let list = rest, w;
+      if (!st) { list = fresh; w = 1; }
+      else if (isDue(st, now)) {
+        list = due;
+        const late = GAP[st.m] ? Math.min(4, (now - (st.s ?? st.t)) / GAP[st.m]) : 4;
+        w = (MAX_M + 1 - st.m) ** 2 * late;
+      } else {
+        w = (MAX_M + 1 - st.m) * (1 + Math.min((now - st.t) / HOUR, 48));
+      }
+      list.push({ c, k: Math.random() ** (1 / w) });
+    }));
     const used = new Set(avoid);
     const out = [];
-    for (const { c } of scored) {
-      if (used.has(c.i)) continue;
-      used.add(c.i);
-      out.push(c);
-      if (out.length === n) break;
-    }
+    const take = (list, max) => {
+      for (const { c } of list) {
+        if (out.length >= max) break;
+        if (used.has(c.i)) continue;
+        used.add(c.i);
+        out.push(c);
+      }
+    };
+    const byK = (a, b) => b.k - a.k;
+    [fresh, due, rest].forEach((l) => l.sort(byK));
+    take(fresh, Math.min(n, newLeft));
+    take(due, n);
+    take(rest, n);
+    take(fresh, n);
+    for (let i = out.length - 1; i > 0; i--) { const j = (Math.random() * (i + 1)) | 0; [out[i], out[j]] = [out[j], out[i]]; }
     return out;
   }
 
@@ -469,7 +506,7 @@ KV.ready.then(() => {
       queue: cards ? cards.map((c) => ({ ...c, retries: 0 }))
         : mode === "train" ? pickCards(dirs, ROUND_LEN).map((c) => ({ ...c, retries: 0 })) : [],
       done: 0, correct: 0, wrong: 0, score: 0, xp: 0, combo: 0, bestCombo: 0,
-      lives: 3, mistakes: [], newAch: [], recent: [],
+      lives: 3, mistakes: [], newAch: [], recent: [], fresh: 0,
       startLvl: levelInfo(S.xp).lvl,
       deadline: mode === "blitz" ? performance.now() + BLITZ_SECS * 1000 : 0,
       qLimit: SURVIVAL_START,
@@ -491,7 +528,10 @@ KV.ready.then(() => {
     if (!R || R.over) return;
     let card;
     if (R.mode === "blitz" || R.mode === "survival") {
-      card = pickCards(R.dirs, 1, R.recent)[0];
+      // Una nueva como mucho cada tres preguntas, y no más de NEW_CAP por partida.
+      const newLeft = R.fresh < NEW_CAP && R.done % 3 === 2 ? 1 : 0;
+      card = pickCards(R.dirs, 1, R.recent, newLeft)[0];
+      if (!S.mastery[cardKey(card)]) R.fresh++;
       R.recent.push(card.i);
       if (R.recent.length > 6) R.recent.shift();
     } else {
@@ -659,14 +699,14 @@ KV.ready.then(() => {
       pts = Math.round(base * f) * mult + (fast ? 3 : 0);
       Q.fast = fast;
       if (res.kind === "exact" && !Q.hint) {
-        setM(card, type === "mc" ? Math.max(getM(card), Math.min(getM(card) + 1, MC_CAP)) : getM(card) + 1);
+        creditM(card, type === "mc" ? MC_CAP : MAX_M);
         if (type === "type") {
           S.typedCorrect++;
           if (/[äöüß]/i.test(given)) S.umlautCorrect++;
           if (card.dir === "esde") S.articleCorrect++;
         }
       } else {
-        setM(card, getM(card));
+        seenM(card); // cuenta como vista, sin subir
       }
     } else {
       R.combo = 0;
