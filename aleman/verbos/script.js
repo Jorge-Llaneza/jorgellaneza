@@ -307,8 +307,8 @@ KV.ready.then(() => {
     { id: "streak7", icon: "7", name: "Eine Woche", desc: "Racha de 7 días.", test: () => liveStreak() >= 7 },
     { id: "munich", icon: "M", name: "Halbzeit", desc: "Llega a München.", test: () => levelInfo(S.xp).lvl >= 9 },
     { id: "berlin", icon: "BE", name: "Hauptstadt", desc: "Llega a Berlin.", test: () => levelInfo(S.xp).lvl >= CITIES.length },
-    { id: "esde", icon: "DE", name: "Dolmetscher", desc: "Domina los 21 verbos de español a alemán.", test: () => allMastered("esde") },
-    { id: "dees", icon: "ES", name: "Übersetzer", desc: "Domina los 21 verbos de alemán a español.", test: () => allMastered("dees") },
+    { id: "esde", icon: "DE", name: "Dolmetscher", desc: "Domina los 29 verbos de español a alemán.", test: () => allMastered("esde") },
+    { id: "dees", icon: "ES", name: "Übersetzer", desc: "Domina los 29 verbos de alemán a español.", test: () => allMastered("dees") },
   ];
   function checkAchievements(end = false) {
     for (const a of ACHIEVEMENTS) {

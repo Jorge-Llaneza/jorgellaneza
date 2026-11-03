@@ -291,7 +291,7 @@ KV.ready.then(() => {
   const ACHIEVEMENTS = [
     { id: "first", icon: "1", name: "Leinen los", desc: "Tu primer acierto.", test: (r) => r && r.correct >= 1 },
     { id: "combo10", icon: "10", name: "Rückenwind", desc: "10 aciertos seguidos.", test: (r) => r && r.bestCombo >= 10 },
-    { id: "combo29", icon: "29", name: "Volle Kraft voraus", desc: "29 aciertos seguidos, uno por sustantivo.", test: (r) => r && r.bestCombo >= 29 },
+    { id: "combo29", icon: "29", name: "Volle Kraft voraus", desc: "29 aciertos seguidos.", test: (r) => r && r.bestCombo >= 29 },
     { id: "flawless", icon: "0", name: "Spiegelglatt", desc: "Training de 12 sin un solo fallo.", test: (r, end) => end && r.mode === "train" && r.wrong === 0 && r.correct >= ROUND_LEN },
     { id: "blitz20", icon: "S", name: "Sturmfest", desc: "20 géneros en una Sturmflut.", test: (r) => r && r.mode === "blitz" && r.correct >= 20 },
     { id: "blitz35", icon: "S+", name: "Orkan", desc: "35 géneros en una Sturmflut.", test: (r) => r && r.mode === "blitz" && r.correct >= 35 },
@@ -304,9 +304,9 @@ KV.ready.then(() => {
     { id: "streak7", icon: "7", name: "Eine Woche", desc: "Racha de 7 días.", test: () => liveStreak() >= 7 },
     { id: "half", icon: "½", name: "Halbe Strecke", desc: "Llega a Amrum, la mitad de la ruta.", test: () => levelInfo(S.xp).lvl >= 9 },
     { id: "end", icon: "⚓", name: "Angekommen", desc: "Llega a Rügen.", test: () => levelInfo(S.xp).lvl >= PORTS.length },
-    { id: "esde", icon: "DE", name: "Dolmetscher", desc: "Domina los 29 sustantivos de español a alemán.", test: () => allMastered("esde") },
-    { id: "dees", icon: "ES", name: "Übersetzer", desc: "Domina los 29 sustantivos de alemán a español.", test: () => allMastered("dees") },
-    { id: "genus", icon: "G", name: "Genus-Genie", desc: "Domina el género de los 29 sustantivos.", test: () => allMastered("genus") },
+    { id: "esde", icon: "DE", name: "Dolmetscher", desc: "Domina los 42 sustantivos de español a alemán.", test: () => allMastered("esde") },
+    { id: "dees", icon: "ES", name: "Übersetzer", desc: "Domina los 42 sustantivos de alemán a español.", test: () => allMastered("dees") },
+    { id: "genus", icon: "G", name: "Genus-Genie", desc: "Domina el género de los 42 sustantivos.", test: () => allMastered("genus") },
   ];
   function checkAchievements(end = false) {
     for (const a of ACHIEVEMENTS) {

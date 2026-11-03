@@ -69,4 +69,7 @@ const WORTS = [
   { de: "gegen", es: "contra, hacia", hint: "también con horas",
     ok: ["contra", "hacia", "a eso de", "sobre", "alrededor de"],
     note: "Con acusativo. Gegen acht Uhr = a eso de las ocho." },
+  { de: "gleich", es: "igual, enseguida", hint: "",
+    ok: ["igual", "enseguida", "ahora mismo", "mismo", "idéntico", "en seguida", "ya"],
+    note: "Das ist mir gleich = me da igual. Ich komme gleich = ahora voy." },
 ];
