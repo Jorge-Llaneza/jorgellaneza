@@ -6,6 +6,7 @@ KV.ready.then(() => {
   const SOLFEGE = ['Do', 'Re', 'Mi', 'Fa', 'Sol', 'La', 'Si'];
   const PCS = [0, 2, 4, 5, 7, 9, 11];
   const SHARP_NAMES = [[0, 0], [0, 1], [1, 0], [1, 1], [2, 0], [3, 0], [3, 1], [4, 0], [4, 1], [5, 0], [5, 1], [6, 0]];
+  const FLAT_NAMES = [[0, 0], [1, -1], [1, 0], [2, -1], [2, 0], [3, 0], [4, -1], [4, 0], [5, -1], [5, 0], [6, -1], [6, 0]];
 
   // Diatonic index: octave * 7 + letter index. E4 = 30 (treble bottom line), G2 = 18 (bass bottom line).
   const dia = (name) => +name.slice(1) * 7 + LETTERS.indexOf(name[0]);
@@ -19,17 +20,62 @@ KV.ready.then(() => {
     t: [['C4', 'G4', 'C5'], ['E4', 'B4'], ['D4', 'F4', 'A4'], ['D5', 'E5', 'F5'], ['G5', 'A5'], ['B3', 'A3'], ['B5', 'C6'], ['G3', 'D6']],
     b: [['C3', 'F3', 'C4'], ['A2', 'E3'], ['G2', 'B2', 'D3'], ['G3', 'A3', 'B3'], ['F2', 'E2'], ['D2', 'C2'], ['D4', 'E4'], ['B1', 'A1']],
   };
+  // Notes other notes are explained from, most useful first. The first group's are always known; the rest
+  // become reference points once they are mastered themselves.
+  const LANDMARKS = { t: ['G4', 'C4', 'C5', 'G5', 'C6'], b: ['F3', 'C4', 'C3', 'F2', 'C2'] };
+  const MARK_NAMES = {
+    tC4: 'middle %', bC4: 'middle %', tG4: 'the % line', bF3: 'the % line',
+    tC5: 'the % in space 3', bC3: 'the % in space 2', tG5: 'the % just above the staff', bF2: 'the % just below the staff',
+    tC6: 'the % on ledger line 2', bC2: 'the % on ledger line 2',
+  };
+  const MARK_SPOTS = {
+    tG4: 'on line 2, where the clef curls', bF3: "on line 4, between the clef's dots",
+    tC4: 'middle %, on the ledger line just below the staff', bC4: 'middle %, on the ledger line just above the staff',
+  };
 
-  // Answer counts as fluent under this many ms. Mic and MIDI get slack for finding the key / detection lag.
+  // Key signatures by number of sharps (+) or flats (-), and where each sign sits on the staff.
+  const KEY_SIGS = { C: 0, G: 1, D: 2, A: 3, F: -1, Bb: -2, Eb: -3 };
+  const SHARP_ORDER = 'FCGDAEB';
+  const FLAT_ORDER = 'BEADGCF';
+  const SIG_POS = {
+    t: { 1: ['F5', 'C5', 'G5', 'D5', 'A4', 'E5', 'B4'], '-1': ['B4', 'E5', 'A4', 'D5', 'G4', 'C5', 'F4'] },
+    b: { 1: ['F3', 'C3', 'G3', 'D3', 'A2', 'E3', 'B2'], '-1': ['B2', 'E3', 'A2', 'D3', 'G2', 'C3', 'F2'] },
+  };
+
+  // Answer counts as fast under this many ms. Mic and MIDI get slack for finding the key / detection lag.
   const FAST_MS = { piano: 2500, keys: 2000, midi: 2500, mic: 3000 };
+  // The bar for moving up out of each box, as a share of FAST_MS: fluent means about twice as fast as "got it".
+  const SPEED = [1, 1, 1, 0.72, 0.5, 0.5, 0.5];
   const MASTER_BOX = 3;
   const MAX_BOX = 6;
+  // Time since the last move up before a note may enter each box. Boxes 1-3 can be earned in one sitting, but
+  // with some forgetting in between; 4-6 only on later days, so "fluent" means it held up overnight.
+  const PROMOTE_GAP = [0, 0, 15e3, 45e3, 8 * 3600e3, 2 * 24 * 3600e3, 5 * 24 * 3600e3];
   // How long a note in each box can rest before it counts as due again.
   const INTERVALS = [1, 60e3, 5 * 60e3, 30 * 60e3, 24 * 3600e3, 3 * 24 * 3600e3, 7 * 24 * 3600e3];
   const BOX_WEIGHT = [8, 5, 3, 2, 1.3, 0.9, 0.7];
+  // Melodic order: weight by distance in staff steps from the previous note (index 7 = octave).
+  const MOTION_W = [0.02, 6, 3.5, 1.2, 1, 0.4, 0.4, 0.3];
   const PREVIEW = 5;
   const SET_LENGTH = 40;
   const SPRINT_MS = 60e3;
+  const COUNT_IN = 4;
+  const STEP_WORDS = ['', 'a step', 'a skip', 'a 4th', 'a 5th', 'a 6th', 'a 7th', 'an octave'];
+  const stepWord = (n) => STEP_WORDS[n] || 'more than an octave';
+
+  const ERR_LABELS = {
+    step: 'a step off', skip: 'a skip off', leap: 'further off', octave: 'wrong octave',
+    accidental: 'wrong sharp or flat', clef: 'read in the other clef', late: 'too late',
+  };
+  const ERR_TIPS = {
+    step: 'Step misses mean line and space got mixed up. Before you play, check: does a line go through the note, or does it sit between two lines?',
+    skip: 'Skip misses mean a line or space got counted twice or skipped. Count from the nearest landmark, not from the bottom of the staff.',
+    leap: 'Big misses are usually guesses. Slow down until you are right first time; speed comes after.',
+    octave: 'Right name, wrong octave. Count the ledger lines and check which staff the note is on.',
+    accidental: 'Look left of the note before you play: ♯ is the black key just right, ♭ the one just left. With a key signature, every note on that letter changes.',
+    clef: "The same spot is a different note in each clef. In bass clef, anchor on the F line between the clef's dots; in treble, on the G line where the clef curls.",
+    late: 'Notes slipped past the click. Look at the next note while you play this one, or pick a slower pulse.',
+  };
 
   function groupsFor(clef) {
     if (clef === 'g') {
@@ -40,8 +86,9 @@ KV.ready.then(() => {
     }
     return GROUPS[clef].map((g) => g.map((n) => ({ clef, d: dia(n) })));
   }
+  // A note read through the key signature is tracked apart from the same note written with its own sign.
   function keyOf(it) {
-    return it.clef + ':' + LETTERS[it.d % 7] + (it.acc === 1 ? '#' : it.acc === -1 ? 'b' : '') + Math.floor(it.d / 7);
+    return it.clef + ':' + LETTERS[it.d % 7] + (it.acc === 1 ? '#' : it.acc === -1 ? 'b' : '') + Math.floor(it.d / 7) + (it.fromKey ? 'k' : '');
   }
   function nameOf(d, acc, withOctave) {
     const li = d % 7;
@@ -57,36 +104,67 @@ KV.ready.then(() => {
   // Show the octave number only when it is part of what's being tested.
   const octaveMatters = () => db.settings.octave && db.settings.input !== 'keys';
 
+  function keyAcc(d) {
+    const n = KEY_SIGS[db.settings.key] || 0;
+    const L = LETTERS[d % 7];
+    if (n > 0 && SHARP_ORDER.slice(0, n).includes(L)) return 1;
+    if (n < 0 && FLAT_ORDER.slice(0, -n).includes(L)) return -1;
+    return 0;
+  }
+  // A staff position as it is read in the current key: an F in G major is an F sharp, written without a sign.
+  function inKey(pos) {
+    const acc = keyAcc(pos.d);
+    return { clef: pos.clef, d: pos.d, acc, fromKey: acc !== 0 };
+  }
+  const homeKey = (pos) => keyOf(inKey(pos));
+
   // ---------- storage ----------
   const STORE_KEY = 'notes-trainer.v1';
+  const SCHEMA = 2;
   const DEFAULTS = {
-    settings: { input: 'piano', clef: 't', pool: 'adaptive', session: 'sprint', names: 'letters', accidentals: false, octave: true, sound: true, labels: false },
+    settings: { input: 'piano', clef: 't', pool: 'adaptive', order: 'random', pulse: 0, key: 'C', session: 'sprint', names: 'letters', accidentals: false, octave: true, sound: true, labels: false },
     stats: {},
     progress: { t: 1, b: 1, g: 1 },
     best: {},
+    schema: SCHEMA,
   };
   const db = load();
   function load() {
     try {
       const raw = JSON.parse(KV.getItem(STORE_KEY));
       if (raw && typeof raw === 'object') {
-        return {
+        return migrate({
           settings: { ...DEFAULTS.settings, ...raw.settings },
           stats: raw.stats || {},
           progress: { ...DEFAULTS.progress, ...raw.progress },
           best: raw.best || {},
-        };
+          schema: raw.schema || 1,
+        });
       }
     } catch (e) { /* private mode or corrupt data: start fresh */ }
     return JSON.parse(JSON.stringify(DEFAULTS));
+  }
+  // Schema 1 moved a note up on every fast answer, so a note could reach "fluent" inside one minute.
+  // Keep what unlocked notes, but the levels above that have to be earned again on later days.
+  function migrate(d) {
+    if (d.schema < 2) {
+      for (const st of Object.values(d.stats)) {
+        st.box = Math.min(st.box || 0, MASTER_BOX);
+        st.up = st.last || 0;
+      }
+      d.schema = 2;
+    }
+    return d;
   }
   function save() {
     try { KV.setItem(STORE_KEY, JSON.stringify(db)); } catch (e) { /* ignore */ }
   }
   const peek = (k) => db.stats[k];
   function stat(k) {
-    return db.stats[k] || (db.stats[k] = { box: 0, n: 0, ok: 0, ema: 0, last: 0 });
+    return db.stats[k] || (db.stats[k] = { box: 0, n: 0, ok: 0, ema: 0, last: 0, up: 0 });
   }
+  // The time a note has to beat to move up from where it is now.
+  const fastFor = (st) => FAST_MS[db.settings.input] * SPEED[st ? st.box : 0];
 
   // ---------- DOM ----------
   const $ = (id) => document.getElementById(id);
@@ -102,14 +180,16 @@ KV.ready.then(() => {
   const form = $('settings');
   function syncForm() {
     const s = db.settings;
-    for (const name of ['input', 'clef', 'pool', 'session', 'names']) {
+    for (const name of ['input', 'clef', 'pool', 'order', 'pulse', 'key', 'session', 'names']) {
       const el = form.querySelector(`input[name="${name}"][value="${s[name]}"]`);
       if (el) el.checked = true;
     }
     for (const name of ['accidentals', 'octave', 'sound', 'labels']) form.elements[name].checked = !!s[name];
     form.elements.octave.disabled = s.input === 'keys';
     form.elements.sound.disabled = s.input === 'mic';
+    form.elements.accidentals.disabled = s.key !== 'C';
     updateInputHint();
+    updateReadingHints();
     renderMaps();
     renderBestLine();
   }
@@ -117,7 +197,7 @@ KV.ready.then(() => {
     const el = e.target;
     const s = db.settings;
     if (el.type === 'radio') {
-      s[el.name] = el.value;
+      s[el.name] = el.name === 'pulse' ? +el.value : el.value;
       if (el.name === 'input') {
         // Pitch detection often lands an octave off on piano overtones, so don't demand octaves from the mic by default.
         s.octave = el.value === 'piano' || el.value === 'midi';
@@ -135,7 +215,7 @@ KV.ready.then(() => {
     hint.classList.remove('warn');
     const s = db.settings;
     if (s.input === 'piano') hint.textContent = 'Click or tap the keys under the staff.';
-    else if (s.input === 'keys') hint.textContent = 'Type the letter: C D E F G A B, or 1 to 7 for Do to Si. Shift + letter for a sharp. Octave is ignored.';
+    else if (s.input === 'keys') hint.textContent = 'Type the letter: C D E F G A B, or 1 to 7 for Do to Si. Shift + letter for a sharp, hold Space for a flat. Octave is ignored.';
     else if (s.input === 'mic') hint.textContent = 'Play a real piano or any instrument near the mic. One note at a time; let a repeated note go quiet before playing it again.';
     else if (s.input === 'midi') {
       if (!navigator.requestMIDIAccess) {
@@ -153,11 +233,49 @@ KV.ready.then(() => {
     }
   }
 
+  function updateReadingHints() {
+    const s = db.settings;
+    $('order-hint').textContent = s.order === 'melodic'
+      ? 'Each note is mostly a step or a skip from the one before, like a tune. With only the first three notes unlocked it can only jump.'
+      : '';
+    $('pulse-hint').textContent = s.pulse
+      ? `A click every ${(60 / s.pulse).toFixed(1)} s. Play each note before the next click. The notes move on either way, and a missed one comes back later.`
+      : '';
+    const n = KEY_SIGS[s.key] || 0;
+    if (!n) {
+      $('key-hint').textContent = '';
+    } else {
+      const letters = (n > 0 ? SHARP_ORDER : FLAT_ORDER).slice(0, Math.abs(n)).split('').map((L) => LETTERS.indexOf(L));
+      const list = (a) => (a.length > 1 ? a.slice(0, -1).join(', ') + ' and ' + a[a.length - 1] : a[0]);
+      const plain = list(letters.map((li) => nameOf(li, 0, false)));
+      const altered = list(letters.map((li) => nameOf(li, n > 0 ? 1 : -1, false)));
+      $('key-hint').textContent = `Every ${plain} is played as ${altered}, in every octave. The sign is written once, at the start of the staff. Extra sharps and flats are off.`;
+    }
+  }
+
   function noteClass(st) {
     if (!st || !st.n) return 'new';
     if (st.box >= 5) return 'fluent';
     if (st.box >= MASTER_BOX) return 'ok';
     return 'weak';
+  }
+  function formatWait(ms) {
+    if (ms < 90e3) return Math.ceil(ms / 1000) + ' s';
+    if (ms < 90 * 60e3) return Math.ceil(ms / 60e3) + ' min';
+    if (ms < 36 * 3600e3) return Math.ceil(ms / 3600e3) + ' h';
+    return Math.ceil(ms / 86400e3) + ' days';
+  }
+  function levelInfo(st) {
+    const parts = [`${st.ok}/${st.n} right`];
+    if (st.ema) parts.push(`typical ${(st.ema / 1000).toFixed(1)} s`);
+    parts.push(`level ${st.box} of ${MAX_BOX}`);
+    let s = parts.join(', ');
+    if (st.box < MAX_BOX) {
+      s += `. Next level: right in under ${(fastFor(st) / 1000).toFixed(1)} s`;
+      const wait = PROMOTE_GAP[st.box + 1] - (Date.now() - (st.up || 0));
+      if (wait > 0) s += `, ${formatWait(wait)} from now or later`;
+    }
+    return s;
   }
   function renderMaps() {
     for (const clef of ['t', 'b']) {
@@ -172,16 +290,26 @@ KV.ready.then(() => {
         const span = document.createElement('span');
         span.className = 'nm ' + (it.locked && !(st && st.n) ? 'locked' : noteClass(st));
         span.textContent = nameOf(it.d, 0, true);
-        const info = st && st.n ? `${st.ok}/${st.n} right, typical ${(st.ema / 1000).toFixed(1)} s` : it.locked ? 'locked' : 'not seen yet';
+        const info = st && st.n ? levelInfo(st) : it.locked ? 'locked' : 'not seen yet';
         span.title = `${nameOf(it.d, 0, true)}: ${info}`;
         el.appendChild(span);
       }
     }
   }
-  const bestKey = () => `${db.settings.clef}-${db.settings.session}-${db.settings.pool}`;
+  // Scores are only compared with sessions that had the same notes in play: more notes is slower, not worse.
+  function bestKey() {
+    const s = db.settings;
+    const parts = [s.clef, s.session, s.pool];
+    if (s.pool === 'adaptive') parts.push('g' + db.progress[s.clef]);
+    if (s.order === 'melodic') parts.push('mel');
+    if (s.pulse) parts.push(s.pulse + 'bpm');
+    if (s.key !== 'C') parts.push('k' + s.key);
+    else if (s.accidentals) parts.push('acc');
+    return parts.join('-');
+  }
   function renderBestLine() {
     const b = db.best[bestKey()];
-    $('best-line').textContent = b ? `Best with these settings: ${b.toFixed(1)} correct notes per minute` : '';
+    $('best-line').textContent = b ? `Best with these settings and ${naturalPool().length} notes in play: ${b.toFixed(1)} correct notes per minute` : '';
   }
 
   $('reset').addEventListener('click', () => {
@@ -232,6 +360,27 @@ KV.ready.then(() => {
     o1.start(t); o2.start(t);
     o1.stop(t + 1.4); o2.stop(t + 1.4);
   }
+  // Metronome click: filtered noise, not a tone, so the microphone's pitch detector never takes it for a note.
+  let noiseBuf = null;
+  function click(accent) {
+    const c = audio();
+    if (!c) return;
+    if (!noiseBuf) {
+      noiseBuf = c.createBuffer(1, Math.floor(c.sampleRate * 0.03), c.sampleRate);
+      const ch = noiseBuf.getChannelData(0);
+      for (let i = 0; i < ch.length; i++) ch[i] = (Math.random() * 2 - 1) * (1 - i / ch.length);
+    }
+    const src = c.createBufferSource();
+    src.buffer = noiseBuf;
+    const bp = c.createBiquadFilter();
+    bp.type = 'bandpass';
+    bp.frequency.value = accent ? 3200 : 2200;
+    bp.Q.value = 1.2;
+    const g = c.createGain();
+    g.gain.value = accent ? 0.9 : 0.55;
+    src.connect(bp).connect(g).connect(c.destination);
+    src.start(c.currentTime);
+  }
 
   // ---------- note selection ----------
   function naturalPool() {
@@ -240,10 +389,10 @@ KV.ready.then(() => {
     const unlocked = groups.slice(0, db.progress[s.clef]).flat();
     if (s.pool === 'all') return groups.flat();
     if (s.pool === 'weak') {
-      const seen = groups.flat().filter((it) => { const st = peek(keyOf({ ...it, acc: 0 })); return st && st.n; });
+      const seen = groups.flat().filter((it) => { const st = peek(homeKey(it)); return st && st.n; });
       if (seen.length < 6) return unlocked;
       const score = (it) => {
-        const st = peek(keyOf({ ...it, acc: 0 }));
+        const st = peek(homeKey(it));
         return st.box * 1000 - st.ema - (1 - st.ok / st.n) * 3000;
       };
       return seen.sort((a, b) => score(a) - score(b)).slice(0, 6);
@@ -251,27 +400,60 @@ KV.ready.then(() => {
     return unlocked;
   }
 
+  // The forms a staff position can be asked in, with how often each should come up.
+  function variants(pos) {
+    const base = inKey(pos);
+    if (db.settings.key !== 'C' || !db.settings.accidentals) return [{ ...base, prior: 1 }];
+    const L = LETTERS[pos.d % 7];
+    const alts = [];
+    if ('CDFGA'.includes(L)) alts.push(1);
+    if ('DEGAB'.includes(L)) alts.push(-1);
+    return [{ ...base, prior: 0.65 }, ...alts.map((acc) => ({ clef: pos.clef, d: pos.d, acc, fromKey: false, prior: 0.35 / alts.length }))];
+  }
+
+  function learnWeight(st, now) {
+    if (!st || !st.n) return 7;
+    let w = BOX_WEIGHT[st.box];
+    if (st.box > 0) w *= clamp((now - st.last) / INTERVALS[st.box], 0.5, 3);
+    if (st.ema > fastFor(st)) w *= 1.6;
+    return w;
+  }
+
+  function motionWeight(prev, prev2, c) {
+    const step = c.d - prev.d;
+    const size = Math.abs(step);
+    let w = size < MOTION_W.length ? MOTION_W[size] : 0.1;
+    if (prev2 && size) {
+      const last = prev.d - prev2.d;
+      // Tunes keep going the way they were going, and turn back after a leap.
+      if (Math.abs(last) >= 3) { if (Math.sign(step) === -Math.sign(last)) w *= 2; }
+      else if (last && Math.sign(step) === Math.sign(last)) w *= 1.5;
+    }
+    if (c.clef !== prev.clef) w *= 0.5;
+    return w;
+  }
+
   function pickNext() {
-    const pool = session.pool;
+    const s = db.settings;
     const now = Date.now();
-    const fast = FAST_MS[db.settings.input];
-    const recent = session.queue.slice(-2).map((it) => it.clef + it.d);
+    const q = session.queue;
+    const prev = q[q.length - 1];
+    const prev2 = q[q.length - 2];
+    const melodic = s.order === 'melodic' && prev;
+    const spread = session.pool.length > 2;
+    const recent = q.slice(-2).map((it) => it.clef + it.d);
+    const cands = session.pool.flatMap(variants);
     let total = 0;
-    const ws = pool.map((it) => {
-      const st = peek(keyOf({ ...it, acc: 0 }));
-      let w;
-      if (!st || !st.n) w = 7;
-      else {
-        w = BOX_WEIGHT[st.box];
-        if (st.box > 0) w *= clamp((now - st.last) / INTERVALS[st.box], 0.5, 3);
-        if (st.ema > fast) w *= 1.6;
-      }
-      if (recent.includes(it.clef + it.d)) w *= pool.length > 2 ? 0.03 : 0.3;
+    const ws = cands.map((c) => {
+      let w = c.prior * learnWeight(peek(keyOf(c)), now);
+      // In melodic order the distance from the last note decides most of it; how well a note is known only nudges.
+      if (melodic) w = Math.sqrt(w) * motionWeight(prev, prev2, c);
+      else if (recent.includes(c.clef + c.d)) w *= spread ? 0.03 : 0.3;
       total += w;
       return w;
     });
     // No single note may take more than about half the turns, or a stubborn miss crowds out the rest.
-    if (pool.length > 2) {
+    if (spread) {
       for (let j = 0; j < ws.length; j++) {
         const cap = total - ws[j];
         if (ws[j] > cap) { total -= ws[j] - cap; ws[j] = cap; }
@@ -280,20 +462,50 @@ KV.ready.then(() => {
     let r = Math.random() * total;
     let i = 0;
     for (; i < ws.length - 1; i++) { r -= ws[i]; if (r <= 0) break; }
-    const it = { clef: pool[i].clef, d: pool[i].d, acc: 0 };
-    if (db.settings.accidentals && Math.random() < 0.35) {
-      const L = LETTERS[it.d % 7];
-      const opts = [];
-      if ('CDFGA'.includes(L)) opts.push(1);
-      if ('DEGAB'.includes(L)) opts.push(-1);
-      it.acc = opts[Math.floor(Math.random() * opts.length)];
-    }
-    return finish(it);
+    const c = cands[i];
+    return finish({ clef: c.clef, d: c.d, acc: c.acc, fromKey: c.fromKey });
   }
   function finish(it) {
     it.midi = midiOf(it.d, it.acc);
     it.key = keyOf(it);
     return it;
+  }
+
+  // Notes that must come back at a set point in the sequence (misses, newly unlocked notes) wait here
+  // until the queue reaches that point, so they never land among the notes already on screen.
+  function schedule(it, at) {
+    const key = keyOf(it);
+    if (session.pending.some((p) => p.key === key && Math.abs(p.at - at) < 4)) return;
+    session.pending.push({ key, at, it: { clef: it.clef, d: it.d, acc: it.acc, fromKey: !!it.fromKey } });
+    session.pending.sort((a, b) => a.at - b.at);
+  }
+  function nextItem() {
+    const seq = session.pushed;
+    const tail = session.queue[session.queue.length - 1];
+    const i = session.pending.findIndex((p) => p.at <= seq && !(tail && tail.key === p.key));
+    const it = i >= 0 ? finish({ ...session.pending.splice(i, 1)[0].it }) : pickNext();
+    it.seq = session.pushed++;
+    return it;
+  }
+  function refill() {
+    while (session.queue.length < PREVIEW) session.queue.push(nextItem());
+  }
+  // A missed note comes back twice: right after the notes already on screen, then again about a dozen notes on.
+  function scheduleRetry(target) {
+    const q = session.queue;
+    let ahead = false;
+    for (let i = 1; i < q.length; i++) {
+      if (q[i].key !== target.key) continue;
+      // A copy already on screen would be read while the answer is still showing, so swap it for another note.
+      // With a pulse the eyes may already have read it; leave it and let it stand in for the first retry.
+      if (session.pulse) { ahead = true; continue; }
+      let fresh = pickNext();
+      for (let guard = 0; fresh.key === target.key && guard < 10; guard++) fresh = pickNext();
+      fresh.seq = q[i].seq;
+      q[i] = fresh;
+    }
+    if (!ahead) schedule(target, target.seq + PREVIEW + Math.floor(Math.random() * 2));
+    schedule(target, target.seq + 11 + Math.floor(Math.random() * 3));
   }
 
   function checkUnlock() {
@@ -303,7 +515,7 @@ KV.ready.then(() => {
     const n = db.progress[s.clef];
     if (n >= groups.length) return;
     const ready = groups.slice(0, n).flat().every((it) => {
-      const st = peek(keyOf({ ...it, acc: 0 }));
+      const st = peek(homeKey(it));
       return st && st.box >= MASTER_BOX;
     });
     if (!ready) return;
@@ -312,7 +524,7 @@ KV.ready.then(() => {
     session.pool = naturalPool();
     session.unlocked.push(...fresh);
     // Let the new notes appear soon, but after the notes already visible.
-    for (const it of fresh) session.queue.splice(PREVIEW + Math.floor(Math.random() * 3), 0, finish({ ...it, acc: 0 }));
+    fresh.forEach((it, i) => schedule(inKey(it), session.pushed + i * 2 + Math.floor(Math.random() * 2)));
     toast('New: ' + fresh.map((it) => nameOf(it.d, 0, true)).join('  '));
     $('hud-pool').textContent = session.pool.length;
   }
@@ -326,17 +538,115 @@ KV.ready.then(() => {
     toastTimer = setTimeout(() => el.classList.remove('show'), 2600);
   }
 
+  // ---------- explanations ----------
+  function describePos(it) {
+    const off = it.d - STAFF_REF[it.clef];
+    if (off < -1) {
+      const n = Math.floor(-off / 2);
+      return off % 2 === 0 ? `on ledger line ${n} below the staff` : `under ledger line ${n} below the staff`;
+    }
+    if (off > 9) {
+      const n = Math.floor((off - 8) / 2);
+      return off % 2 === 0 ? `on ledger line ${n} above the staff` : `over ledger line ${n} above the staff`;
+    }
+    return off % 2 === 0 ? `on line ${off / 2 + 1} from the bottom` : `in space ${(off + 1) / 2} from the bottom`;
+  }
+
+  // Where a note sits, said as a distance from the nearest landmark the player already knows.
+  function relation(it) {
+    const first = GROUPS[it.clef][0];
+    let best = null;
+    for (const n of LANDMARKS[it.clef]) {
+      const d = dia(n);
+      if (!first.includes(n)) {
+        const st = peek(homeKey({ clef: it.clef, d }));
+        if (!st || st.box < MASTER_BOX) continue;
+      }
+      if (!best || Math.abs(it.d - d) < Math.abs(it.d - best.d)) best = { n, d };
+    }
+    // Far from every landmark (high and low ledger notes): measure from a closer note that is already mastered.
+    let near = null;
+    if (Math.abs(it.d - best.d) > 2) {
+      for (const n of GROUPS[it.clef].flat()) {
+        const d = dia(n);
+        const st = peek(homeKey({ clef: it.clef, d }));
+        if (d === it.d || !st || st.box < MASTER_BOX) continue;
+        if (Math.abs(it.d - d) < Math.abs(it.d - (near ? near.d : best.d))) near = { clef: it.clef, d };
+      }
+    }
+    const L = nameOf(it.d, 0, false);
+    const ref = near || best;
+    const off = it.d - ref.d;
+    const refName = near
+      ? `the ${nameOf(near.d, 0, false)} ${describePos(near)}`
+      : MARK_NAMES[it.clef + best.n].replace('%', nameOf(best.d, 0, false));
+    let text = off === 0
+      ? `${L} is ${(MARK_SPOTS[it.clef + best.n] || describePos(it)).replace('%', L)}`
+      : `${L} is ${stepWord(Math.abs(off))} ${off > 0 ? 'above' : 'below'} ${refName}`;
+    if (it.fromKey) text += `; the key makes it ${nameOf(it.d, it.acc, false)}`;
+    else if (it.acc) text += it.acc === 1 ? ', then ♯: one key right' : ', then ♭: one key left';
+    return text;
+  }
+
+  // Spell a played pitch with the letter closest to the note asked for, so a black key next to the
+  // right spot reads as "right spot, wrong sign" and not as a different note.
+  function spell(m, near) {
+    const oct = Math.floor(m / 12) - 1;
+    const opts = [SHARP_NAMES[mod(m, 12)], FLAT_NAMES[mod(m, 12)]].map(([li, acc]) => ({ d: oct * 7 + li, acc }));
+    return opts.reduce((a, b) => (Math.abs(b.d - near) < Math.abs(a.d - near) ? b : a));
+  }
+
+  // What kind of misreading a wrong answer was: each kind has its own cause and its own fix.
+  function describeError(target, heard, strict) {
+    const want = nameOf(target.d, target.acc, octaveMatters());
+    // Without octaves, compare against the copy of the played note nearest the target.
+    if (!strict) heard = target.midi + ((mod(heard - target.midi, 12) + 6) % 12) - 6;
+    const got = spell(heard, target.d);
+    const gotName = nameOf(got.d, got.acc, strict);
+    const dd = got.d - target.d;
+    const dir = dd > 0 ? 'high' : 'low';
+    const onLine = mod(target.d - STAFF_REF[target.clef], 2) === 0;
+    if (mod(heard, 12) === mod(target.midi, 12)) {
+      return { type: 'octave', gotName, text: `Right name, wrong octave. This ${want} is ${target.midi > heard ? 'higher' : 'lower'}.` };
+    }
+    if (dd === 0) {
+      let text;
+      if (target.fromKey) text = `That was ${gotName}. The key signature makes every ${nameOf(target.d, 0, false)} a ${nameOf(target.d, target.acc, false)}.`;
+      else if (target.acc) text = `That was ${gotName}. Right spot, but there's a ${target.acc === 1 ? '♯: the black key just right' : '♭: the black key just left'} of it.`;
+      else text = `That was ${gotName}. Right spot, but there's no sign: play the white key.`;
+      return { type: 'accidental', gotName, text };
+    }
+    // Reading bass clef as treble puts every note two letters low; treble as bass, two letters high.
+    const otherClef = target.clef === 'b' ? mod(dd, 7) === 5 : db.settings.clef === 'g' && mod(dd, 7) === 2;
+    if (otherClef) {
+      const [other, own] = target.clef === 'b' ? ['treble', 'bass'] : ['bass', 'treble'];
+      return { type: 'clef', gotName, text: `That was ${gotName}: what this spot is in ${other} clef. In ${own} clef it's ${want}.` };
+    }
+    const n = Math.abs(dd);
+    if (n === 1) return { type: 'step', gotName, text: `That was ${gotName}: a step too ${dir}. This note sits ${onLine ? 'on a line' : 'in a space'}.` };
+    if (n === 2) return { type: 'skip', gotName, text: `That was ${gotName}: a skip too ${dir}, one ${onLine ? 'line' : 'space'} off.` };
+    return { type: 'leap', gotName, text: `That was ${gotName}: ${stepWord(n)} too ${dir}.` };
+  }
+
   // ---------- session ----------
   let session = null;
   function startSession() {
     audio();
+    if (document.activeElement && document.activeElement.blur) document.activeElement.blur();
     const s = db.settings;
+    const beatMs = s.pulse ? 60000 / s.pulse : 0;
+    const lead = beatMs ? 400 : 0;
+    const now = performance.now();
     session = {
       pool: naturalPool(),
       queue: [],
+      pending: [],
+      pushed: 0,
       t0: 0,
       firstTry: true,
-      wrongMidi: null,
+      introduced: false,
+      resolved: false,
+      state: null,
       correct: 0,
       attempts: 0,
       answered: 0,
@@ -345,11 +655,21 @@ KV.ready.then(() => {
       times: [],
       perNote: {},
       confusions: {},
+      errTypes: {},
       unlocked: [],
-      startAt: performance.now(),
+      bestKey: bestKey(),
+      inPlay: 0,
+      pulse: !!beatMs,
+      beatMs,
+      beat: -1,
+      beat0: now + lead,
+      countIn: !!beatMs,
+      // With a pulse, the clock starts after the count-in.
+      startAt: now + lead + (beatMs ? COUNT_IN * beatMs : 0),
       ended: false,
     };
-    for (let i = 0; i < PREVIEW; i++) session.queue.push(pickNext());
+    session.inPlay = session.pool.length;
+    refill();
     show('play');
     buildPiano();
     $('hud-score').textContent = '0';
@@ -358,26 +678,45 @@ KV.ready.then(() => {
     $('hud-last').className = 'hud-val';
     $('hud-pool').textContent = session.pool.length;
     $('hud-clock-label').textContent = s.session === 'sprint' ? 'Time' : s.session === 'set' ? 'Left' : 'Elapsed';
-    setFeedback('', '');
+    setFeedback(session.pulse ? 'Play each note before the next click.' : '', '');
     renderKeysHint();
     setupInputs();
-    beginNote();
+    if (session.pulse) renderStaff();
+    else beginNote();
     tickClock();
   }
 
-  function beginNote() {
+  function beginNote(tick) {
+    const st = peek(session.queue[0].key);
     session.t0 = performance.now();
     session.firstTry = true;
-    session.wrongMidi = null;
+    session.resolved = false;
+    session.introduced = !(st && st.n);
+    session.state = null;
     clearHints();
-    renderStaff();
+    renderStaff(tick);
+  }
+
+  function advance() {
+    session.queue.shift();
+    refill();
+    session.answered++;
+    checkUnlock();
+    save();
+    if (db.settings.session === 'set' && session.answered >= SET_LENGTH) { endSession(); return; }
+    beginNote(session.pulse);
   }
 
   function tickClock() {
     if (!session || session.ended) return;
+    const now = performance.now();
+    if (session.pulse) {
+      pulseTick(now);
+      if (session.ended) return;
+    }
     const s = db.settings;
     const el = $('hud-clock');
-    const elapsed = performance.now() - session.startAt;
+    const elapsed = Math.max(0, now - session.startAt);
     if (s.session === 'sprint') {
       const left = Math.max(0, SPRINT_MS - elapsed);
       const secs = Math.ceil(left / 1000);
@@ -393,14 +732,75 @@ KV.ready.then(() => {
     requestAnimationFrame(tickClock);
   }
 
+  // ---------- pulse ----------
+  function pulseTick(now) {
+    const b = Math.floor((now - session.beat0) / session.beatMs);
+    if (b <= session.beat) return;
+    if (session.beat >= 0 && b > session.beat + 2) {
+      // The tab was in the background: carry on from where it stopped instead of failing every beat in between.
+      const skip = (b - session.beat - 1) * session.beatMs;
+      session.beat0 += skip;
+      session.startAt += skip;
+    }
+    session.beat++;
+    onBeat(session.beat);
+  }
+  function onBeat(b) {
+    click(b % 4 === 0);
+    if (b < COUNT_IN) {
+      setFeedback(`Starts in ${COUNT_IN - b}`, '');
+      renderStaff(true);
+      return;
+    }
+    if (b === COUNT_IN) {
+      session.countIn = false;
+      setFeedback('', '');
+      beginNote(true);
+      return;
+    }
+    if (!session.resolved) timeoutMiss();
+    advance();
+  }
+  function timeoutMiss() {
+    const target = session.queue[0];
+    const pn = perNote(target);
+    const st = stat(target.key);
+    const now = Date.now();
+    session.attempts++;
+    pn.n++;
+    pn.miss++;
+    st.n++;
+    st.last = now;
+    // One level down, not two: a wrong key is a misreading, a late one may just be a slow reading.
+    st.box = Math.max(0, st.box - 1);
+    st.up = now;
+    st.ema = Math.max(st.ema, FAST_MS[db.settings.input] * 1.2);
+    session.streak = 0;
+    $('hud-streak').textContent = '0';
+    const want = nameOf(target.d, target.acc, octaveMatters());
+    countError('late', `${want}: too late`);
+    scheduleRetry(target);
+    setFeedback(`Too late: that was ${want}.`, 'bad');
+  }
+
+  function perNote(it) {
+    return session.perNote[it.key] || (session.perNote[it.key] = { it, n: 0, miss: 0, times: [] });
+  }
+  function countError(type, confusion) {
+    session.errTypes[type] = (session.errTypes[type] || 0) + 1;
+    session.confusions[confusion] = (session.confusions[confusion] || 0) + 1;
+  }
+
   // input: { midi } for a specific pitch, or { pc } when only the pitch class is known (letter keys).
   function answer(inp) {
-    if (!session || session.ended || current !== 'play') return;
+    if (!session || session.ended || current !== 'play' || session.countIn) return;
+    if (session.pulse && session.resolved) return;
+    const s = db.settings;
     const target = session.queue[0];
-    const strict = db.settings.octave && inp.midi != null;
+    const strict = s.octave && inp.midi != null;
     const ok = strict ? inp.midi === target.midi : mod(inp.midi != null ? inp.midi : inp.pc, 12) === mod(target.midi, 12);
     const ms = performance.now() - session.t0;
-    const fast = FAST_MS[db.settings.input];
+    const fast = fastFor(peek(target.key));
 
     // What to sound: the key that was pressed, or for letter keys the pitch class nearest the target.
     let heard = inp.midi;
@@ -408,70 +808,79 @@ KV.ready.then(() => {
     if (inp.source !== 'midi') playMidi(heard);
     if (inp.midi != null) flashKey(inp.midi, ok ? 'ok' : 'bad');
 
-    const pn = session.perNote[target.key] || (session.perNote[target.key] = { it: target, n: 0, miss: 0, times: [] });
+    const pn = perNote(target);
 
     if (session.firstTry) {
       session.attempts++;
       pn.n++;
       const st = stat(target.key);
+      const now = Date.now();
       st.n++;
-      st.last = Date.now();
       if (ok) {
         st.ok++;
-        st.ema = st.ema ? st.ema * 0.6 + ms * 0.4 : ms;
-        if (ms <= fast) st.box = Math.min(MAX_BOX, st.box + 1);
+        // The first sighting has its name printed under it: that answer was copied, not read, so it can't count as learnt.
+        if (!session.introduced) {
+          st.ema = st.ema ? st.ema * 0.6 + ms * 0.4 : ms;
+          // Fast alone doesn't move a note up: enough time has to have passed since the last move up
+          // for the answer to show memory rather than an echo of a few seconds ago.
+          if (ms <= fast && st.box < MAX_BOX && now - (st.up || 0) >= PROMOTE_GAP[st.box + 1]) {
+            st.box++;
+            st.up = now;
+          }
+        }
       } else {
-        st.box = 0;
+        // Two levels down, not back to zero: one slip shouldn't wipe a note that held up for days.
+        st.box = Math.max(0, st.box - 2);
+        st.up = now;
         // A wrong answer is also a slow one: drag the typical time up so the note gets more turns.
-        st.ema = Math.max(st.ema, fast * 1.2);
+        st.ema = Math.max(st.ema, FAST_MS[s.input] * 1.2);
       }
+      st.last = now;
     }
 
+    const want = nameOf(target.d, target.acc, octaveMatters());
     if (ok) {
       if (session.firstTry) {
         session.correct++;
         session.streak++;
         session.bestStreak = Math.max(session.bestStreak, session.streak);
-        session.times.push(ms);
-        pn.times.push(ms);
+        if (!session.introduced) {
+          session.times.push(ms);
+          pn.times.push(ms);
+        }
         const last = $('hud-last');
         last.textContent = (ms / 1000).toFixed(2) + 's';
         last.className = 'hud-val ' + (ms <= fast ? 'fast' : 'slow');
-        setFeedback(`${nameOf(target.d, target.acc, octaveMatters())}  ${(ms / 1000).toFixed(2)} s${ms > fast ? '  (aim for under ' + fast / 1000 + ' s)' : ''}`, ms <= fast ? 'ok' : 'slow');
+        setFeedback(`${want}  ${(ms / 1000).toFixed(2)} s${ms > fast ? '  (aim for under ' + (fast / 1000).toFixed(1) + ' s)' : ''}`, ms <= fast ? 'ok' : 'slow');
       } else {
-        setFeedback(`${nameOf(target.d, target.acc, octaveMatters())}. It comes back in a moment.`, 'slow');
+        setFeedback(`${want}. It comes back in a moment.`, 'slow');
       }
       $('hud-score').textContent = session.correct;
       $('hud-streak').textContent = session.streak;
-      session.queue.shift();
-      while (session.queue.length < PREVIEW) session.queue.push(pickNext());
-      session.answered++;
-      checkUnlock();
-      save();
-      if (db.settings.session === 'set' && session.answered >= SET_LENGTH) { endSession(); return; }
-      beginNote();
+      if (session.pulse) {
+        // The next note comes on the click, not now.
+        session.resolved = true;
+        session.state = 'ok';
+        renderStaff();
+        return;
+      }
+      advance();
     } else {
-      const gotName = inp.midi != null ? nameOfMidi(inp.midi, strict) : nameOfMidi(heard, false);
+      const err = describeError(target, heard, strict);
       if (session.firstTry) {
         session.streak = 0;
         pn.miss++;
-        const ck = `${nameOf(target.d, target.acc, octaveMatters())} read as ${gotName}`;
-        session.confusions[ck] = (session.confusions[ck] || 0) + 1;
-        // Same note again, three notes after this one (unless a copy is already coming up).
-        if (!session.queue.slice(1, 5).some((q) => q.key === target.key)) {
-          session.queue.splice(4, 0, finish({ clef: target.clef, d: target.d, acc: target.acc }));
-        }
+        countError(err.type, `${want} read as ${err.gotName}`);
+        scheduleRetry(target);
         $('hud-streak').textContent = '0';
       }
       session.firstTry = false;
-      session.wrongMidi = inp.midi;
-      const want = nameOf(target.d, target.acc, octaveMatters());
-      const sameNameWrongOctave = mod(heard, 12) === mod(target.midi, 12);
-      setFeedback(sameNameWrongOctave
-        ? `Right name, wrong octave. This ${want} is ${target.midi > heard ? 'higher' : 'lower'}. Play it to go on.`
-        : `That was ${gotName}. This is ${want}. Play ${want} to go on.`, 'bad');
+      // With a pulse there is no stopping to fix it: the right answer is shown and the click moves on.
+      if (session.pulse) session.resolved = true;
+      setFeedback(err.text + (session.pulse ? '' : ` Play ${want} to go on.`), 'bad');
       hintKey(target.midi);
-      renderStaff(true);
+      session.state = 'bad';
+      renderStaff();
     }
   }
 
@@ -492,16 +901,22 @@ KV.ready.then(() => {
     $('r-median').textContent = median != null ? (median / 1000).toFixed(2) + ' s' : '–';
     $('r-streak').textContent = session.bestStreak;
 
-    const bk = bestKey();
+    const bk = session.bestKey;
     const prev = db.best[bk];
     const best = $('r-best');
+    const inPlay = `${session.inPlay} notes in play`;
     if (session.attempts >= 5 && (!prev || npm > prev)) {
       db.best[bk] = npm;
-      best.textContent = prev ? `New best. Previous: ${prev.toFixed(1)}` : 'First score with these settings.';
+      best.textContent = prev ? `New best for these settings with ${inPlay}. Previous: ${prev.toFixed(1)}` : `First score for these settings with ${inPlay}.`;
     } else {
-      best.textContent = prev ? `Best with these settings: ${prev.toFixed(1)}` : '';
+      best.textContent = prev ? `Best for these settings with ${inPlay}: ${prev.toFixed(1)}` : '';
     }
     $('result-eyebrow').textContent = session.attempts ? 'Session over' : 'Nothing answered';
+
+    const types = Object.entries(session.errTypes).sort((a, b) => b[1] - a[1]);
+    $('r-errtypes').textContent = types.map(([t, n]) => `${ERR_LABELS[t]}: ${n}`).join(' · ');
+    const misses = types.reduce((a, [, n]) => a + n, 0);
+    $('r-tip').textContent = misses >= 2 ? ERR_TIPS[types[0][0]] : '';
 
     const conf = Object.entries(session.confusions).sort((a, b) => b[1] - a[1]).slice(0, 6);
     const cUl = $('r-confusions');
@@ -550,10 +965,25 @@ KV.ready.then(() => {
     if (parent) parent.appendChild(e);
     return e;
   }
+  // Centre a line of text under x, squeezed if needed so it stays inside the staff on narrow screens.
+  function placeLine(node, text, x, W) {
+    node.textContent = text;
+    const room = W - 16;
+    // Plex Mono is 0.6 em per character; the estimate covers a measurement taken before the font has loaded.
+    let w = Math.max(node.getComputedTextLength() || 0, text.length * 7.5);
+    if (w > room) {
+      node.setAttribute('textLength', room);
+      node.setAttribute('lengthAdjust', 'spacingAndGlyphs');
+      w = room;
+    }
+    node.setAttribute('x', clamp(x - w / 2, 8, W - 8 - w));
+  }
 
-  function renderStaff(wrong) {
+  function renderStaff(tick) {
     const svg = $('staff');
     const clef = db.settings.clef;
+    const state = session.state;
+    const sig = KEY_SIGS[db.settings.key] || 0;
     // Phones get three notes on a shorter staff so the notes stay big enough to read.
     const narrow = (svg.clientWidth || svg.parentNode.clientWidth) < 560;
     const shown = narrow ? 3 : PREVIEW;
@@ -561,18 +991,18 @@ KV.ready.then(() => {
     const staves = clef === 'g'
       ? [{ clef: 't', top: 62 }, { clef: 'b', top: 62 + 4 * S + 6 * S }]
       : [{ clef, top: 78 }];
-    const H = staves[staves.length - 1].top + 4 * S + 84;
+    const H = staves[staves.length - 1].top + 4 * S + 100;
     svg.setAttribute('viewBox', `0 0 ${W} ${H}`);
     svg.innerHTML = '';
     const yOf = (d, st) => st.top + 4 * S - (d - STAFF_REF[st.clef]) * S / 2;
     const x0 = 14, x1 = W - 14;
     const xs = [];
-    for (let i = 0; i < shown; i++) xs.push(narrow ? 132 + i * 100 : 180 + i * 106);
+    for (let i = 0; i < shown; i++) xs.push((narrow ? 132 + i * 100 : 180 + i * 106) + Math.abs(sig) * 10);
 
     // cursor band behind the note to read now
     const bandTop = staves[0].top - 3.5 * S;
     const bandBot = staves[staves.length - 1].top + 7.5 * S;
-    el('rect', { class: 'cursor' + (wrong ? ' bad' : ''), x: xs[0] - 34, y: bandTop, width: 68, height: bandBot - bandTop, rx: 6 }, svg);
+    el('rect', { class: 'cursor' + (state ? ' ' + state : '') + (tick ? ' tick' : ''), x: xs[0] - 34, y: bandTop, width: 68, height: bandBot - bandTop, rx: 6 }, svg);
 
     for (const st of staves) {
       for (let l = 0; l < 5; l++) {
@@ -593,6 +1023,13 @@ KV.ready.then(() => {
         glyph.setAttribute('font-size', 4 * S);
         glyph.textContent = '\u{1D122}';
       }
+      if (sig) {
+        SIG_POS[st.clef][sig > 0 ? 1 : -1].slice(0, Math.abs(sig)).forEach((n, k) => {
+          const y = yOf(dia(n), st);
+          const a = el('text', { class: 'keysig', x: x0 + 46 + k * 12, y: y + (sig > 0 ? 7 : 6), 'font-size': (sig > 0 ? 2.4 : 2.9) * S }, svg);
+          a.textContent = sig > 0 ? '♯' : '♭';
+        });
+      }
     }
     if (staves.length > 1) {
       el('line', { class: 'st-bar', x1: x0, x2: x0, y1: staves[0].top, y2: staves[1].top + 4 * S }, svg);
@@ -604,7 +1041,8 @@ KV.ready.then(() => {
       const ref = STAFF_REF[it.clef];
       const x = xs[i];
       const y = yOf(it.d, st);
-      const g = el('g', { class: 'note' + (i > 0 ? ' ahead' : '') + (i === 0 && wrong ? ' bad' : '') }, svg);
+      const mark = i === 0 && state ? (state === 'bad' ? ' bad' : ' done') : '';
+      const g = el('g', { class: 'note' + (i > 0 ? ' ahead' : '') + mark }, svg);
       for (let L = ref - 2; L >= it.d; L -= 2) {
         const ly = yOf(L, st);
         el('line', { class: 'ledger', x1: x - 15, x2: x + 15, y1: ly, y2: ly }, g);
@@ -617,34 +1055,25 @@ KV.ready.then(() => {
       const up = it.d < ref + 4;
       if (up) el('line', { class: 'stem', x1: x + 7.8, x2: x + 7.8, y1: y - 2, y2: y - 3.5 * S }, g);
       else el('line', { class: 'stem', x1: x - 7.8, x2: x - 7.8, y1: y + 2, y2: y + 3.5 * S }, g);
-      if (it.acc) {
+      if (it.acc && !it.fromKey) {
         const a = el('text', { class: 'acc', x: x - 28, y: y + (it.acc === 1 ? 7 : 6), 'font-size': (it.acc === 1 ? 2.4 : 2.9) * S }, g);
         a.textContent = it.acc === 1 ? '♯' : '♭';
       }
       if (i === 0) {
         const below = staves[staves.length - 1].top + 4 * S + 66;
         const stt = peek(it.key);
-        if (wrong) {
-          el('text', { class: 'answer-name', x, y: below, 'text-anchor': 'middle' }, svg).textContent = nameOf(it.d, it.acc, octaveMatters());
-        } else if (!stt || !stt.n) {
-          el('text', { class: 'intro-name', x, y: below, 'text-anchor': 'middle' }, svg).textContent = nameOf(it.d, it.acc, octaveMatters()) + ' (new)';
+        let label = '', cls = '';
+        if (state === 'bad') { label = nameOf(it.d, it.acc, octaveMatters()); cls = 'answer-name'; }
+        else if (!stt || !stt.n) { label = nameOf(it.d, it.acc, octaveMatters()) + ' (new)'; cls = 'intro-name'; }
+        if (label) {
+          el('text', { class: cls, x, y: below, 'text-anchor': 'middle' }, svg).textContent = label;
+          placeLine(el('text', { class: 'rel', y: below + 21 }, svg), relation(it), x, W);
         }
       }
     });
     const tgt = session.queue[0];
-    svg.setAttribute('aria-label', `Note to read: ${tgt.clef === 't' ? 'treble' : 'bass'} clef, ${describePos(tgt)}`);
-  }
-  function describePos(it) {
-    const off = it.d - STAFF_REF[it.clef];
-    if (off < -1) {
-      const n = Math.floor(-off / 2);
-      return off % 2 === 0 ? `on ledger line ${n} below the staff` : `under ledger line ${n} below the staff`;
-    }
-    if (off > 9) {
-      const n = Math.floor((off - 8) / 2);
-      return off % 2 === 0 ? `on ledger line ${n} above the staff` : `over ledger line ${n} above the staff`;
-    }
-    return off % 2 === 0 ? `line ${off / 2 + 1} from the bottom` : `space ${(off + 1) / 2} from the bottom`;
+    const sign = !tgt.acc ? '' : tgt.fromKey ? `, ${tgt.acc === 1 ? 'sharp' : 'flat'} from the key signature` : `, with a ${tgt.acc === 1 ? 'sharp' : 'flat'}`;
+    svg.setAttribute('aria-label', `Note to read: ${tgt.clef === 't' ? 'treble' : 'bass'} clef, ${describePos(tgt)}${sign}`);
   }
 
   function setFeedback(text, cls) {
@@ -735,8 +1164,8 @@ KV.ready.then(() => {
     const h = $('keys-hint');
     if (s.input === 'keys') {
       h.innerHTML = s.names === 'solfege'
-        ? 'Type <kbd>C</kbd><kbd>D</kbd><kbd>E</kbd><kbd>F</kbd><kbd>G</kbd><kbd>A</kbd><kbd>B</kbd> or <kbd>1</kbd>&ndash;<kbd>7</kbd> for Do&ndash;Si. <kbd>Shift</kbd> + key = sharp.'
-        : 'Type <kbd>C</kbd><kbd>D</kbd><kbd>E</kbd><kbd>F</kbd><kbd>G</kbd><kbd>A</kbd><kbd>B</kbd>. <kbd>Shift</kbd> + letter = sharp (D♭ is <kbd>Shift</kbd>+<kbd>C</kbd>).';
+        ? 'Type <kbd>C</kbd><kbd>D</kbd><kbd>E</kbd><kbd>F</kbd><kbd>G</kbd><kbd>A</kbd><kbd>B</kbd> or <kbd>1</kbd>&ndash;<kbd>7</kbd> for Do&ndash;Si. <kbd>Shift</kbd> + key = sharp, hold <kbd>Space</kbd> + key = flat.'
+        : 'Type <kbd>C</kbd><kbd>D</kbd><kbd>E</kbd><kbd>F</kbd><kbd>G</kbd><kbd>A</kbd><kbd>B</kbd>. <kbd>Shift</kbd> + letter = sharp, hold <kbd>Space</kbd> + letter = flat.';
     } else if (s.input === 'piano') {
       h.textContent = 'Click the key. Letter keys work too, but ignore the octave.';
     } else {
@@ -745,9 +1174,12 @@ KV.ready.then(() => {
   }
 
   // ---------- keyboard ----------
+  // Space held down turns the next letter into a flat, so B♭ is typed as B♭ and not as Shift + A.
+  let flatHeld = false;
   document.addEventListener('keydown', (e) => {
     if (current === 'play') {
       if (e.key === 'Escape') { e.preventDefault(); endSession(); return; }
+      if (e.code === 'Space') { e.preventDefault(); flatHeld = true; return; }
       if (e.repeat || e.ctrlKey || e.metaKey || e.altKey) return;
       let li = -1;
       if (e.key.length === 1) li = 'cdefgab'.indexOf(e.key.toLowerCase());
@@ -755,7 +1187,7 @@ KV.ready.then(() => {
       if (li < 0 && dm) li = +dm[2] - 1;
       if (li >= 0) {
         e.preventDefault();
-        answer({ pc: mod(PCS[li] + (e.shiftKey ? 1 : 0), 12), source: 'keys' });
+        answer({ pc: mod(PCS[li] + (e.shiftKey ? 1 : 0) - (flatHeld ? 1 : 0), 12), source: 'keys' });
       }
     } else if (current === 'menu') {
       if (e.key === 'Enter' && !e.target.closest('button, a')) { e.preventDefault(); startSession(); }
@@ -764,6 +1196,12 @@ KV.ready.then(() => {
       else if (e.key === 'Enter' && !e.target.closest('button, a')) { e.preventDefault(); startSession(); }
     }
   });
+  document.addEventListener('keyup', (e) => {
+    if (e.code !== 'Space') return;
+    flatHeld = false;
+    if (current === 'play') e.preventDefault();
+  });
+  window.addEventListener('blur', () => { flatHeld = false; });
 
   // ---------- MIDI ----------
   const midi = { access: null, error: null, pending: null };
@@ -963,7 +1401,7 @@ KV.ready.then(() => {
   window.addEventListener('resize', () => {
     clearTimeout(resizeTimer);
     resizeTimer = setTimeout(() => {
-      if (current === 'play' && session && !session.ended) renderStaff(!session.firstTry);
+      if (current === 'play' && session && !session.ended) renderStaff();
     }, 120);
   });
 

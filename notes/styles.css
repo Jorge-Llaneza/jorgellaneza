@@ -252,8 +252,16 @@ h1 em { font-weight: 500; color: var(--accent); }
 #staff .note.bad .stem, #staff .note.bad .ledger { stroke: var(--bad); }
 #staff .cursor { fill: var(--accent-soft); }
 #staff .cursor.bad { fill: var(--bad-soft); }
+#staff .note.done { fill: var(--ok); }
+#staff .note.done .stem, #staff .note.done .ledger { stroke: var(--ok); }
+#staff .cursor.ok { fill: var(--ok-soft); }
+/* One flash per click when there's a pulse, so the beat can be seen as well as heard. */
+#staff .cursor.tick { animation: beat 0.22s ease-out; }
+@keyframes beat { from { fill: var(--accent); fill-opacity: 0.35; } }
+#staff .keysig { fill: var(--ink); font-family: var(--music); }
 #staff .intro-name { fill: var(--accent); font-family: var(--mono); font-size: 15px; font-weight: 600; }
 #staff .answer-name { fill: var(--bad); font-family: var(--mono); font-size: 15px; font-weight: 600; }
+#staff .rel { fill: var(--muted); font-family: var(--mono); font-size: 12.5px; }
 
 .feedback {
   text-align: center;
@@ -384,6 +392,9 @@ h1 em { font-weight: 500; color: var(--accent); }
 .result-cols li { padding: 5px 0; border-bottom: 1px dashed var(--line); }
 .result-cols li.empty { color: var(--muted); font-family: var(--sans); border: 0; }
 .result-cols li b { color: var(--bad); }
+.err-types { font-family: var(--mono); font-size: 0.85rem; color: var(--muted); margin: 0 0 6px; }
+.err-types:empty, .tip:empty { display: none; }
+.tip { font-size: 0.95rem; margin: 12px 0 0; padding-left: 12px; border-left: 3px solid var(--warm); max-width: 54ch; }
 .unlocked { font-family: var(--mono); color: var(--ok); min-height: 1.5em; margin: 22px 0 0; }
 .result-actions { display: flex; gap: 20px; align-items: center; margin-top: 18px; }
 
@@ -399,6 +410,8 @@ h1 em { font-weight: 500; color: var(--accent); }
   .quit kbd, .start kbd, .link-btn kbd { display: none; }
   .hud-pool { display: none; }
   .piano { height: 130px; }
+  /* Mistake explanations run to two lines on a phone; reserve them so the piano doesn't jump. */
+  .feedback { font-size: 0.92rem; min-height: 3em; }
   .result-cols { grid-template-columns: 1fr; }
 }
 

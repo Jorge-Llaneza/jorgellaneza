@@ -32,7 +32,7 @@
       <header class="masthead">
         <p class="eyebrow">Sight-reading trainer</p>
         <h1 id="menu-title">Read the note.<br><em>Play it.</em></h1>
-        <p class="lead">A note lands on the staff and you play it before your brain starts spelling out &ldquo;every good boy&rdquo;. You start with three notes per clef. More arrive only once you can name every note in play in about two seconds.</p>
+        <p class="lead">A note lands on the staff and you play it before your brain starts spelling out &ldquo;every good boy&rdquo;. You start with three notes per clef. More arrive only once every note in play comes out right in about two seconds, and still does a minute later.</p>
       </header>
 
       <div class="menu-grid">
@@ -64,6 +64,40 @@
               <label><input type="radio" name="pool" value="weak"><span>My 6 weakest</span></label>
               <label><input type="radio" name="pool" value="all"><span>Whole range</span></label>
             </div>
+          </fieldset>
+
+          <fieldset>
+            <legend>Note order</legend>
+            <div class="chips">
+              <label><input type="radio" name="order" value="random"><span>Random</span></label>
+              <label><input type="radio" name="order" value="melodic"><span>Melodic: steps and skips</span></label>
+            </div>
+            <p class="hint" id="order-hint"></p>
+          </fieldset>
+
+          <fieldset>
+            <legend>Pulse</legend>
+            <div class="chips">
+              <label><input type="radio" name="pulse" value="0"><span>Off, wait for me</span></label>
+              <label><input type="radio" name="pulse" value="40"><span>40 bpm</span></label>
+              <label><input type="radio" name="pulse" value="60"><span>60 bpm</span></label>
+              <label><input type="radio" name="pulse" value="90"><span>90 bpm</span></label>
+            </div>
+            <p class="hint" id="pulse-hint"></p>
+          </fieldset>
+
+          <fieldset>
+            <legend>Key signature</legend>
+            <div class="chips">
+              <label><input type="radio" name="key" value="C"><span>None</span></label>
+              <label title="G major / E minor"><input type="radio" name="key" value="G"><span>1&#x266F;</span></label>
+              <label title="D major / B minor"><input type="radio" name="key" value="D"><span>2&#x266F;</span></label>
+              <label title="A major / F&#x266F; minor"><input type="radio" name="key" value="A"><span>3&#x266F;</span></label>
+              <label title="F major / D minor"><input type="radio" name="key" value="F"><span>1&#x266D;</span></label>
+              <label title="B&#x266D; major / G minor"><input type="radio" name="key" value="Bb"><span>2&#x266D;</span></label>
+              <label title="E&#x266D; major / C minor"><input type="radio" name="key" value="Eb"><span>3&#x266D;</span></label>
+            </div>
+            <p class="hint" id="key-hint"></p>
           </fieldset>
 
           <fieldset>
@@ -115,11 +149,12 @@
           <section class="how" aria-labelledby="how-title">
             <h2 id="how-title">What the game does to you</h2>
             <ol>
-              <li><b>Three landmarks first.</b> Middle C, the G line and the C above it (treble); middle C, the F line and bass C (bass). Every other note gets read relative to these.</li>
-              <li><b>New notes come in small groups,</b> only when every note in play has been answered right and fast three times running (under 2 s on the computer keyboard, 2.5 s on a piano, 3 s through the mic). The first time a note shows up, its name is printed under it. After that you're on your own.</li>
-              <li><b>Misses get fixed on the spot.</b> You see the right name and key, play it, and the same note comes back three notes later.</li>
+              <li><b>Three landmarks first.</b> Middle C, the G line and the C above it (treble); middle C, the F line and bass C (bass). Every new note is shown as a distance from one of them: D is a step above middle C, E a skip below the G line.</li>
+              <li><b>New notes come in small groups,</b> once every note in play has come out right and fast three times, spread over at least a minute (under 2.5 s on a piano, 2 s on the computer keyboard, 3 s through the mic). The first time a note shows up its name is printed under it, so that answer doesn't count.</li>
+              <li><b>Misses get named and fixed on the spot.</b> A step off means line and space got mixed up; a skip off means you counted one line or space too many. You play the right key, and the note comes back twice: just after the notes on screen, and again about a dozen notes later.</li>
+              <li><b>The bar rises.</b> To count as fluent a note has to come out in about half the starting time, and stay that fast on later days: the top three levels are a day or more apart, and a miss drops a note two levels. Hover a note in the map to see its level.</li>
               <li><b>Notes you know show up less.</b> Shaky and slow ones show up more. Ones you haven't seen in a day or more get pulled back in, so long gaps don't wipe what you learned.</li>
-              <li><b>You always see the next four notes.</b> Your eyes learn to sit one note ahead of your hands, which is what real reading needs.</li>
+              <li><b>You always see the next four notes.</b> In melodic order they move mostly by step and skip, so you read each note as a distance from the last one. With a pulse they move on with the click whether you played or not: your eyes have to stay ahead, and you don't stop to fix mistakes.</li>
               <li><b>Every answer sounds.</b> The dot, the key and the pitch get stored together.</li>
               <li><b>Short sessions.</b> One 60-second sprint a day beats a single hour on Sunday.</li>
             </ol>
@@ -184,7 +219,9 @@
       <div class="result-cols">
         <section>
           <h3>Mixed up</h3>
+          <p class="err-types" id="r-errtypes"></p>
           <ul class="confusions" id="r-confusions"></ul>
+          <p class="tip" id="r-tip"></p>
         </section>
         <section>
           <h3>Slowest notes this session</h3>
