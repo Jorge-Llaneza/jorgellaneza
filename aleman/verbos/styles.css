@@ -254,6 +254,7 @@ h2 {
 .go-sub { font-size: 0.92rem; font-weight: 500; opacity: 0.8; }
 .btn-go.small { padding: 12px 22px; }
 .btn-go.small .go-main { font-size: 1.7rem; }
+@media (hover: none) { .kbd-hint { display: none; } }
 .btn-go[data-dir="dees"] {
   background: var(--autobahn);
   color: #fff;

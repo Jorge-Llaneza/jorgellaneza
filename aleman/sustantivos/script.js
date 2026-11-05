@@ -919,6 +919,7 @@ KV.ready.then(() => {
     }
   }
 
+  let resultAt = 0;
   function endRound() {
     clearInterval(timerId);
     clearTimeout(advanceId);
@@ -931,6 +932,7 @@ KV.ready.then(() => {
     save();
     renderResult(record);
     show("result");
+    resultAt = performance.now();
     SFX.end();
     const perfect = R.mode === "train" && R.wrong === 0 && R.correct > 0;
     if (record || perfect) setTimeout(() => confetti(), 300);
@@ -1080,6 +1082,14 @@ KV.ready.then(() => {
   });
 
   document.addEventListener("keydown", (e) => {
+    // Enter en el resultado = otra ronda (con un margen para que el Enter de la última respuesta no la salte)
+    if ($("screen-result").dataset.active === "true") {
+      if (e.key === "Enter" && !e.repeat && !e.target.closest("button, a") && performance.now() - resultAt > 600) {
+        e.preventDefault();
+        $("btn-again").click();
+      }
+      return;
+    }
     if (!Q || !R || $("screen-play").dataset.active !== "true") return;
     if (e.key === "Escape") { quitRound(); return; }
     if (Q.answered || e.ctrlKey || e.metaKey || e.altKey) return;
