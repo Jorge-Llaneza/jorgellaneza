@@ -1048,9 +1048,11 @@ KV.ready.then(() => {
   });
 
   document.addEventListener("keydown", (e) => {
-    // Enter en el resultado = otra ronda (con un margen para que el Enter de la última respuesta no la salte)
+    // Enter en el resultado = otra ronda (con un margen para que el Enter de la última respuesta no la salte).
+    // El foco puede seguir en un botón ya oculto de la ronda (p. ej. «Weiter»); solo cede ante uno visible.
     if ($("screen-result").dataset.active === "true") {
-      if (e.key === "Enter" && !e.repeat && !e.target.closest("button, a") && performance.now() - resultAt > 600) {
+      const btn = e.target.closest("button, a");
+      if (e.key === "Enter" && !e.repeat && !(btn && btn.getClientRects().length) && performance.now() - resultAt > 600) {
         e.preventDefault();
         $("btn-again").click();
       }
