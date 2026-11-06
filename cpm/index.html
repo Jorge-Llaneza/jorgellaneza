@@ -1,0 +1,1213 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CPM · Objetivo 8</title>
+<meta name="description" content="Teoría de Comunicación Persona-Máquina (Uniovi) para el parcial: resúmenes por tema, test con repetición espaciada y +4/−1, cálculos de Fitts, Hick y GOMS, y simulacros cronometrados.">
+<meta property="og:title" content="CPM · Objetivo 8">
+<meta property="og:description" content="Swing, usabilidad, DCU, eventos y modelado de usuario: test con repetición espaciada, cálculos y simulacros con +4/−1.">
+<meta property="og:type" content="website">
+<meta name="theme-color" content="#3b5bdb">
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icon-192.png">
+<style>
+:root{
+  --bg:#f6f7fb; --surface:#ffffff; --surface2:#eef1f7; --text:#1b2030; --muted:#5d6579; --border:#dde2ec;
+  --accent:#3b5bdb; --accent-soft:#e3e9ff; --ok:#1f9d55; --ok-soft:#ddf5e7; --ko:#d64545; --ko-soft:#fde4e4;
+  --warn:#c77700; --warn-soft:#fff1d6; --code:#f1f3f8;
+  --t1:#7048e8; --t2:#1c7ed6; --t3:#0c8599; --t4:#e8590c; --t5:#c2255c;
+  --radius:12px; --shadow:0 1px 2px rgba(20,30,60,.06),0 4px 16px rgba(20,30,60,.05);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#11131a; --surface:#1a1d27; --surface2:#232736; --text:#e7e9f0; --muted:#9aa1b5; --border:#2e3345;
+    --accent:#7d95ff; --accent-soft:#252d52; --ok:#4cc38a; --ok-soft:#173527; --ko:#ff7676; --ko-soft:#3d1c1f;
+    --warn:#f0b04c; --warn-soft:#3a2c12; --code:#151821;
+    --t1:#9775fa; --t2:#4dabf7; --t3:#3bc9db; --t4:#ff922b; --t5:#f06595; --shadow:none;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#11131a; --surface:#1a1d27; --surface2:#232736; --text:#e7e9f0; --muted:#9aa1b5; --border:#2e3345;
+  --accent:#7d95ff; --accent-soft:#252d52; --ok:#4cc38a; --ok-soft:#173527; --ko:#ff7676; --ko-soft:#3d1c1f;
+  --warn:#f0b04c; --warn-soft:#3a2c12; --code:#151821;
+  --t1:#9775fa; --t2:#4dabf7; --t3:#3bc9db; --t4:#ff922b; --t5:#f06595; --shadow:none;
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--bg);color:var(--text);font:16px/1.55 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;-webkit-font-smoothing:antialiased}
+a{color:var(--accent)}
+code,pre{font-family:ui-monospace,"Cascadia Code",Consolas,monospace;font-size:.88em}
+pre{background:var(--code);border:1px solid var(--border);border-radius:8px;padding:10px 12px;overflow-x:auto;margin:10px 0;line-height:1.45}
+:not(pre)>code{background:var(--code);padding:1px 5px;border-radius:5px}
+header{position:sticky;top:0;z-index:10;background:color-mix(in srgb,var(--bg) 88%,transparent);backdrop-filter:blur(8px);border-bottom:1px solid var(--border)}
+.hwrap{max-width:980px;margin:0 auto;padding:10px 16px 0;display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.brand{font-weight:700;letter-spacing:-.01em;display:flex;align-items:center;gap:8px}
+.brand .dot{width:26px;height:26px;border-radius:8px;background:var(--accent);color:#fff;display:grid;place-items:center;font-size:13px}
+.home{display:grid;place-items:center;width:30px;height:30px;margin-left:-6px;border-radius:8px;color:var(--muted);text-decoration:none;font-size:18px}
+.home:hover{color:var(--text);background:var(--surface2)}
+.home:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.spacer{flex:1}
+nav{max-width:980px;margin:0 auto;padding:6px 16px 0;display:flex;gap:2px;overflow-x:auto;scrollbar-width:none}
+nav::-webkit-scrollbar{display:none}
+nav button{all:unset;cursor:pointer;padding:8px 12px;border-radius:8px 8px 0 0;color:var(--muted);font-weight:500;white-space:nowrap;border-bottom:2px solid transparent}
+nav button:hover{color:var(--text)}
+nav button.on{color:var(--accent);border-bottom-color:var(--accent)}
+main{max-width:980px;margin:0 auto;padding:20px 16px 80px}
+h1{font-size:1.6rem;margin:.2em 0 .4em;letter-spacing:-.02em}
+h2{font-size:1.25rem;margin:1.4em 0 .5em;letter-spacing:-.01em}
+h3{font-size:1.05rem;margin:1.2em 0 .4em}
+p{margin:.5em 0}
+.muted{color:var(--muted)}
+.small{font-size:.86rem}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:16px 18px;box-shadow:var(--shadow);margin:12px 0}
+.grid{display:grid;gap:12px}
+.g2{grid-template-columns:repeat(auto-fit,minmax(260px,1fr))}
+.g3{grid-template-columns:repeat(auto-fit,minmax(200px,1fr))}
+.btn{all:unset;box-sizing:border-box;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:9px 16px;border-radius:9px;background:var(--accent);color:#fff;font-weight:600;font-size:.95rem;text-align:center}
+.btn:hover{filter:brightness(1.08)}
+.btn:focus-visible,.opt:focus-visible,nav button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.btn.ghost{background:transparent;color:var(--text);border:1px solid var(--border)}
+.btn.ghost:hover{background:var(--surface2)}
+.btn.sm{padding:6px 11px;font-size:.85rem}
+.btn.ok{background:var(--ok)} .btn.ko{background:var(--ko)} .btn.warn{background:var(--warn)}
+.btn[disabled]{opacity:.45;pointer-events:none}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.pill{display:inline-flex;align-items:center;gap:5px;font-size:.78rem;font-weight:600;padding:2px 9px;border-radius:99px;background:var(--surface2);color:var(--muted)}
+.tdot{width:9px;height:9px;border-radius:50%;display:inline-block}
+.bar{height:9px;background:var(--surface2);border-radius:99px;overflow:hidden}
+.bar>i{display:block;height:100%;border-radius:99px;background:var(--accent);transition:width .4s}
+.kpi{font-size:2rem;font-weight:750;letter-spacing:-.02em;line-height:1.1}
+.kpi small{font-size:.9rem;font-weight:500;color:var(--muted)}
+.next{border-left:4px solid var(--accent)}
+.opt{all:unset;box-sizing:border-box;display:flex;gap:10px;width:100%;cursor:pointer;padding:10px 12px;border:1px solid var(--border);border-radius:10px;margin:7px 0;background:var(--surface)}
+.opt:hover{border-color:var(--accent)}
+.opt .let{flex:none;width:26px;height:26px;border-radius:7px;display:grid;place-items:center;background:var(--surface2);font-weight:700;font-size:.85rem}
+.opt.sel{border-color:var(--accent);background:var(--accent-soft)}
+.opt.sel .let{background:var(--accent);color:#fff}
+.opt.right{border-color:var(--ok);background:var(--ok-soft)}
+.opt.right .let{background:var(--ok);color:#fff}
+.opt.wrong{border-color:var(--ko);background:var(--ko-soft)}
+.opt.wrong .let{background:var(--ko);color:#fff}
+.opt.lock{pointer-events:none}
+.fb{border-radius:10px;padding:12px 14px;margin-top:10px}
+.fb.ok{background:var(--ok-soft);border:1px solid var(--ok)}
+.fb.ko{background:var(--ko-soft);border:1px solid var(--ko)}
+.fb.na{background:var(--warn-soft);border:1px solid var(--warn)}
+.qtext{font-size:1.04rem;font-weight:550;margin:6px 0 4px}
+.conf{margin-top:10px;padding:10px 12px;border:1px dashed var(--border);border-radius:10px}
+.trap{background:var(--warn-soft);border-left:4px solid var(--warn);border-radius:8px;padding:10px 14px;margin:12px 0}
+.trap b:first-child{color:var(--warn)}
+.mnemo{background:var(--accent-soft);border-left:4px solid var(--accent);border-radius:8px;padding:10px 14px;margin:12px 0}
+details.self{background:var(--surface2);border-radius:8px;padding:8px 12px;margin:8px 0}
+details.self summary{cursor:pointer;font-weight:600}
+table{border-collapse:collapse;width:100%;font-size:.9rem;margin:8px 0}
+th,td{border:1px solid var(--border);padding:6px 8px;text-align:left;vertical-align:top}
+th{background:var(--surface2)}
+.tablewrap{overflow-x:auto}
+.flash{min-height:220px;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;cursor:pointer;user-select:none}
+.flash .front{font-size:1.2rem;font-weight:650}
+.flash .back{margin-top:14px;padding-top:14px;border-top:1px solid var(--border);width:100%;white-space:pre-line}
+.navgrid{display:flex;flex-wrap:wrap;gap:5px}
+.navgrid button{all:unset;cursor:pointer;width:32px;height:32px;border-radius:7px;display:grid;place-items:center;font-size:.8rem;font-weight:600;border:1px solid var(--border);background:var(--surface)}
+.navgrid button.ans{background:var(--accent-soft);border-color:var(--accent)}
+.navgrid button.flag{box-shadow:inset 0 0 0 2px var(--warn)}
+.navgrid button.cur{outline:2px solid var(--text)}
+.timer{font-variant-numeric:tabular-nums;font-weight:700}
+input[type=number],input[type=date],input[type=text],select{font:inherit;color:var(--text);background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:7px 10px;max-width:100%}
+.svgfig{width:100%;max-width:640px;display:block;margin:10px auto}
+.svgfig text{fill:var(--text);font:13px system-ui,sans-serif}
+.svgfig .box{fill:var(--surface2);stroke:var(--border)}
+.svgfig .acc{fill:var(--accent-soft);stroke:var(--accent)}
+.svgfig .ln{stroke:var(--muted);fill:none;stroke-width:1.6}
+.toc{display:flex;gap:6px;flex-wrap:wrap;margin:8px 0 4px}
+.hist{display:flex;align-items:flex-end;gap:6px;height:90px;padding-top:6px}
+.hist div{flex:1;max-width:36px;background:var(--accent);border-radius:5px 5px 0 0;position:relative;min-height:3px}
+.hist div span{position:absolute;top:-18px;left:50%;transform:translateX(-50%);font-size:.72rem;color:var(--muted)}
+.target-line{position:relative}
+.tag{font-size:.75rem;padding:1px 7px;border-radius:6px;background:var(--surface2);color:var(--muted)}
+.hide{display:none!important}
+ul.tight{margin:.3em 0;padding-left:1.2em} ul.tight li{margin:.15em 0}
+.kbd{font:600 .75rem ui-monospace,monospace;border:1px solid var(--border);border-bottom-width:2px;border-radius:5px;padding:0 5px;background:var(--surface)}
+@media (max-width:600px){ .kpi{font-size:1.6rem} h1{font-size:1.35rem} .card{padding:14px} }
+</style>
+</head>
+<body>
+<header>
+  <div class="hwrap">
+    <a class="home" href="/" title="Volver a jorgellaneza.es" aria-label="Volver a jorgellaneza.es">&larr;</a>
+    <div class="brand"><span class="dot">CPM</span>Objetivo: 8+</div>
+    <div class="spacer"></div>
+    <span class="pill" id="hdrStreak" title="Días seguidos estudiando">🔥 0</span>
+    <button class="btn ghost sm" id="themeBtn" title="Cambiar tema">◐</button>
+  </div>
+  <nav id="nav">
+    <button data-v="home">Inicio</button>
+    <button data-v="learn">Aprender</button>
+    <button data-v="practice">Practicar</button>
+    <button data-v="flash">Flashcards</button>
+    <button data-v="problems">Cálculos</button>
+    <button data-v="exam">Simulacro</button>
+    <button data-v="strategy">Estrategia</button>
+  </nav>
+</header>
+<main id="app"></main>
+
+<!-- ===================== RESÚMENES (contenido estático) ===================== -->
+<template id="tpl-learn">
+<h1>Aprender</h1>
+<p class="muted">Lee <b>un tema</b>, intenta responder las preguntas de “Autoexplícate” <b>antes</b> de abrirlas y, justo después, haz el test de ese tema. Recuperar de memoria es lo que fija el contenido; releer no.</p>
+<div class="toc" id="learnToc"></div>
+
+<section class="card" data-topic="t1">
+<h2>T1 · Desarrollo de GUI en Java</h2>
+<h3>JFC (Java Foundation Classes)</h3>
+<p>Es la API estándar para GUI en Java. Está formada por <b>3 librerías: AWT, Swing y Java2D</b>.</p>
+<div class="grid g2">
+<div><h3>AWT</h3><ul class="tight">
+<li>Pensada para que la GUI se ejecute en cualquier sistema y en <b>todas las versiones del JDK</b>.</li>
+<li>Usa los <b>componentes nativos del sistema operativo</b>.</li>
+<li><b>Inconvenientes:</b> solo puede ofrecer lo que existe en <i>todos</i> los SO, y como los componentes se comportan distinto en cada sistema, las aplicaciones portables eran muy complicadas.</li>
+<li>Ofrece: <b>Componentes, Contenedores, Eventos y Layouts</b>.</li>
+<li>Paquetes: <code>java.awt.*</code> y <code>java.awt.event.*</code>.</li></ul></div>
+<div><h3>Swing</h3><ul class="tight">
+<li>Publicado en <b>1997</b> para resolver las limitaciones de AWT. Forma parte del JDK <b>desde la 1.2</b>.</li>
+<li>Paquete <code>javax.swing</code>. Está <b>basado en AWT</b>.</li>
+<li>Componentes <b>escritos en Java</b> → <b>look &amp; feel homogéneo</b> entre plataformas. Funciona con Java 1.1 o superior.</li>
+<li>Puede <b>cambiar el look &amp; feel en tiempo de ejecución</b>.</li>
+<li>Más componentes: tablas, árboles, sliders, spinners, barras de progreso, internal frames y componentes de texto.</li>
+<li>Permite <b>bordes</b>, <b>tooltips</b> y <b>asociar eventos de teclado</b> a los componentes.</li></ul></div>
+</div>
+<h3>Arquitectura: contenedores, componentes y eventos</h3>
+<ul class="tight">
+<li><b>Componente:</b> elemento con el que interactúa el usuario. Tiene <b>propiedades</b> (con valores por defecto), <b>métodos</b> (funcionalidad) y <b>eventos</b>.</li>
+<li><b>Evento:</b> señal <i>externa o interna</i> que dispara la ejecución de un bloque de código implementado como método (un clic, la llamada a un método, la modificación de una propiedad…). El desarrollador debe programar la gestión de cada evento.</li>
+<li><b>Contenedor:</b> agrupa y gestiona componentes, y <b>también es un componente</b>, así que puede ir dentro de otro contenedor. Coloca los componentes aplicando un <b>layout</b>.</li>
+<li>Todo componente debe vivir dentro de un contenedor.</li>
+<li>La interacción entre el sistema y el usuario se hace mediante <b>eventos</b>.</li>
+</ul>
+<h3>Patrón Composite</h3>
+<p>Compone objetos en <b>estructuras de árbol</b> para representar jerarquías parte-todo, y permite tratar <b>igual los objetos individuales y las composiciones</b>.</p>
+<svg class="svgfig" viewBox="0 0 520 200" role="img" aria-label="Árbol: JFrame contiene ContentPane (JPanel), que contiene JButton1, JButton2 y JTextArea1">
+  <rect class="acc" x="200" y="10" width="120" height="34" rx="8"/><text x="260" y="32" text-anchor="middle">JFrame</text>
+  <rect class="acc" x="170" y="80" width="180" height="34" rx="8"/><text x="260" y="102" text-anchor="middle">JPanel (ContentPane)</text>
+  <rect class="box" x="20" y="150" width="130" height="34" rx="8"/><text x="85" y="172" text-anchor="middle">JButton1</text>
+  <rect class="box" x="195" y="150" width="130" height="34" rx="8"/><text x="260" y="172" text-anchor="middle">JButton2</text>
+  <rect class="box" x="370" y="150" width="130" height="34" rx="8"/><text x="435" y="172" text-anchor="middle">JTextArea1</text>
+  <path class="ln" d="M260 44V80M260 114V132M85 132H435M85 132V150M260 132V150M435 132V150"/>
+</svg>
+<p>En Swing la ventana es un <b>contenedor de alto nivel (JFrame)</b>. Los componentes <b>no se añaden directamente al JFrame</b>: van en un <b>JPanel llamado ContentPane</b>, que está dentro del JFrame.</p>
+<div class="trap"><b>⚠ Trampas típicas</b><ul class="tight">
+<li><b>Composite</b> (contenedores/componentes) ≠ <b>Observer</b> (eventos, Tema 4).</li>
+<li>AWT usa componentes <i>nativos</i>; Swing los tiene <i>escritos en Java</i>. Hay preguntas que intercambian las dos cosas.</li>
+<li>“Swing y AWT tienen los mismos componentes” es <b>falso</b>, porque Swing tiene más. “Ambas son parte de JFC” y “AWT incluye el paquete event” son ciertas.</li>
+</ul></div>
+<details class="self"><summary>Autoexplícate: ¿por qué Swing tiene un look &amp; feel homogéneo y AWT no?</summary><p>Porque los componentes de Swing están escritos en Java y Swing los dibuja él mismo. AWT delega en los componentes nativos de cada SO, que se ven y se comportan distinto en cada sistema.</p></details>
+<details class="self"><summary>Autoexplícate: ¿por qué Composite encaja con contenedores y componentes?</summary><p>Porque un contenedor <i>es</i> un componente que contiene otros componentes. Eso forma un árbol en el que una operación (pintar, por ejemplo) se aplica igual a una hoja (un JButton) que a una rama (un JPanel).</p></details>
+<div class="row"><button class="btn" data-quiz="t1">Hacer test del T1 →</button><label class="row small"><input type="checkbox" data-read="t1"> Marcar como leído</label></div>
+</section>
+
+<section class="card" data-topic="t2">
+<h2>T2 · Fundamentos de la Interacción Persona-Ordenador</h2>
+<h3>¿Qué es HCI?</h3>
+<p><b>ACM-SIGCHI (1992):</b> disciplina que se ocupa del <b>diseño, evaluación e implementación</b> de sistemas informáticos interactivos para uso humano y del estudio de los fenómenos que los rodean. Incluye el diseño de interfaces y aspectos psicológicos (motivación, satisfacción), ergonómicos y organizativos. El curso se centra en las <b>interfaces de usuario</b>.</p>
+<p><b>Interfaz de usuario:</b> el conjunto de puntos de interacción entre el usuario y el sistema (todas las entradas y salidas). Supone <b>≈50% del código fuente</b> y <b>&gt;70% del esfuerzo de desarrollo</b> (Gartner Group).</p>
+<p><b>Consecuencias de una UI pobre:</b> rechazo del sistema, baja productividad, periodos de formación inviables y altas tasas de error que generan frustración.</p>
+<p><b>Objetivo de HCI:</b> construir o mejorar la seguridad, utilidad, eficacia y eficiencia, pero <b>sobre todo la USABILIDAD</b>.</p>
+<h3>Usabilidad (ISO/IEC 9241)</h3>
+<p>Es el grado en que un producto puede ser usado por <b>usuarios específicos</b> para conseguir <b>objetivos específicos</b> con <b>eficacia, eficiencia y satisfacción</b> en un <b>contexto de uso específico</b>.</p>
+<div class="tablewrap"><table><tr><th>Effectiveness (eficacia)</th><td>Consecución <b>completa y exacta</b> de los objetivos del usuario.</td></tr>
+<tr><th>Efficiency (eficiencia)</th><td>Lo mismo, pero <b>en relación con los recursos usados</b> (uso óptimo de los recursos).</td></tr>
+<tr><th>Satisfaction</th><td><b>Comodidad y aceptación</b> del sistema por parte del usuario.</td></tr></table></div>
+<p>Un sistema es usable cuando es <b>fácil de aprender</b> y <b>fácil de usar</b>. Las dimensiones son <b>Learnability</b>, <b>Efficiency</b> y <b>Safety</b> (errores pocos y recuperables), además de <i>Ergonomics</i> y <i>Aesthetics</i>.</p>
+<p>La usabilidad va <b>más allá de los colores y la tipografía</b>: abarca el diseño del diálogo, el vínculo cognitivo usuario-sistema, la calidad de la documentación y la ayuda en línea. Sus beneficios son <b>menores costes</b> de producción, de soporte y mantenimiento y de uso, y <b>mejor calidad</b>.</p>
+<h3>Principios básicos de usabilidad (3 categorías × 4)</h3>
+<div class="grid g3">
+<div class="card" style="margin:0"><b style="color:var(--t2)">a. Learnability</b><p class="small muted">Que un novato pase a experto con poco esfuerzo</p><ul class="tight small">
+<li><b>Prediction:</b> la experiencia inicial basta para adivinar el resultado de interacciones futuras. Se consigue <b>controlando la visibilidad de las operaciones</b> (disponibles y no disponibles). Si el usuario tiene que recordar lo que vio en la pantalla anterior, el sistema <b>no</b> es predecible.</li>
+<li><b>Synthesis:</b> informa al usuario de cualquier cambio. Puede ser <b>inmediata</b> (sin que el usuario la pida, la ideal) o <b>esporádica</b> (solo a petición).</li>
+<li><b>Familiarity:</b> correlación entre lo que el usuario ya sabe y lo que exige el sistema. Se mejora con <b>metáforas del mundo real</b>.</li>
+<li><b>Consistency:</b> todos los mecanismos se usan siempre igual. Se consigue con <b>guías de estilo</b>, un <b>look &amp; feel común</b> y <b>sin cambiar técnicas que el usuario ya conoce (F1 = Ayuda)</b>.</li></ul></div>
+<div class="card" style="margin:0"><b style="color:var(--t2)">b. Flexibility</b><p class="small muted">Formas de intercambiar información</p><ul class="tight small">
+<li><b>Initiative in the dialog:</b> ¿quién la toma? Lo ideal es que la tome el usuario. Un <b>diálogo modal</b> (“Guardar como”) es un ejemplo de interacción guiada por el sistema.</li>
+<li><b>Task delegation:</b> pasar el control de una tarea al sistema (copias de seguridad, corrector ortográfico).</li>
+<li><b>Replacement capacity:</b> un parámetro se puede sustituir por otro equivalente (un color por nombre, por valor hexadecimal o con una paleta).</li>
+<li><b>Customization capacity:</b> el usuario <i>y/o</i> el sistema adaptan la interfaz según preferencias de diseño o según las opciones adecuadas al nivel de experiencia.</li></ul></div>
+<div class="card" style="margin:0"><b style="color:var(--t2)">c. Robustness</b><p class="small muted">Alcanzar objetivos y percibir qué pasa</p><ul class="tight small">
+<li><b>Observability:</b> el sistema muestra su <b>estado interno</b> en la UI (barras de progreso, tests de velocidad).</li>
+<li><b>Recoverability:</b> poder alcanzar el objetivo inicial tras un error. Se aplica el principio de <b>esfuerzo proporcional</b>: si una acción es difícil de deshacer (borrar un fichero), también debe ser difícil de hacer; si es fácil de deshacer (renombrar), puede ser fácil.</li>
+<li><b>Response times:</b> lo más cortos posible. Si no lo son, hay que avisar de que se está procesando (lo que también es observabilidad).</li>
+<li><b>Task advisability:</b> en qué medida el sistema da soporte a <b>todas las tareas</b> que el usuario quiere hacer, y tal como el usuario las entiende.</li></ul></div>
+</div>
+<div class="mnemo"><b>🧠 Mnemotecnia</b>: <b>L</b>earnability = <b>P S F C</b> → “<b>P</b>ara <b>S</b>er <b>F</b>ácil, <b>C</b>onsistente”. <b>F</b>lexibility = <b>I D R C</b> → “<b>I</b>niciativa, <b>D</b>elegar, <b>R</b>eemplazar, <b>C</b>ustomizar”. <b>R</b>obustness = <b>O R R T</b> → “<b>O</b>bserva, <b>R</b>ecupera, <b>R</b>esponde, <b>T</b>areas”.</div>
+<h3>Accesibilidad</h3>
+<p>Las personas son diferentes y usan la tecnología en circunstancias distintas (problemas de visión con el tamaño de letra, personas mayores con el ratón o la navegación, distintos dispositivos…). La accesibilidad es otro <b>pilar</b> del buen diseño. Estrategias: permitir <b>colores de alto contraste</b>, permitir <b>aumentar la letra</b> y <b>no usar solo el color</b> como fuente de información.</p>
+<h3>Diseño centrado en el usuario (adelanto)</h3>
+<p>Implicar al usuario todo lo posible (incluso en el equipo de diseño), observar su trabajo diario y construir prototipos, escenarios o modelos para que evalúe el diseño <b>cuanto antes</b>.</p>
+<div class="trap"><b>⚠ Trampas típicas</b><ul class="tight">
+<li><b>Eficacia</b> (lograr el objetivo) ≠ <b>eficiencia</b> (lograrlo en relación con los recursos).</li>
+<li><b>50%</b> del código y <b>70%</b> del esfuerzo, no al revés.</li>
+<li>F1 = Ayuda es un ejemplo de <b>Consistency</b>. Las metáforas son <b>Familiarity</b>.</li>
+<li>El diálogo modal es <b>Initiative</b> (la toma el sistema), no recoverability.</li>
+<li>“Notificar los cambios de forma esporádica/eventual” <b>no</b> es lo ideal; lo ideal es la notificación <b>inmediata</b>.</li>
+<li>“Cambiar a menudo las técnicas de interacción para mantener la atención” va <b>contra</b> la consistencia.</li>
+</ul></div>
+<details class="self"><summary>Autoexplícate: ¿por qué deshabilitar una opción de menú mejora la predicción?</summary><p>Porque controla la visibilidad de las operaciones: el usuario ve qué puede hacer en ese momento y no tiene que recordarlo ni descubrirlo probando.</p></details>
+<details class="self"><summary>Autoexplícate: ¿qué dos principios se aplican cuando una barra de progreso aparece en una operación lenta?</summary><p>Observability (muestra el estado interno) y Response times (si la respuesta no es inmediata, hay que avisar de que se está procesando).</p></details>
+<div class="row"><button class="btn" data-quiz="t2">Hacer test del T2 →</button><label class="row small"><input type="checkbox" data-read="t2"> Marcar como leído</label></div>
+</section>
+
+<section class="card" data-topic="t3">
+<h2>T3 · Diseño Centrado en el Usuario (DCU / UCD)</h2>
+<p><b>Definición (UPA, Usability Professionals Association):</b> enfoque de diseño en el que el proceso está <b>dirigido por la información sobre los usuarios</b> que usarán el producto. Lo define la <b>ISO 13407</b>, actualizada en la <b>ISO 9241-210:2010</b>.</p>
+<p><b>Origen:</b> la ingeniería civil y la arquitectura. <b>Dreyfuss</b> (<i>Designing for People</i>, <b>1955</b>) popularizó la idea de que el diseño es un proceso. Para diseñar el teléfono Bell (serie 500) estudió cómo se <b>construían</b>, cómo los <b>percibían</b> y cómo los <b>usaban</b> los usuarios.</p>
+<p><b>En software:</b> el término <i>User Centered System Design</i> (Norman) se usó en la <b>primera conferencia CHI (1983)</b>, organizada por ACM-SIGCHI.</p>
+<div class="tablewrap"><table>
+<tr><th>Conceptual model</th><td>Lo que el <b>diseñador ofrece</b> a los usuarios.</td></tr>
+<tr><th>User Interface</th><td>Lo que el usuario <b>ve</b>.</td></tr>
+<tr><th>Mental model</th><td>El modelo que el usuario <b>construye</b> a partir de la UI (lo que <b>entiende</b>).</td></tr></table></div>
+<p>Donald Norman: “Las decisiones de diseño deben basarse en las <b>necesidades y deseos de los usuarios</b>”. Hay que identificar <b>quién</b> usará el producto, <b>para qué</b> y <b>en qué condiciones</b>. Ojo: <b>clientes ≠ usuarios</b>.</p>
+<h3>Proceso iterativo: 4 fases</h3>
+<p>No es UN proceso, sino una <b>familia de procesos iterativos</b> que encajan en un marco común.</p>
+<svg class="svgfig" viewBox="0 0 520 250" role="img" aria-label="Ciclo iterativo de 4 fases: contexto de uso, requisitos, soluciones de diseño, evaluación">
+  <defs><marker id="ar" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8z" fill="currentColor" style="color:var(--muted)"/></marker></defs>
+  <rect class="acc" x="170" y="8" width="180" height="46" rx="10"/><text x="260" y="28" text-anchor="middle">1. Specify the</text><text x="260" y="45" text-anchor="middle">context of use</text>
+  <rect class="acc" x="330" y="100" width="180" height="46" rx="10"/><text x="420" y="120" text-anchor="middle">2. Specify</text><text x="420" y="137" text-anchor="middle">requirements</text>
+  <rect class="acc" x="170" y="192" width="180" height="46" rx="10"/><text x="260" y="212" text-anchor="middle">3. Create design</text><text x="260" y="229" text-anchor="middle">solutions</text>
+  <rect class="acc" x="10" y="100" width="180" height="46" rx="10"/><text x="100" y="120" text-anchor="middle">4. Evaluate</text><text x="100" y="137" text-anchor="middle">designs</text>
+  <path class="ln" marker-end="url(#ar)" d="M350 40 Q420 50 420 96"/>
+  <path class="ln" marker-end="url(#ar)" d="M420 146 Q420 200 354 210"/>
+  <path class="ln" marker-end="url(#ar)" d="M170 210 Q100 200 100 150"/>
+  <path class="ln" marker-end="url(#ar)" d="M100 100 Q100 50 166 36"/>
+  <text x="260" y="128" text-anchor="middle" style="fill:var(--muted)">itera</text>
+</svg>
+<h3>1. Especificar el contexto de uso (ENTENDER)</h3>
+<p>El contexto lo definen las características de los usuarios, las tareas y el entorno organizativo, técnico y físico. Hay que saber <b>quién</b> lo usará, <b>para qué</b> y <b>en qué condiciones</b>. La descripción incluye:</p>
+<ul class="tight"><li><b>Usuarios y otros stakeholders</b> (grupos relevantes).</li>
+<li><b>Características</b> de cada grupo: conocimiento, habilidad, experiencia, educación, formación, atributos físicos, hábitos, preferencias y capacidades.</li>
+<li><b>Objetivos y tareas</b>: cómo, con qué frecuencia y cuánto tiempo; interferencias; salud y seguridad; si pueden hacerlas usuarios especiales.</li>
+<li><b>Entornos:</b> <b>técnico</b> (hardware, ancho de banda, software), <b>físico</b> (luz, ruido, temperatura, distribución espacial, ergonomía) y <b>social y cultural</b> (prácticas de trabajo, estructura organizativa, actitudes).</li></ul>
+<p><b>Personas-Escenario:</b> sintetizan la información en fichas que representan <b>arquetipos</b> de usuario. La identidad es <b>ficticia</b> (nombre, foto), pero las necesidades, motivaciones, actitudes y comportamientos se basan en <b>datos reales</b>. Se contextualizan con <b>escenarios</b>. Conviene <b>no pasar de 7 u 8</b>, cubrir el mayor porcentaje posible de la audiencia y <b>no solaparlas</b>.</p>
+<h3>2. Especificar requisitos</h3>
+<p>Requisitos de negocio y objetivos de usuario necesarios para el éxito, considerando el contexto. Hay que equilibrar <b>viabilidad de negocio</b>, <b>factibilidad tecnológica</b> y <b>necesidades y deseos del usuario</b>.</p>
+<ul class="tight"><li>Identificar las necesidades (y <b>restricciones</b>) de usuarios y stakeholders.</li>
+<li>Derivar los requisitos de usuario: los del contexto (una app GPS se usa en exteriores), los de ergonomía y accesibilidad, los <b>objetivos de usabilidad</b> (con criterios de satisfacción) y los organizativos.</li>
+<li><b>Resolver los conflictos (trade-offs)</b> entre requisitos.</li></ul>
+<h3>3. Crear soluciones de diseño</h3>
+<p>Por etapas, de un concepto aproximado a un diseño completo: generar muchas ideas, identificar oportunidades y probar y refinar. Actividades: diseñar tareas, interacción y UI; <b>concretar</b> con escenarios, simulaciones, <b>prototipos</b> o mock-ups; <b>modificar</b> según la evaluación; <b>comunicar</b> el diseño a quien lo implementa.</p>
+<h3>4. Evaluar diseños</h3>
+<p>La evaluación, idealmente con <b>tests de usabilidad con usuarios reales</b>, es tan esencial como el control de calidad. Cuanto antes se enseñe el diseño, mejor.</p>
+<ul class="tight"><li><b>User-based testing:</b> el usuario usa el prototipo y lo observamos o le preguntamos al final. Puede hacerse en el contexto real o como validación de campo (<b>beta testing</b>).</li>
+<li><b>Inspection-based evaluation:</b> la hacen <b>expertos</b> con guías de usabilidad y accesibilidad. Es más <b>simple, rápida y barata</b> y <b>complementa</b> los tests con usuarios, porque <b>usuarios y expertos suelen encontrar problemas distintos</b>.</li></ul>
+<div class="trap"><b>⚠ Trampas típicas</b><ul class="tight">
+<li>ISO <b>13407</b>, actualizada en ISO <b>9241-210:2010</b> (no al revés).</li>
+<li>Fechas: Dreyfuss <b>1955</b>, CHI <b>1983</b>, ISO 9241-210 <b>2010</b>.</li>
+<li>El modelo <b>mental</b> lo construye el usuario; el <b>conceptual</b> lo ofrece el diseñador.</li>
+<li>Personas: la identidad es inventada, pero los datos deben ser reales; máximo 7-8 y sin solaparse.</li>
+<li>La inspección por expertos <b>no sustituye</b> a los tests con usuarios: los complementa.</li>
+</ul></div>
+<details class="self"><summary>Autoexplícate: ¿por qué es útil que el proceso sea iterativo?</summary><p>Porque la evaluación genera feedback que obliga a modificar el diseño (y a veces a revisar el contexto y los requisitos). Cada vuelta acerca el modelo conceptual al modelo mental del usuario.</p></details>
+<div class="row"><button class="btn" data-quiz="t3">Hacer test del T3 →</button><label class="row small"><input type="checkbox" data-read="t3"> Marcar como leído</label></div>
+</section>
+
+<section class="card" data-topic="t4">
+<h2>T4 · Gestión de eventos</h2>
+<p>El SO monitoriza continuamente el entorno, captura los eventos y los notifica a las aplicaciones, y cada aplicación decide cómo tratarlos. Los eventos los generan <b>el usuario</b> o <b>el sistema</b>.</p>
+<p>En Java, cuando ocurre un evento se crea <b>un objeto de la clase específica de ese evento</b>, que se envía a un método llamado <b>handler</b>. El modelo de eventos de Java se basa en la <b>delegación</b>: la responsabilidad de tratar un evento producido en la fuente se delega en otro objeto, el <b>listener</b>. Responde al patrón <b>Observer</b>.</p>
+<svg class="svgfig" viewBox="0 0 560 170" role="img" aria-label="Fuente notifica un objeto evento al listener registrado con addXxxListener">
+  <defs><marker id="ar2" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8z" fill="currentColor" style="color:var(--muted)"/></marker></defs>
+  <rect class="acc" x="10" y="50" width="150" height="64" rx="10"/><text x="85" y="76" text-anchor="middle">Event SOURCE</text><text x="85" y="96" text-anchor="middle" style="fill:var(--muted)">btAzul (JButton)</text>
+  <rect class="box" x="210" y="60" width="140" height="44" rx="10"/><text x="280" y="80" text-anchor="middle">ActionEvent</text><text x="280" y="96" text-anchor="middle" style="fill:var(--muted)">e.getSource()</text>
+  <rect class="acc" x="400" y="50" width="150" height="64" rx="10"/><text x="475" y="76" text-anchor="middle">LISTENER</text><text x="475" y="96" text-anchor="middle" style="fill:var(--muted)">pA: ProcesaAccion</text>
+  <path class="ln" marker-end="url(#ar2)" d="M160 82H206"/><path class="ln" marker-end="url(#ar2)" d="M350 82H396"/>
+  <path class="ln" stroke-dasharray="5 4" d="M85 50V22H475V50"/><text x="280" y="16" text-anchor="middle">registro: btAzul.addActionListener(pA)</text>
+  <text x="475" y="140" text-anchor="middle" style="fill:var(--muted)">actionPerformed(ActionEvent e)</text>
+</svg>
+<h3>Elementos</h3>
+<ul class="tight">
+<li><b>Fuentes (sources):</b> objetos que <b>detectan y notifican</b> eventos a los listeners. Ejemplos: un botón al pulsarlo, un TextField al perder el foco, un TextArea al pulsar una tecla, una ventana al cerrarse.</li>
+<li><b>Clases de evento:</b> cada evento es una instancia de una subclase de <code>EventObject</code>, organizadas en jerarquía. <code>getSource()</code> devuelve el componente que lo generó como <b>Object</b>, así que hay que hacer <b>cast</b>.</li>
+<li><b>Listeners:</b> instancias de una clase que <b>implementa una interfaz listener</b> (<code>ActionListener, FocusListener, ItemListener, KeyListener, MouseListener, WindowListener</code>… en <code>java.awt.event</code>).</li>
+<li><b>Adaptadores (adapter classes).</b></li>
+<li><b>Registro:</b> <code>fuente.addXxxListener(listener)</code>.</li></ul>
+<p><b>¿Cómo accede el listener a la clase principal?</b> Hay dos formas: como <b>clase interna (inner class)</b>, que accede a todos los miembros, o como <b>clase externa</b> que recibe una referencia a la clase principal <b>en su constructor</b> (inyección de dependencias por constructor).</p>
+<h3>Ejemplo 1: ActionEvent</h3>
+<p>Lo generan hacer clic en un botón, seleccionar un elemento de una lista o de un menú, o pulsar <b>Intro en un textfield</b>. La interfaz <code>ActionListener</code> tiene <b>un único método</b>, <code>actionPerformed(ActionEvent e)</code>, así que <b>no hay ActionAdapter</b>.</p>
+<pre>class VentanaPrincipal extends JFrame {
+  private ProcesaAccion pA = null;
+  private void cambiaColorPanel(){ panelPrincipal.setBackground(Color.blue); }
+  class ProcesaAccion implements ActionListener {        // LISTENER (inner class)
+    public void actionPerformed(ActionEvent e){ cambiaColorPanel(); }
+  }
+  public VentanaPrincipal(){ pA = new ProcesaAccion(); ... }
+  private JButton getBtAzul(){ ... btAzul.addActionListener(pA); ... }  // REGISTRO
+}</pre>
+<p><b>WindowBuilder</b> genera el listener como <b>clase interna anónima</b>: <code>btAzul.addActionListener(new ActionListener(){ public void actionPerformed(ActionEvent e){...} });</code></p>
+<h3>Ejemplo 2: FocusEvent y los adaptadores</h3>
+<p><code>FocusListener</code> tiene <b>2 métodos</b>: <code>focusGained</code> y <code>focusLost</code>. Si implementas la interfaz tienes que escribir los dos, aunque dejes uno vacío.</p>
+<p><b>Adaptadores:</b> hay <b>uno por cada interfaz listener con más de un método</b> (MouseAdapter, WindowAdapter, KeyAdapter, MouseMotionAdapter, FocusAdapter…). Implementan todos los métodos vacíos, así que <b>se heredan (extends)</b> y solo se sobrescribe lo necesario.</p>
+<pre>class ProcesaFoco extends FocusAdapter {          // extends, NO implements
+  public void focusLost(FocusEvent e){ compruebaLongitud(); }
+}
+txDNI.addFocusListener(pF);                       // se registra con addFocusListener</pre>
+<h3>Ejemplo 3: varios componentes con el mismo comportamiento</h3>
+<p>Basta con <b>un único listener</b> registrado en todos. Ejemplo: “Cancelar” en un menú y en un botón necesita <b>un listener (clase externa si debe ser accesible desde ambas clases) y dos registros</b>. Para actuar sobre el componente concreto se usa <code>e.getSource()</code> con cast:</p>
+<pre>class ProcesaBorde extends MouseAdapter {
+  public void mouseEntered(MouseEvent e){ tratarBorde(e, true); }
+  public void mouseExited (MouseEvent e){ tratarBorde(e, false); }
+}
+private void tratarBorde(MouseEvent e, boolean b){
+  JButton boton = (JButton) e.getSource();   // cast obligatorio
+  boton.setBorderPainted(b);
+}
+boton1.addMouseListener(pB); boton2.addMouseListener(pB);   // mismo listener, 2 registros</pre>
+<h3>Consumir y desregistrar</h3>
+<pre>public void keyTyped(KeyEvent e){
+  if (!Character.isDigit(e.getKeyChar())) e.consume();   // solo deja escribir dígitos
+}
+textDNI.removeKeyListener(pT);   // desregistrar (pT deja de escuchar)</pre>
+<p><code>consume()</code> se aplica al <b>evento</b>, que se detiene y no tiene efecto más allá de ese listener. Se desregistra con <code>fuente.removeXxxListener(listener)</code>, por ejemplo desde un checkbox que activa o desactiva un filtro.</p>
+<h3>Tabla resumen (memorízala)</h3>
+<div class="tablewrap"><table>
+<tr><th>Evento</th><th>Listener</th><th>Adapter</th><th>Métodos</th><th>Cuándo</th></tr>
+<tr><td>ActionEvent</td><td>ActionListener</td><td>—</td><td>actionPerformed</td><td>clic en botón, elemento de lista o menú, Intro en textfield</td></tr>
+<tr><td>ComponentEvent</td><td>ComponentListener</td><td>ComponentAdapter</td><td>componentHidden / Shown / Moved / Resized</td><td>cambiar tamaño, mover, mostrar u ocultar</td></tr>
+<tr><td>ContainerEvent</td><td>ContainerListener</td><td>ContainerAdapter</td><td>componentAdded / componentRemoved</td><td>añadir o quitar componentes</td></tr>
+<tr><td>FocusEvent</td><td>FocusListener</td><td>FocusAdapter</td><td>focusGained / focusLost</td><td>gana o pierde el foco</td></tr>
+<tr><td>KeyEvent</td><td>KeyListener</td><td>KeyAdapter</td><td>keyPressed / keyReleased / keyTyped</td><td>se pulsa o suelta una tecla</td></tr>
+<tr><td>MouseEvent</td><td>MouseListener</td><td>MouseAdapter</td><td>mouseClicked / Entered / Exited / Pressed / Released</td><td>operaciones con el ratón</td></tr>
+<tr><td>MouseEvent</td><td>MouseMotionListener</td><td>MouseMotionAdapter</td><td>mouseDragged / mouseMoved</td><td>movimiento del ratón</td></tr>
+<tr><td>WindowEvent</td><td>WindowListener</td><td>WindowAdapter</td><td>windowOpened / Closing / Closed / Activated / Deactivated / Iconified / Deiconified (7)</td><td>operaciones sobre una ventana</td></tr>
+<tr><td>ItemEvent</td><td>ItemListener</td><td>—</td><td>itemStateChanged</td><td>se selecciona un checkbox o un elemento de lista</td></tr>
+<tr><td>TextEvent</td><td>TextListener</td><td>—</td><td>textValueChanged</td><td>cambia el contenido de un textfield o textarea</td></tr>
+</table></div>
+<div class="trap"><b>⚠ Trampas típicas (las que más caen)</b><ul class="tight">
+<li><code>class X <b>implements</b> KeyAdapter</code> es un <b>ERROR</b>: los adaptadores son clases, así que se usa <b>extends</b>. Las interfaces (<code>KeyListener</code>) se <b>implementan</b>.</li>
+<li><code>addKeyAdapter(...)</code> o <code>addMouseAdapter(...)</code> <b>no existen</b>: siempre es <code>addXxx<b>Listener</b></code>, aunque el objeto herede de un adapter.</li>
+<li><code>JTextArea a = e.getSource();</code> <b>no compila</b>: falta el cast <code>(JTextArea)</code>.</li>
+<li>Una fuente <b>puede tener varios listeners, incluso del mismo tipo</b>, y no se sustituyen entre sí.</li>
+<li>El registro es <code>fuente.addXxxListener(listener)</code>, no al revés. La fuente es el componente y el receptor es el listener.</li>
+<li><code>consume()</code> se llama sobre el <b>evento</b> (<code>e.consume()</code>), no sobre el char ni sobre el componente.</li>
+<li>mouseEntered/mouseExited son de <b>MouseListener</b>; mouseMoved/mouseDragged son de <b>MouseMotionListener</b>.</li>
+</ul></div>
+<details class="self"><summary>Autoexplícate: si quiero el mismo comportamiento en text1 y text2 al ganar el foco, ¿qué cambio en el listener?</summary><p>Sustituyo la referencia fija <code>text1</code> por <code>((JTextField) e.getSource())</code> y registro el <b>mismo</b> objeto listener también en text2. Así no hace falta crear otra clase.</p></details>
+<details class="self"><summary>Autoexplícate: ¿cuándo me conviene un adapter y cuándo implementar la interfaz?</summary><p>El adapter conviene cuando la interfaz tiene varios métodos y solo necesito algunos. Implemento la interfaz si necesito todos, si la interfaz tiene un solo método (y entonces no hay adapter) o si mi clase ya hereda de otra (Java no tiene herencia múltiple). Las dos opciones funcionan.</p></details>
+<div class="row"><button class="btn" data-quiz="t4">Hacer test del T4 →</button><label class="row small"><input type="checkbox" data-read="t4"> Marcar como leído</label></div>
+</section>
+
+<section class="card" data-topic="t5">
+<h2>T5 · El factor humano y el modelado de usuarios</h2>
+<h3>Restricciones del sistema visual</h3>
+<ul class="tight"><li>Tamaño de letra <b>≥ 11</b>, interlineado proporcional, <b>evitar fuentes complicadas</b> y <b>no escribir en MAYÚSCULAS</b>.</li>
+<li><b>Colores:</b> usar combinaciones compatibles y <b>evitar rojo-verde, azul-amarillo, verde-azul y rojo-azul</b>. Evitar colores brillantes en zonas grandes de la pantalla.</li>
+<li>Usar <b>códigos redundantes</b> (formas, iconos, texto) además del color. El <b>daltonismo</b> afecta al <b>8% de los hombres y al 1% de las mujeres</b>.</li></ul>
+<h3>Modelo de usuario</h3>
+<p>Es un modelo de los requisitos de interacción del usuario: una <b>generalización de una representación abstracta</b> de la información que se conoce sobre un usuario. Incluye su <b>modelo mental, su lenguaje, su precisión motora, sus tiempos de reacción esperados</b>, etc.</p>
+<p><b>Sirve para</b> hacer el sistema <b>adaptativo</b> y <b>personalizarlo</b>. Aplicaciones: accesibilidad (letra o botones más grandes para mayores), simplificar la información y adaptar el catálogo de ventas al perfil.</p>
+<div class="tablewrap"><table><tr><th>Culture based models (locales)</th><th>Biology based models (universales)</th></tr>
+<tr><td>Idiomas, procesamiento de imágenes, <b>significado de los colores</b>, <b>dirección de lectura</b></td><td><b>Velocidad de tecleo</b>, precisión de movimientos, velocidad de aprendizaje</td></tr></table></div>
+<p class="small muted">Clasificación de Harris (1990), <i>Our Kind</i>.</p>
+<h3>Personas (modelo cultural)</h3>
+<p>Las propuso <b>Alan Cooper en 1999</b> (<i>The Inmates are Running the Asylum</i>). Son <b>personajes ficticios</b> que representan los tipos de usuario: una <b>descripción narrativa</b> de patrones de comportamiento típicos con <b>detalles concretos, sin generalizaciones</b>. Se basan en entrevistas e <b>investigación etnográfica</b> con usuarios reales. Su objetivo es evitar errores y malentendidos y facilitar la comprensión de los objetivos, capacidades, necesidades y contexto de los usuarios.</p>
+<div class="grid g2"><div><b style="color:var(--ok)">Pros</b><ul class="tight small"><li>Simplifican el diseño centrándose en <b>personas</b>, no en objetivos de marketing o ventas.</li><li>Diseñar para el arquetipo facilita cumplir los requisitos de interacción.</li><li>Dan una <b>cara humana</b> a los diseñadores.</li></ul></div>
+<div><b style="color:var(--ko)">Contras</b><ul class="tight small"><li>No se puede saber <b>cuántos usuarios representa</b> una persona.</li><li><b>No se pueden validar ni falsar</b>.</li><li><b>No son herramientas científicas</b>.</li></ul></div></div>
+<h3>Modelos biológicos</h3>
+<p>Modelan al usuario por sus rasgos biológicos para <b>predecir</b> aspectos de la interacción. Los más populares son el <b>Human Information System Model (Rasmussen)</b> y el <b>Human Processor Model (Card, Moran y Newell, 1983)</b>.</p>
+<p><b>Human Processor Model:</b> método cognitivo para <b>estimar el tiempo</b> que tarda alguien en hacer una tarea. Tiene <b>3 subsistemas</b>: <b>perceptivo</b> (estímulos sensoriales), <b>motor</b> (controla las acciones) y <b>cognitivo</b> (conecta los dos). Funcionan de forma <b>independiente</b>, a veces en paralelo y a veces en secuencia, y se basan en ciclos de reloj.</p>
+<svg class="svgfig" viewBox="0 0 560 150" role="img" aria-label="Perceptivo 100 ms, cognitivo 70 ms, motor 70 ms; reacción media 240 ms">
+  <defs><marker id="ar3" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8z" fill="currentColor" style="color:var(--muted)"/></marker></defs>
+  <rect class="acc" x="10" y="30" width="160" height="60" rx="10"/><text x="90" y="55" text-anchor="middle">Perceptual</text><text x="90" y="75" text-anchor="middle">100 [50–200] ms</text>
+  <rect class="acc" x="200" y="30" width="160" height="60" rx="10"/><text x="280" y="55" text-anchor="middle">Cognitive</text><text x="280" y="75" text-anchor="middle">70 [25–170] ms</text>
+  <rect class="acc" x="390" y="30" width="160" height="60" rx="10"/><text x="470" y="55" text-anchor="middle">Motor</text><text x="470" y="75" text-anchor="middle">70 [30–100] ms</text>
+  <path class="ln" marker-end="url(#ar3)" d="M170 60H196"/><path class="ln" marker-end="url(#ar3)" d="M360 60H386"/>
+  <text x="280" y="125" text-anchor="middle">Reacción media = 100 + 70 + 70 = 240 ms (rango 105–470 ms)</text>
+</svg>
+<p><b>Sistema perceptivo:</b> la entrada llega por los sentidos (vista, oído, tacto, olfato, gusto) y la salida es el movimiento de dedos, extremidades, ojos, cabeza y el sistema vocal. Tiene 2 memorias:</p>
+<div class="tablewrap"><table><tr><th>Memoria</th><th>Decay time</th><th>Tamaño</th></tr>
+<tr><td>Visual</td><td>200 [70–1000] ms</td><td>17 [7–17] caracteres</td></tr>
+<tr><td>Auditiva</td><td>1500 [900–3500] ms</td><td>5 [4,4–6,2] caracteres</td></tr></table></div>
+<h3>Sistema cognitivo: la memoria humana</h3>
+<p>Hay tres tipos: <b>sensorial → corto plazo (STM) → largo plazo (LTM)</b>.</p>
+<div class="tablewrap"><table>
+<tr><th>Sensorial</th><td>Una <b>por sentido</b>, se actualiza continuamente y recibe la información <b>sin prestar atención</b>. Lo que capta la atención pasa a la STM. Si un estímulo se repite de forma continua aparece la <b>habituación</b> (nos volvemos menos sensibles), y hay que evitarla, por ejemplo con fondos que parpadean.</td></tr>
+<tr><th>Corto plazo (STM)</th><td>Es la memoria de <b>trabajo</b> (multiplicar 35×6, retener un teléfono). Limitada en tiempo y tamaño (<b>7±2 elementos</b>) y con <b>acceso rápido</b>. Técnicas para estimularla: <b>repetir (ensayo)</b> y <b>trocear o agrupar (chunking)</b>. <br><b>Diseño:</b> no obligar a recordar ni a reescribir datos de una pantalla anterior; ofrecer <b>deshacer y rehacer</b>, <b>recordar los últimos datos introducidos</b> y <b>cortar, copiar y pegar</b>.</td></tr>
+<tr><th>Largo plazo (LTM)</th><td>Capacidad y duración <b>ilimitadas</b>, pero <b>acceso lento</b>. Su función es recuperar información, y se estimula con el <b>reconocimiento</b> (no recuerdas una cara, pero la reconoces al verla). <br><b>Diseño:</b> mostrar los <b>atajos junto a las opciones</b>, usar <b>listas y menús</b> en vez de obligar a escribir, poner <b>tooltips y ayuda contextual</b> y permitir <b>volver al estado por defecto</b>.</td></tr></table></div>
+<h3>Técnicas de modelado (estimaciones objetivas)</h3>
+<div class="tablewrap"><table>
+<tr><th>Ley de Fitts</th><td><b>T = Im · log₂(D/A + 1)</b>, con Im = 100 [70–120] ms, D = distancia al objetivo y A = ancho del objetivo <b>en la dirección del movimiento</b>. Predice el tiempo de <b>apuntar</b> (clicar, arrastrar). La propuso Paul Fitts en los años 50. Consecuencias: los botones importantes deben ser grandes y estar cerca, y los submenús deben aparecer cerca del ratón.</td></tr>
+<tr><th>Ley de Hick</th><td>También llamada “principio de incertidumbre”. Da el tiempo de <b>decisión</b>: <b>T = Ic · H</b>, con <b>H = log₂(n + 1)</b> bits, n = número de opciones e Ic = 150 [0–157] ms/bit. Sirve para estimar el tiempo de elegir un elemento de menú.</td></tr>
+<tr><th>Power Law of Practice</th><td><b>Tn = T1 · n<sup>−a</sup></b>, con a = 0,4 [0,2–0,6]. Al repetir una tarea, el rendimiento mejora; estima el efecto del aprendizaje (Seibel, 1963).</td></tr>
+<tr><th>GOMS</th><td><b>G</b>oals, <b>O</b>perators, <b>M</b>ethods, <b>S</b>election rules. También se llama <b>Keystroke Model</b>. Es un modelo de predicción con un <b>error del 20%</b> y una herramienta de ingeniería para evaluar rápido alternativas de diseño. <b>Supone que</b> los usuarios saben hacer la tarea, <b>no cometen errores</b> y que los parámetros de interacción y el tiempo de respuesta son conocidos.</td></tr></table></div>
+<div class="tablewrap"><table><tr><th>Operador GOMS</th><th>Significado</th><th>Tiempo</th></tr>
+<tr><td><b>K</b> Keystroking</td><td>pulsar una tecla o el botón del ratón</td><td>0,2 s</td></tr>
+<tr><td><b>H</b> Homing</td><td>mover las manos de un dispositivo a otro</td><td>0,4 s</td></tr>
+<tr><td><b>P</b> Pointing</td><td>apuntar a una zona de la pantalla</td><td>0,1·log₂(2D/S + 1); si no se conocen D o S, <b>1,1 s</b></td></tr>
+<tr><td><b>M</b> Mental</td><td>decidir qué hacer</td><td>1,35 s o 0,15·log₂(n + 1)</td></tr>
+<tr><td><b>D</b> Drawing</td><td>dibujar gestos con el ratón</td><td>0,9·n<sub>D</sub> + 0,16·l<sub>D</sub></td></tr>
+<tr><td><b>R</b> Response</td><td>tiempo de respuesta del sistema</td><td>recomendado 0,25 s</td></tr></table></div>
+<p><b>Ejemplo (Amazon):</b> M(11 opciones) = 0,15·log₂12 ≈ 0,53, más P = 1,1 y K = 0,2, da 1,83 s. Después R = 0,25, M(4 opciones) = 0,15·log₂5 ≈ 0,35 (las diapositivas ponen 0,33), P = 1,1 y K = 0,2, con lo que el <b>total ≈ 3,71 s</b>.</p>
+<p><b>Modelos biológicos.</b> Pros: dan un marco para evaluar alternativas, tienen <b>alta precisión (error ≤ 20%)</b> y son un método científico. Contras: usan <b>tiempos medios</b> en lugar de los de cada usuario y <b>no consideran a los usuarios especiales</b>.</p>
+<div class="mnemo"><b>🧠 Mnemotecnia GOMS</b>: <b>K-H-P-M-R</b> con sus tiempos → “<b>K</b>ilo (0,2), <b>H</b>ogar (0,4), <b>P</b>unto (1,1), <b>M</b>ente (1,35), <b>R</b>espuesta (0,25)”. En el orden K, H, P, M, R, cada operador tarda más que el anterior salvo R, que vuelve a ser corto.</div>
+<div class="trap"><b>⚠ Trampas típicas</b><ul class="tight">
+<li><b>Deshacer/rehacer, recordar los últimos datos y el portapapeles</b> → alivian la <b>STM</b>. <b>Tooltips, menús, listas y atajos visibles</b> → se apoyan en el <b>reconocimiento</b> de la <b>LTM</b>.</li>
+<li>Trocear la información (chunking) es una técnica de <b>STM</b>. La habituación es un fenómeno de la memoria <b>sensorial</b>.</li>
+<li>Fitts = tiempo de <b>moverse</b>; Hick = tiempo de <b>decidir</b>; Power law = <b>aprendizaje</b>; GOMS = tiempo de una <b>tarea completa</b>.</li>
+<li>Hick usa <b>n+1</b>, no n. En Fitts es <b>D/A + 1</b> (y en el P de GOMS, 2D/S + 1).</li>
+<li>El significado de los colores y la dirección de lectura son <b>culturales</b>; la velocidad de tecleo es <b>biológica</b>.</li>
+<li>Personas: <b>Cooper 1999</b>. Human Processor: <b>Card, Moran y Newell 1983</b>. Rasmussen: Human <b>Information System</b> Model.</li>
+<li>“No pasar de 12 puntos de letra” es <b>falso</b>: la regla es un <b>mínimo de 11</b>.</li>
+</ul></div>
+<details class="self"><summary>Autoexplícate: ¿por qué un botón más grande pero algo más lejos puede ser más rápido?</summary><p>Porque Fitts depende del cociente D/A, no solo de D. Con D = 8,5 y A = 2,5, D/A = 3,4 y T ≈ 0,214 s. Con D = 8 y A = 1, D/A = 8 y T ≈ 0,317 s.</p></details>
+<details class="self"><summary>Autoexplícate: ¿por qué el experto tarda menos en iniciar sesión según GOMS?</summary><p>Porque usa Tab e Intro en vez del ratón y se ahorra operadores H (0,4 s) y P (1,1 s) entre campos. Solo añade algún K (0,2 s). Con 10 caracteres sale ≈ 6,1 s frente a ≈ 9,5 s del novato (lo tienes en la pestaña Cálculos).</p></details>
+<div class="row"><button class="btn" data-quiz="t5">Hacer test del T5 →</button><label class="row small"><input type="checkbox" data-read="t5"> Marcar como leído</label></div>
+</section>
+</template>
+
+<!-- ===================== ESTRATEGIA (estático) ===================== -->
+<template id="tpl-strategy">
+<h1>Estrategia de examen</h1>
+<div class="card">
+<h2 style="margin-top:0">Cómo puntúa (formato histórico de la EII)</h2>
+<p>Los parciales teóricos de años anteriores son un <b>test de 5 opciones con una sola correcta</b>: <b>+4</b> por acierto, <b>−1</b> por fallo y <b>0</b> en blanco. Si este año cambia, ajusta los valores en Simulacro → Configuración.</p>
+<p><b>Matemática del blanco:</b> responder compensa si tu probabilidad de acertar <i>p</i> cumple 4p − (1 − p) &gt; 0, es decir, <b>p &gt; 20%</b>.</p>
+<ul class="tight">
+<li>Al azar puro entre 5 opciones (p = 20%), el valor esperado es <b>0</b>: no ganas nada y añades riesgo. Déjala en blanco.</li>
+<li>Si <b>descartas 1 opción con seguridad</b> (p = 25%), el valor esperado ya es positivo (+0,25 puntos). Si descartas 2 (p = 33%), es +0,67.</li>
+<li>Regla práctica: <b>responde si has eliminado al menos una opción con seguridad</b>. Si no, en blanco.</li>
+</ul>
+<p>Tu <b>calibración real</b> (aciertos cuando dices “Dudo”) aparece en Inicio. Si en “Dudo” aciertas más del 20%, <b>te conviene responder las dudosas</b>.</p>
+</div>
+<div class="card">
+<h2 style="margin-top:0">Calculadora: ¿cuánto necesito para el 8?</h2>
+<div class="row">
+<label>Preguntas <input type="number" id="cN" value="20" min="5" max="60" style="width:70px"></label>
+<label>Aciertos <input type="number" id="cR" value="16" min="0" style="width:70px"></label>
+<label>Fallos <input type="number" id="cW" value="0" min="0" style="width:70px"></label>
+<label>+ <input type="number" id="cP" value="4" step="0.25" style="width:60px"></label>
+<label>− <input type="number" id="cM" value="1" step="0.25" style="width:60px"></label>
+</div>
+<p id="cOut" class="kpi" style="margin-top:10px"></p>
+<p id="cHint" class="muted"></p>
+</div>
+<div class="card">
+<h2 style="margin-top:0">Cómo leer cada pregunta</h2>
+<ol>
+<li><b>Lee el enunciado entero</b> y busca palabras clave: <i>NOT, only, always, never, mandatory, must</i>. Los absolutos (“always”, “never”, “only”) suelen ser falsos.</li>
+<li><b>Evalúa cada opción como verdadero/falso</b> por separado antes de mirar las meta-opciones. Escribe V/F al lado.</li>
+<li>Después resuelve las meta-opciones: <b>“More than one answer is right”</b> (¿tienes ≥ 2 V?), <b>“All of them”</b> (¿todas V?), <b>“None”</b> (¿ninguna V?), <b>“A and C are right”</b> (¿exactamente esas?).</li>
+<li><b>Código:</b> revisa por este orden: <code>extends</code>/<code>implements</code> correcto, nombre del método de registro (<code>addXxxListener</code>), cast de <code>getSource()</code>, métodos de la interfaz completos y sobre qué se llama <code>consume()</code>.</li>
+<li><b>Cálculos:</b> escribe la fórmula, sustituye y comprueba las unidades (ms o s). Fitts usa D/A + 1 y Hick usa n + 1.</li>
+<li>Primera vuelta: responde las seguras. Segunda vuelta: las dudosas, aplicando la regla del 20%.</li>
+</ol>
+</div>
+<div class="card">
+<h2 style="margin-top:0">Plan de estudio con base científica</h2>
+<ul class="tight">
+<li><b>Práctica de recuperación</b> (testing effect): hacerte preguntas fija más que releer. Por eso la web es casi todo preguntas.</li>
+<li><b>Repetición espaciada</b>: las flashcards y las preguntas vuelven justo cuando estás a punto de olvidarlas (sistema Leitner, comprimido hasta la fecha del examen).</li>
+<li><b>Práctica intercalada</b> (interleaving): mezclar temas te obliga a identificar qué tipo de pregunta es, igual que en el examen.</li>
+<li><b>Feedback inmediato con explicación</b>: cada fallo explica por qué y dónde está la trampa.</li>
+<li><b>Calibración de confianza</b>: aprendes cuándo dejar en blanco, que con +4/−1 vale puntos.</li>
+<li><b>Ejemplos resueltos → práctica autónoma</b> para las fórmulas (Fitts, Hick, GOMS…).</li>
+<li><b>Codificación dual</b>: diagramas junto al texto. <b>Autoexplicación</b>: preguntas de “por qué”.</li>
+</ul>
+<h3>Rutina diaria sugerida (45-60 min)</h3>
+<ol class="tight">
+<li>10 min: <b>flashcards pendientes</b>.</li>
+<li>20 min: <b>Practicar → Repaso inteligente</b> (mezcla de temas).</li>
+<li>10 min: <b>Cálculos</b> (2 o 3 problemas).</li>
+<li>5 min: <b>Mis fallos</b>.</li>
+<li>Los últimos 3 días: <b>un simulacro al día</b> y repasar solo los fallos.</li>
+</ol>
+<p class="muted small">Duerme bien la noche antes: el sueño consolida lo estudiado. Un repaso corto de flashcards la mañana del examen es mejor que estudiar algo nuevo.</p>
+</div>
+</template>
+
+<script src="kv.js"></script>
+<script type="text/plain" id="main-script">
+"use strict";
+/* ============================ DATOS ============================ */
+const TOPICS = {
+  t1:{name:"T1 · GUI en Java", short:"GUI Java", color:"var(--t1)"},
+  t2:{name:"T2 · Fundamentos HCI y usabilidad", short:"Fundamentos HCI", color:"var(--t2)"},
+  t3:{name:"T3 · Diseño centrado en el usuario", short:"DCU", color:"var(--t3)"},
+  t4:{name:"T4 · Gestión de eventos", short:"Eventos", color:"var(--t4)"},
+  t5:{name:"T5 · Factor humano y modelado", short:"Modelado usuario", color:"var(--t5)"}
+};
+const TK = Object.keys(TOPICS);
+
+/* Banco de preguntas. Estilo examen: inglés, 5 opciones, 1 correcta. Explicaciones en castellano. ns = no barajar opciones */
+const Q = [
+/* ---------- T1 ---------- */
+{t:"t1",q:"JFC (Java Foundation Classes) is made up of the following libraries:",o:["AWT, Swing and Java2D","AWT and Swing only","Swing, JavaFX and Java2D","AWT, Swing and WindowBuilder","None of the answers is right"],a:0,e:"JFC = AWT + Swing + Java2D. WindowBuilder es un plugin que genera código y JavaFX no forma parte de JFC según el tema."},
+{t:"t1",q:"Regarding AWT, which statement is right?",o:["It was designed as a standard API that uses the native components of the operating system","Its components are written entirely in Java, so they look the same on every platform","It allows using any functionality of a given operating system, even if other systems lack it","It was published in 1997 to solve the limitations of Swing","More than one answer is right"],a:0,e:"AWT usa componentes nativos. Los componentes escritos en Java son los de Swing. AWT solo ofrece lo común a todos los SO, y lo de 1997 es Swing (que corrigió AWT, no al revés)."},
+{t:"t1",q:"The main drawback of AWT was that…",o:["it could only be executed in some versions of the JDK","only the functionalities present in every operating system could be used, and portable applications were hard to build because components behaved differently on each system","it did not support events","it could not use layouts","None of the answers is right"],a:1,e:"AWT funciona en todas las versiones del JDK, pero al depender de componentes nativos se limita al mínimo común y su comportamiento cambia según el sistema."},
+{t:"t1",q:"Swing…",o:["was published in 1997 and has been part of the JDK since version 1.2","has been part of the JDK since version 1.0","uses native OS components to guarantee a homogeneous look and feel","can only change its look and feel before the application starts","More than one answer is right"],a:0,e:"Swing: 1997, en el JDK desde la 1.2. Sus componentes están escritos en Java (no nativos) y el L&F se puede cambiar en tiempo de ejecución."},
+{t:"t1",q:"Which of these features is offered by Swing but not by AWT?",o:["Changing the look and feel at runtime","Tooltips on components","Borders on components","Linking keyboard events to components","All of them"],a:4,e:"Las cuatro son ventajas de Swing frente a AWT, según el tema (Swing vs AWT I y II)."},
+{t:"t1",q:"Which of the following groups of components is available in Swing but not in AWT?",o:["Tables, trees, sliders, spinners, progress bars and internal frames","Buttons and labels","Containers and layouts","Events and listeners","None of the answers is right"],a:0,e:"Swing añade tablas, árboles, sliders, spinners, barras de progreso, internal frames y componentes de texto. Botones y etiquetas ya existían en AWT."},
+{t:"t1",q:"Swing classes are located in the package…",o:["java.awt","java.awt.event","javax.swing","java.swing","java.awt.swing"],a:2,e:"javax.swing. AWT está en java.awt.* y sus eventos en java.awt.event.*. Ojo con 'java.swing', que no existe."},
+{t:"t1",q:"AWT provides four main elements. Which are they?",o:["Components, Containers, Events and Layouts","Components, Listeners, Adapters and Frames","Frames, Panels, Buttons and Labels","Sources, Listeners, Events and Registers","None of the answers is right"],a:0,e:"Componentes, contenedores, eventos y layouts. Fuentes, listeners y adaptadores son los elementos del modelo de eventos (T4)."},
+{t:"t1",q:"Regarding components and containers:",o:["A component can live outside any container as long as it has a layout","Containers are also components, so they can be grouped inside other containers","The layout determines which events a container receives","A container cannot contain other containers","None of the answers is right"],a:1,e:"Un componente debe vivir dentro de un contenedor. Los contenedores son componentes y por eso se anidan. El layout decide la colocación, no los eventos."},
+{t:"t1",q:"According to the course, a Swing component has:",o:["Properties (with default values), methods and events","Only properties and methods; events belong to containers","Properties without default values that must always be initialised","Only events","None of the answers is right"],a:0,e:"Propiedades (con valores por defecto), métodos (funcionalidad) y eventos."},
+{t:"t1",q:"In the context of components, an event is…",o:["an external or internal signal that fires the execution of a block of code implemented as a method","only a mouse click or a key press made by the user","a property of the container that stores the layout","something the developer never needs to code because Swing handles it automatically","None of the answers is right"],a:0,e:"Señal externa o interna. Ejemplos del tema: un clic, llamar a un método, modificar una propiedad. El desarrollador debe programar su gestión."},
+{t:"t1",q:"The design pattern that describes how Swing containers and components are organized is:",o:["Observer","Composite","Adapter","Singleton","Factory Method"],a:1,e:"Composite: árbol parte-todo. Trampa: Observer es el patrón del modelo de eventos (T4)."},
+{t:"t1",q:"The Composite design pattern…",o:["lets clients treat individual objects and compositions of objects uniformly","lets an object notify its observers when its state changes","converts the interface of a class into another one the client expects","guarantees that a class has only one instance","None of the answers is right"],a:0,e:"Composite = estructuras en árbol que se tratan de forma uniforme. La opción de notificar a observadores es Observer y la de convertir interfaces es Adapter."},
+{t:"t1",q:"In a Swing window implemented with JFrame:",o:["Components are added directly to the JFrame without any intermediate container","Components are added to a JPanel called ContentPane, which is contained by the JFrame","The JFrame is a low-level component that must be placed inside a JPanel","The ContentPane is a JButton that contains the rest of the components","None of the answers is right"],a:1,e:"El JFrame es el contenedor de alto nivel y los componentes van en el ContentPane (un JPanel) que contiene."},
+{t:"t1",q:"In relation to Swing and AWT…",o:["Swing and AWT contain exactly the same visual components; Swing only adds new attributes (border, icon, tooltip…)","Both specifications are part of the JFC (Java Foundation Classes)","AWT includes the package 'event' with the resources to work with events","Every answer is right","Only B and C are right"],a:4,ns:true,e:"Pregunta real de examen (2015). A es falsa porque Swing tiene MÁS componentes (tablas, árboles…). B y C son ciertas, así que la respuesta es 'Only B and C'."},
+{t:"t1",q:"Swing components can be used…",o:["in every platform with Java 1.1 or newer","only in Windows","only from JDK 5 onwards","only if the OS provides an equivalent native component","None of the answers is right"],a:0,e:"Están escritos en Java y funcionan en cualquier plataforma con Java 1.1 o superior. Desde el JDK 1.2 vienen incluidos."},
+{t:"t1",q:"In the Swing architecture, the interaction between the system and the user is done through…",o:["layouts","events","containers","the ContentPane","the look and feel"],a:1,e:"La arquitectura de Swing se basa en contenedores y componentes, y la interacción se hace mediante eventos."},
+{t:"t1",q:"Swing is…",o:["based on AWT, and allows more advanced GUIs","completely independent of AWT","the library used for 2D graphics in JFC","a replacement of the JDK","None of the answers is right"],a:0,e:"El tema dice 'Swing: based in AWT, it allows more advanced GUI'. Los gráficos 2D son Java2D."},
+/* ---------- T2 ---------- */
+{t:"t2",q:"According to ACM-SIGCHI (1992), Human-Computer Interaction is a discipline concerned with…",o:["the design, evaluation and implementation of interactive computing systems for human use and with the study of major phenomena surrounding them","only the visual design (colors, fonts) of user interfaces","exclusively the ergonomics of computer hardware","the implementation of GUI libraries such as Swing","None of the answers is right"],a:0,e:"Definición literal de ACM-SIGCHI. HCI incluye aspectos psicológicos, ergonómicos y organizativos, pero el curso se centra en la UI."},
+{t:"t2",q:"According to the course, the user interface of interactive applications involves approximately…",o:["50% of the source code and more than 70% of the development effort","70% of the source code and 50% of the development effort","10% of the source code and 20% of the effort","90% of the source code","None of the answers is right"],a:0,e:"≈50% del código y >70% del esfuerzo (Gartner Group). La trampa es intercambiar las dos cifras."},
+{t:"t2",q:"Which of the following is a consequence of a poor user interface?",o:["Rejection of the system","Low productivity rates","Unfeasible training periods","High error rates that generate frustration","All of them"],a:4,e:"El tema enumera las cuatro como consecuencias de una UI pobre."},
+{t:"t2",q:"HCI aims to build or improve the security, utility, effectiveness and efficiency of interactive systems, but mainly their…",o:["usability","aesthetics","portability","performance","None of the answers is right"],a:0,e:"'But mainly… USABILITY'."},
+{t:"t2",q:"According to ISO 9241, usability is the extent to which a product can be used by specified users to achieve specified goals with…",o:["effectiveness, efficiency and satisfaction in a specified context of use","learnability, flexibility and robustness","speed, safety and aesthetics in any context","effectiveness, efficiency and security","None of the answers is right"],a:0,e:"Eficacia, eficiencia y satisfacción en un contexto de uso específico. Learnability, flexibility y robustness son las categorías de principios."},
+{t:"t2",q:"In the ISO 9241 definition of usability, efficiency is…",o:["the complete and exact achievement of the users' goals","the complete and exact achievement of the users' goals in relation to the resources used","the comfort and user acceptance of the system","the response time of the system","None of the answers is right"],a:1,e:"Eficiencia = lograr los objetivos en relación con los recursos usados. La consecución completa y exacta, sin más, es la eficacia; la comodidad y aceptación, la satisfacción."},
+{t:"t2",q:"In the ISO 9241 definition of usability, effectiveness is…",o:["the optimal use of resources","the complete and exact achievement of the users' goals","the comfort of the user","the absence of errors","None of the answers is right"],a:1,e:"Eficacia = consecución completa y exacta de los objetivos. El uso óptimo de recursos es la eficiencia."},
+{t:"t2",q:"Satisfaction, as part of usability, concerns…",o:["the comfort and user acceptance of the system","the optimal use of resources","the number of errors made","the response time","None of the answers is right"],a:0,e:"Satisfacción = comodidad y aceptación del sistema."},
+{t:"t2",q:"The dimensions of usability mentioned in the course (L, E, S) are:",o:["Learnability, Efficiency and Safety","Learnability, Effectiveness and Satisfaction","Legibility, Efficiency and Security","Learnability, Ergonomics and Simplicity","None of the answers is right"],a:0,e:"Learnability (¿es fácil de aprender?), Efficiency (¿una vez aprendido, es rápido?) y Safety (¿hay pocos errores y son recuperables?). Además, Ergonomics y Aesthetics."},
+{t:"t2",q:"Regarding usability:",o:["It is basically a matter of choosing the right colors and typography","It also concerns dialog design, the cognitive link between user and system, documentation quality and online help","It increases support and maintenance costs","It can only be considered after deploying the system","None of the answers is right"],a:1,e:"La usabilidad va más allá de colores y tipografía, y reduce los costes de producción, soporte, mantenimiento y uso."},
+{t:"t2",q:"The three categories of basic usability principles are:",o:["Learnability, Flexibility and Robustness","Prediction, Synthesis and Familiarity","Effectiveness, Efficiency and Satisfaction","Observability, Recoverability and Consistency","None of the answers is right"],a:0,e:"Learnability (PSFC), Flexibility (IDRC) y Robustness (ORRT)."},
+{t:"t2",q:"Which of the following principles belongs to the Learnability category?",o:["Task delegation","Observability","Consistency","Recoverability","Customization capacity"],a:2,e:"Learnability = Prediction, Synthesis, Familiarity, Consistency."},
+{t:"t2",q:"A system where the user is forced to remember what was shown in the previous screen mainly violates the principle of…",o:["Prediction","Task delegation","Replacement capacity","Response times","None of the answers is right"],a:0,e:"El tema lo dice literalmente: un sistema así NO es predecible. (También sobrecarga la STM, T5.)"},
+{t:"t2",q:"Disabling (greying out) the menu options that are not available at a given moment mainly improves…",o:["predictability, by controlling the visibility of operations","recoverability","customization capacity","task delegation","None of the answers is right"],a:0,e:"Controlar la visibilidad de las operaciones (disponibles y no disponibles) refuerza la predicción."},
+{t:"t2",q:"A system that shows the changes in its state without the user requesting them is applying…",o:["synthesis with immediate notification (the ideal one)","synthesis with sporadic notification","familiarity","initiative in the dialog guided by the system","None of the answers is right"],a:0,e:"Síntesis inmediata, sin petición del usuario, que es la ideal. La esporádica solo muestra los cambios cuando el usuario los pide."},
+{t:"t2",q:"Using a trash-can icon to delete files is an example of…",o:["Familiarity","Consistency","Observability","Replacement capacity","Task advisability"],a:0,e:"Familiaridad: usar metáforas del mundo real que el usuario ya conoce."},
+{t:"t2",q:"Which of the following factors helps to improve the usability of an application?",o:["The sensorial capacity of the user while using the application","The immediate notification to the user of any change occurred in the system","Changing the interaction techniques frequently to increase the user's attention","Avoiding, as far as possible, metaphors of the real world","More than one answer is right"],a:1,ns:true,e:"Pregunta real (2015). La notificación inmediata es síntesis. Cambiar las técnicas a menudo viola la consistencia y evitar metáforas viola la familiaridad."},
+{t:"t2",q:"Keeping F1 as the key to open Help, as in most applications, is an example of…",o:["Consistency","Task delegation","Synthesis","Recoverability","Replacement capacity"],a:0,e:"Consistencia: no cambiar la funcionalidad de técnicas que el usuario ya conoce. El tema pone F1 = Help literalmente como ejemplo."},
+{t:"t2",q:"To reach consistency in a user interface we need to…",o:["use style guides, a common look & feel and avoid changing techniques the user already knows","use metaphors from the real world","delegate tasks to the system","use modal dialogs whenever possible","None of the answers is right"],a:0,e:"Guías de estilo, un L&F común y no cambiar técnicas conocidas. Las metáforas son familiaridad."},
+{t:"t2",q:"Which of the following principles belongs to the Flexibility category?",o:["Initiative in the dialog","Observability","Synthesis","Familiarity","Response times"],a:0,e:"Flexibility = Initiative in the dialog, Task delegation, Replacement capacity, Customization capacity."},
+{t:"t2",q:"A modal dialog such as 'Save as'…",o:["is an example of a system-guided interaction (the initiative is taken by the system)","is an example of task delegation","violates the recoverability principle","is an example of customization capacity","None of the answers is right"],a:0,e:"Iniciativa en el diálogo: el modal impide usar otras ventanas de la aplicación hasta cerrarlo, así que guía el sistema. Lo ideal es que la iniciativa la tome el usuario, pero a veces conviene lo contrario."},
+{t:"t2",q:"Automatic backups or a spell checker are examples of…",o:["Task delegation","Replacement capacity","Initiative in the dialog","Observability","Synthesis"],a:0,e:"Delegación de tareas: se transfiere el control de la tarea del usuario al sistema."},
+{t:"t2",q:"Allowing a color to be selected by its name, by its hex value or from a palette is an example of…",o:["Replacement capacity","Customization capacity","Task delegation","Consistency","Familiarity"],a:0,e:"Capacidad de sustitución: un parámetro se puede reemplazar por otro equivalente."},
+{t:"t2",q:"Regarding customization capacity:",o:["The interface can be customized by the users and/or by the system, regarding design preferences or the options available according to the user's experience level","Only the user can customize the interface","It only concerns colors and fonts","It is a robustness principle","None of the answers is right"],a:0,e:"Usuario y/o sistema; preferencias de diseño u opciones según el nivel de experiencia. Es un principio de flexibilidad."},
+{t:"t2",q:"Which group contains only robustness principles?",o:["Observability, Recoverability, Response times, Task advisability","Prediction, Synthesis, Familiarity, Consistency","Initiative, Task delegation, Replacement, Customization","Observability, Synthesis, Consistency, Recoverability","None of the answers is right"],a:0,e:"Robustness = ORRT. El segundo grupo es Learnability y el tercero es Flexibility."},
+{t:"t2",q:"An Internet speed test that shows a needle moving while the connection speed is measured mainly applies…",o:["Observability","Recoverability","Task delegation","Replacement capacity","Customization capacity"],a:0,e:"Observabilidad: el sistema muestra su estado interno en la UI. (En el examen de 2015 había un test de velocidad parecido.)"},
+{t:"t2",q:"The 'proportional effort' principle states that…",o:["if undoing an action is hard, then the action itself must also be hard to do","all actions must require the same effort","the most frequent actions must be the hardest to perform","the easier an action is to undo, the more confirmations it requires","None of the answers is right"],a:0,e:"Pertenece a la recuperabilidad: borrar un fichero (difícil de deshacer) debe costar más (confirmación); renombrar (fácil de deshacer) puede ser inmediato."},
+{t:"t2",q:"When the response times of a system cannot be short enough, the system must…",o:["notify the user that the request is being processed","block the interface without any message","delegate the task to the user","show a modal error message","None of the answers is right"],a:0,e:"Hay que avisar de que se está procesando la petición (el tema añade 'observability!!!')."},
+{t:"t2",q:"Task advisability concerns…",o:["how far the system supports all the tasks the user wants to do, and the way the user understands them","the capacity of reaching the initial goal after an error","the delays the system needs to show its state changes","the system informing about its internal state","None of the answers is right"],a:0,e:"La segunda opción es recoverability, la tercera response times y la cuarta observability."},
+{t:"t2",q:"Recoverability is…",o:["the capacity of reaching the initial goal after an error in the interaction","the capacity of restoring the default look and feel","the system informing about its internal state","the time the system needs to recover after a crash","None of the answers is right"],a:0,e:"Recuperabilidad: alcanzar el objetivo inicial tras un error."},
+{t:"t2",q:"Which of these strategies improves the accessibility of a GUI?",o:["Allowing the user to choose high-contrast colors","Allowing the user to increase the fonts","Not using only colors as a source of information","All of them","None of them"],a:3,e:"Son las tres estrategias que da el tema para colores y fuentes."},
+{t:"t2",q:"User-centred design implies…",o:["involving the user as far as possible, even in the design team","observing the everyday work of the user","building prototypes, scenarios or models so users evaluate the design as soon as possible","All of them","None of them"],a:3,e:"Las tres aparecen en la última diapositiva del T2."},
+{t:"t2",q:"A system is usable when…",o:["it is easy to learn and easy to use","it has a modern look and feel","it has all the functionalities the client asked for","it never shows error messages","None of the answers is right"],a:0,e:"'A system is usable when it is easy to learn and it is easy to use.'"},
+{t:"t2",q:"A system whose initial user experience is enough to guess the result of future interactions is…",o:["predictable","synthesizable","familiar","observable","customizable"],a:0,e:"Definición de Prediction."},
+/* ---------- T3 ---------- */
+{t:"t3",q:"The Usability Professionals Association (UPA) defines User Centered Design as…",o:["a design approach where the process is driven by information about the users who will use the product","a process driven by business goals and marketing","a technique to evaluate interfaces using experts only","a programming methodology based on prototypes","None of the answers is right"],a:0,e:"El proceso lo dirige la información sobre los usuarios."},
+{t:"t3",q:"User Centered Design is defined in…",o:["ISO 13407, updated in ISO 9241-210:2010","ISO 9241, updated in ISO 13407:2010","ISO 9001, updated in ISO 27001","ISO 25010, updated in ISO 13407","None of the answers is right"],a:0,e:"ISO 13407, actualizada por la ISO 9241-210:2010. Ojo: la 9241 a secas es la de la definición de usabilidad (T2)."},
+{t:"t3",q:"The origin of user centered design is in…",o:["civil engineering and architecture","software engineering","marketing","cognitive psychology","None of the answers is right"],a:0,e:"La ingeniería civil y la arquitectura. Dreyfuss popularizó la idea del diseño como proceso."},
+{t:"t3",q:"When designing the Bell 500 telephone, Dreyfuss studied how the devices were…",o:["built, perceived by the users and used by the users","sold, advertised and bought","programmed, tested and deployed","only built","None of the answers is right"],a:0,e:"Built, perceived, used. Libro: Designing for People (1955)."},
+{t:"t3",q:"The term 'User Centered System Design' in software development was used in…",o:["the first CHI conference (1983), organized by ACM-SIGCHI","ISO 9241-210 (2010)","'Designing for People' (1955)","Alan Cooper's book (1999)","None of the answers is right"],a:0,e:"CHI 1983. Dreyfuss es de 1955, Cooper (Personas) de 1999 y la ISO de 2010."},
+{t:"t3",q:"In UCD, the model that the user builds from the user interface (what they understand) is called…",o:["the mental model","the conceptual model","the user model","the persona","the interaction model"],a:0,e:"Modelo mental = lo que entiende el usuario. El modelo conceptual es lo que ofrece el diseñador y la UI es lo que ve el usuario."},
+{t:"t3",q:"In UCD, the conceptual model is…",o:["what the designer offers to the users","what the user sees","what the user understands","the set of personas","None of the answers is right"],a:0,e:"Lo que ofrece el diseñador. 'Lo que ve' es la UI y 'lo que entiende' es el modelo mental."},
+{t:"t3",q:"Regarding the UCD process…",o:["it is not ONE process but a family of iterative processes that match a common framework","it is a single sequential (waterfall) process","it is applied only once, at the end of development","it is only an evaluation technique","None of the answers is right"],a:0,e:"Familia de procesos iterativos con 4 fases."},
+{t:"t3",q:"The four iterative phases of UCD, in order, are:",o:["Specify the context of use → Specify requirements → Create design solutions → Evaluate designs","Specify requirements → Specify context of use → Evaluate → Create design solutions","Create design solutions → Evaluate → Specify requirements → Specify context","Specify context of use → Create design solutions → Specify requirements → Evaluate","None of the answers is right"],a:0,e:"Contexto → Requisitos → Diseño → Evaluación (y se itera)."},
+{t:"t3",q:"A context-of-use description should include…",o:["the users and other stakeholders, their characteristics, their goals and tasks, and the environment(s) of the system","only the hardware where the system will run","only the business requirements","only the names and ages of the users","None of the answers is right"],a:0,e:"Usuarios y stakeholders, características, objetivos y tareas, y entornos (técnico, físico, social y cultural)."},
+{t:"t3",q:"Light and noise conditions, temperature and spatial layout are part of the…",o:["physical environment","technical environment","social and cultural environment","user characteristics","None of the answers is right"],a:0,e:"El entorno físico. El técnico es hardware, ancho de banda y software. El social y cultural, prácticas de trabajo, estructura organizativa y actitudes."},
+{t:"t3",q:"Work practices, organizational structure and attitudes are part of the…",o:["technical environment","physical environment","social and cultural environment","goals and tasks of the users","None of the answers is right"],a:2,e:"El entorno social y cultural."},
+{t:"t3",q:"Hardware, bandwidth and software are part of the…",o:["technical environment","physical environment","social and cultural environment","user characteristics","None of the answers is right"],a:0,e:"El entorno técnico."},
+{t:"t3",q:"Regarding the Personas technique in UCD…",o:["the identity of the characters is fictitious, but their needs, motivations, attitudes and behaviours must be based on real data","both the identity and the data can be freely invented by the designer","we should create as many personas as possible (at least 20) to cover every user","it is useful to have several personas that share most of their properties","None of the answers is right"],a:0,e:"Identidad ficticia y datos reales. No más de 7-8 personas y sin solaparse."},
+{t:"t3",q:"How many personas should be created according to the course?",o:["They should not exceed 7 or 8, represent the largest possible percentage of the audience and not overlap","Exactly one, representing the average user","At least 15, to be representative","One per real user","None of the answers is right"],a:0,e:"Máximo 7-8, que cubran la mayor parte de la audiencia y sin solaparse."},
+{t:"t3",q:"Personas are often contextualized with…",o:["scenarios, descriptions of specific use situations","UML class diagrams","usability metrics","GOMS models","None of the answers is right"],a:0,e:"Por eso la técnica se llama Personas-Scenario."},
+{t:"t3",q:"When specifying requirements, we need to find the equilibrium between…",o:["business viability, technological feasibility and user needs and desires","cost, time and scope","effectiveness, efficiency and satisfaction","learnability, flexibility and robustness","None of the answers is right"],a:0,e:"Viabilidad de negocio, factibilidad tecnológica y necesidades y deseos del usuario."},
+{t:"t3",q:"'A GPS application must be usable outdoors' is an example of a requirement derived from…",o:["the user needs and the context of use","the organizational requirements","the technological feasibility","the business viability","None of the answers is right"],a:0,e:"Es el ejemplo literal del tema para los requisitos derivados de las necesidades y el contexto de uso."},
+{t:"t3",q:"The last step when specifying requirements is…",o:["resolving trade-offs (conflicts) between user requirements","implementing a functional prototype","performing beta testing","creating the personas","None of the answers is right"],a:0,e:"Primero se identifican necesidades y restricciones, luego se derivan los requisitos y al final se resuelven los conflictos."},
+{t:"t3",q:"Making design solutions more concrete by means of scenarios, simulations, prototypes or mock-ups is an activity of the phase…",o:["Create design solutions","Specify the context of use","Specify requirements","Evaluate designs","None of the answers is right"],a:0,e:"Crear soluciones de diseño, que también incluye modificar el diseño según la evaluación y comunicarlo a los implementadores."},
+{t:"t3",q:"Which activity belongs to the 'Create design solutions' phase?",o:["Communicating the design solutions to those responsible for their implementation","Identifying the stakeholders","Describing the physical environment","Resolving trade-offs between requirements","None of the answers is right"],a:0,e:"Las demás pertenecen a contexto de uso y requisitos."},
+{t:"t3",q:"The two widely used user-centred evaluation approaches are…",o:["user-based testing and inspection-based evaluation","unit testing and integration testing","only expert inspection","only beta testing","None of the answers is right"],a:0,e:"Tests con usuarios e inspección basada en guías."},
+{t:"t3",q:"Regarding inspection-based evaluation:",o:["it is done by experts using guidelines; it is simpler, quicker and cheaper, and complements user-based tests because users and experts usually find different problems","it makes user-based testing unnecessary, since experts find the same problems as users","it is done with real users in the real context (field validation)","it is more expensive than user-based testing","None of the answers is right"],a:0,e:"La inspección complementa, no sustituye. La validación de campo (beta testing) es un tipo de test con usuarios."},
+{t:"t3",q:"Beta testing is…",o:["a field validation, a kind of user-based testing in the real context of use","an inspection-based evaluation done by experts","a technique to create personas","a phase to specify requirements","None of the answers is right"],a:0,e:"Validación de campo = test con usuarios en el contexto real."},
+{t:"t3",q:"Ideally, design evaluation should be carried out through…",o:["usability testing with actual users, as early as possible","a final survey after deploying the product","the opinion of the client who pays for the system","automatic code analysis","None of the answers is right"],a:0,e:"Cuanto antes se enseñe el diseño a usuarios reales, más fácil es verlo desde su punto de vista."},
+{t:"t3",q:"Who said that 'design decisions should be based on the needs and wants of users'?",o:["Donald Norman","Alan Cooper","Paul Fitts","Henry Dreyfuss","Jens Rasmussen"],a:0,e:"Dr. Donald Norman, investigador en ciencia cognitiva."},
+{t:"t3",q:"The characteristics of users identified when specifying the context of use include…",o:["knowledge, skill, experience, education, training, physical attributes, habits, preferences and capabilities","only their age and gender","only their salary","only their job title","None of the answers is right"],a:0,e:"Lista literal del tema."},
+{t:"t3",q:"During the 'Specify the context of use' phase we need to…",o:["identify the people who will use the product, understand what they will use it for and know under what conditions they will use it","write the source code of the prototype","decide the final colors of the interface","perform the usability tests","None of the answers is right"],a:0,e:"Quién, para qué y en qué condiciones: ENTENDER."},
+/* ---------- T4 ---------- */
+{t:"t4",q:"The Java event model is based on…",o:["delegation: handling an event produced in the source object is delegated to another object called listener","inheritance: each component overrides a handleEvent method","polling: the application keeps asking the components for changes","the Composite pattern","None of the answers is right"],a:0,e:"Modelo de delegación (patrón Observer)."},
+{t:"t4",q:"Events can be generated…",o:["by the user's interaction and by the system","only by the user","only by the operating system","only by the mouse and the keyboard","None of the answers is right"],a:0,e:"'Events can be generated by users interaction and by the system.'"},
+{t:"t4",q:"The elements of the Java event model presented in the course are…",o:["event sources, event listeners and adapter classes","frames, panels and buttons","layouts and containers","look and feel and themes","None of the answers is right"],a:0,e:"Fuentes, listeners y adaptadores (más las clases de evento y el registro)."},
+{t:"t4",q:"Event sources are…",o:["objects that detect and notify events to the listeners","objects that implement a listener interface","subclasses of EventObject","the methods that handle the event","None of the answers is right"],a:0,e:"Detectan y notifican. Los que implementan la interfaz son los listeners."},
+{t:"t4",q:"The method getSource()…",o:["belongs to EventObject and returns the component that generated the event (as an Object)","belongs to the listener and returns the event","returns the listener registered in the component","belongs to JFrame and returns the ContentPane","None of the answers is right"],a:0,e:"EventObject.getSource() devuelve un Object, así que hay que hacer cast al tipo concreto."},
+{t:"t4",q:"Event listeners are…",o:["instances of a class implementing a listener interface","subclasses of EventObject","the components that generate the events","static methods of the source object","None of the answers is right"],a:0,e:"Por ejemplo ActionListener, FocusListener, KeyListener… en java.awt.event."},
+{t:"t4",q:"Given a button btAzul and a listener object pA of a class implementing ActionListener, the right registration is:",o:["btAzul.addActionListener(pA);","pA.addActionListener(btAzul);","btAzul.addActionAdapter(pA);","btAzul.addActionEvent(pA);","pA.register(btAzul);"],a:0,e:"Sintaxis: sourceObject.addXxxListener(listenerObject)."},
+{t:"t4",q:"Which design pattern is the Java event model based on?",o:["Observer","Composite","Singleton","Decorator","Factory Method"],a:0,e:"Observer. Trampa: Composite es el de contenedores y componentes (T1)."},
+{t:"t4",q:"A listener usually needs access to the main class that contains the source object. The two ways presented in the course are:",o:["creating it as an inner class of the main class, or as an external class receiving a reference to the main class in its constructor","only as an inner class","only through static methods","declaring every attribute of the main class as public","None of the answers is right"],a:0,e:"Clase interna o clase externa con inyección de dependencias por constructor."},
+{t:"t4",q:"Which of the following actions generates an ActionEvent?",o:["Clicking a button","Selecting an element from a menu","Pressing Intro (Enter) inside a text field","All of them","None of them"],a:3,e:"Las tres generan ActionEvent (y también seleccionar un elemento de una lista)."},
+{t:"t4",q:"The only method of the ActionListener interface is…",o:["public void actionPerformed(ActionEvent e)","public void actionDone(ActionEvent e)","public void buttonClicked(ActionEvent e)","public void actionPerformed(Event e)","None of the answers is right"],a:0,e:"actionPerformed(ActionEvent e). Como tiene un solo método, no existe ActionAdapter."},
+{t:"t4",q:"Regarding adapter classes:",o:["there is one adapter class for each listener interface with more than one method","there is an ActionAdapter because ActionListener is the most used interface","adapters are interfaces that must be implemented","adapters implement only the most common method of the interface","None of the answers is right"],a:0,e:"Hay uno por interfaz con más de un método (MouseAdapter, KeyAdapter, FocusAdapter…). Son clases que implementan todos los métodos vacíos."},
+{t:"t4",q:"We want to implement a handler for the keyPressed event. Given that the KeyListener interface has three methods…",o:["We cannot use the adapter class, because it does not exist for key events","We can implement KeyListener or extend KeyAdapter; both strategies will work","We can extend KeyListener or implement KeyAdapter; both strategies will work","We can implement both KeyListener and KeyAdapter; both strategies will work","None of the answers is right"],a:1,e:"Pregunta real (2015). Las interfaces se implementan (implements) y los adaptadores se heredan (extends)."},
+{t:"t4",q:"Given the code, and considering that the methods of the KeyListener interface are more than two:",c:"1. public class VentanaPrincipal extends JFrame {\n2.   private JTextArea area1 = null;\n3.   private ProcesaTecla pT = null;\n5.   class ProcesaTecla implements KeyAdapter {\n6.     public void keyTyped(KeyEvent e){ pintar(e); }\n9.   }\n11.  pT = new ProcesaTecla();\n16.  area1.addKeyListener(pT);",o:["pT is the event source and area1 is the event receiver","Line 16 is wrong; it should be area1.addKeyAdapter(pT)","Line 5 is wrong; extends should be used instead of implements","ProcesaTecla is wrong because all the methods of the MouseAdapter interface should be implemented","More than one answer is right"],a:2,ns:true,e:"Pregunta real (Modelo antiguo). KeyAdapter es una clase, así que se usa extends. area1 es la fuente y pT el receptor. addKeyAdapter no existe."},
+{t:"t4",q:"Suppose this is the code of the method pintar of the previous question. Which statement is right?",c:"public void pintar(KeyEvent e){\n1.  JTextArea area = e.getSource();\n2.  area.setBackground(Color.red);\n}",o:["It is correct, and the background of the event source will be red","It is incorrect because parameters are missing in getSource (line 1)","It is incorrect because a parameter indicating the area to paint must be added","It is incorrect because in line 1 a cast to JTextArea is needed","It is correct, and the background of the event receiver will be red"],a:3,ns:true,e:"getSource() devuelve Object y no se puede asignar a JTextArea sin cast: (JTextArea) e.getSource()."},
+{t:"t4",q:"The listener class that handles a FocusEvent, given that the FocusListener interface has two methods:",o:["can be built implementing the FocusListener interface","can be built extending the FocusAdapter class","cannot be built extending an adapter, because the interface has only two methods","can be built from the FocusAdapter interface","(a) and (b) are right"],a:4,ns:true,e:"Pregunta real. Las dos formas son válidas: implements FocusListener o extends FocusAdapter. Existe adaptador porque la interfaz tiene más de un método. FocusAdapter es una clase, no una interfaz."},
+{t:"t4",q:"Given the code, where KeyEvent.VK_COMMA corresponds to the comma character, and assuming the listener is correctly registered in the source object:",c:"class ProcesaTecla extends KeyAdapter {\n  public void keyTyped(KeyEvent e){ comprueba(e); }\n}\nprivate void comprueba(KeyEvent e){\n  char tecla = e.getKeyChar();\n  if (tecla == KeyEvent.VK_COMMA)\n    e.consume();\n}",o:["The code is correct and will ignore every comma the user types in the source object","The code is correct and will ignore every key different from comma typed in the receiver object","The code is not correct because consume cannot be invoked on a KeyEvent","The code is not correct because consume must be applied to the char tecla","Both c and d are right"],a:0,ns:true,e:"Pregunta real (2015). consume() se llama sobre el evento y detiene la coma. Se escribe en la fuente (el componente), no en el receptor."},
+{t:"t4",q:"What does this listener do when registered on a JTextField?",c:"public void keyTyped(KeyEvent e){\n  if (!Character.isDigit(e.getKeyChar()))\n    e.consume();\n}",o:["Only digits can be typed in the text field","Digits cannot be typed in the text field","It throws an exception when a letter is typed","It removes the listener from the text field","None of the answers is right"],a:0,e:"Consume todo lo que NO sea dígito, así que solo se pueden escribir números. Es el ejemplo del tema."},
+{t:"t4",q:"Considering that pT is correctly registered as a key listener of the object area, to stop pT from listening to events generated by area we write:",o:["area.removeKeyListener(pT);","pT.removeKeyListener(area);","area.consume(pT);","pT.consume(area);","pT.addKeyListener(null);"],a:0,e:"Pregunta real (2015). Se desregistra en la fuente con removeXxxListener(listener)."},
+{t:"t4",q:"Which of the following sentences is right?",o:["A source can handle only one listener at a time","A source can handle more than one listener at the same time, but only if they process different events","A source can handle more than one listener of the same type at the same time","If a source registers two listeners for the same event (p1 and then p2), only the last one (p2) is kept","None of the answers is right"],a:2,ns:true,e:"Pregunta real (2015). Se pueden registrar varios listeners del mismo tipo en la misma fuente, y todos se ejecutan."},
+{t:"t4",q:"Given the code, and considering the listener is registered in text1, if we want the same behaviour in text2, the best strategy is:",c:"class ProcesaFoco1 extends FocusAdapter {\n  public void focusGained(FocusEvent e){\n    text1.setText(\"\");\n  }\n}",o:["Create ProcesaFoco2 with the same code replacing text1 with text2, and register a new object of it in text2","Replace text1 with ((JTextField) e.getSource()) and register the same listener object in text2","Create ProcesaFoco2 using ((JTextField) e.getSource()) and register a new object of it in text2","Replace text1 with (e.getSource()) and register the listener in text2","None of the answers is right"],a:1,ns:true,e:"Pregunta real (2015). Con getSource() y cast, un único listener vale para todos: se reutiliza el mismo objeto y se registra en text2. Sin cast (opción D) no compila setText."},
+{t:"t4",q:"A 'Cancel' option must be available both in a menu and in a command button with the same behaviour. According to the course we need…",o:["one listener (an external class, so it is accessible from both places) and two registrations","two different listener classes and two registrations","one listener and one registration, because the menu and the button share the source","an adapter class for each component","None of the answers is right"],a:0,e:"Un solo listener (clase externa si debe ser accesible desde ambas clases) y dos registros."},
+{t:"t4",q:"The methods mouseEntered and mouseExited belong to…",o:["MouseListener","MouseMotionListener","MouseWheelListener","ActionListener","FocusListener"],a:0,e:"MouseListener: mouseClicked, mouseEntered, mouseExited, mousePressed, mouseReleased. MouseMotionListener: mouseDragged y mouseMoved."},
+{t:"t4",q:"The methods mouseDragged and mouseMoved belong to…",o:["MouseMotionListener","MouseListener","ActionListener","ItemListener","WindowListener"],a:0,e:"MouseMotionListener (adaptador: MouseMotionAdapter)."},
+{t:"t4",q:"Which method does NOT belong to the KeyListener interface?",o:["keyClicked","keyPressed","keyReleased","keyTyped","All of them belong to KeyListener"],a:0,e:"KeyListener tiene keyPressed, keyReleased y keyTyped. 'keyClicked' no existe."},
+{t:"t4",q:"How many methods does the WindowListener interface have?",o:["7","1","2","3","5"],a:0,e:"windowOpened, windowClosing, windowClosed, windowActivated, windowDeactivated, windowIconified y windowDeiconified. Por eso existe WindowAdapter."},
+{t:"t4",q:"The event fired when a checkbox or an item of a list is selected, handled by itemStateChanged, is…",o:["ItemEvent","ActionEvent","FocusEvent","TextEvent","ContainerEvent"],a:0,e:"ItemEvent → ItemListener.itemStateChanged(ItemEvent)."},
+{t:"t4",q:"The methods componentAdded and componentRemoved belong to…",o:["ContainerListener","ComponentListener","ItemListener","WindowListener","ActionListener"],a:0,e:"ContainerListener (añadir o quitar componentes). ComponentListener tiene componentHidden, Shown, Moved y Resized."},
+{t:"t4",q:"The listener interface whose method textValueChanged is called when the content of a text field or text area changes is…",o:["TextListener","KeyListener","ActionListener","ItemListener","FocusListener"],a:0,e:"TextEvent → TextListener.textValueChanged."},
+{t:"t4",q:"The code generated by WindowBuilder to handle a button click typically creates the listener as…",o:["an anonymous inner class passed directly to addActionListener","an external public class in a separate file","a static method of the main class","a subclass of JButton","None of the answers is right"],a:0,e:"btAzul.addActionListener(new ActionListener(){ public void actionPerformed(ActionEvent e){…} });"},
+{t:"t4",q:"Which of the following classes will NOT compile?",c:"// A\nclass PF1 extends FocusAdapter {\n  public void focusLost(FocusEvent e){ check(); }\n}\n// B\nclass PF2 implements FocusListener {\n  public void focusLost(FocusEvent e){ check(); }\n}\n// C\nclass PF3 implements FocusListener {\n  public void focusGained(FocusEvent e){ }\n  public void focusLost(FocusEvent e){ check(); }\n}",o:["A","B","C","A and B","None: all of them compile"],a:1,ns:true,e:"B implementa la interfaz pero no implementa focusGained, así que no compila. C lo deja vacío y es correcto. A hereda del adaptador y solo sobrescribe focusLost."},
+{t:"t4",q:"When an event occurs in a Java application…",o:["Java creates an object of the specific class for that event and sends it to a specific method called handler","Java creates a new thread for each listener","Java copies the source component and sends it to the operating system","the operating system executes the listener code directly","None of the answers is right"],a:0,e:"Se crea un objeto evento de la clase específica y se pasa al método handler del listener."},
+{t:"t4",q:"Which of the following is NOT a listener interface?",o:["MouseAdapter","ActionListener","FocusListener","ItemListener","WindowListener"],a:0,e:"MouseAdapter es una clase adaptadora (se hereda con extends), no una interfaz."},
+{t:"t4",q:"Every operating system that supports GUIs…",o:["continuously monitors the environment to capture and manage events and notifies them to the applications, which decide how to deal with them","only reacts to events when the application asks for them","handles every event itself without notifying the applications","None of the answers is right","More than one answer is right"],a:0,e:"El SO monitoriza, captura y notifica, y cada aplicación decide qué hacer."},
+{t:"t4",q:"In the toolbar example, one ProcesaBorde listener (extends MouseAdapter) is registered in boton1 and boton2. Inside tratarBorde, how do we get the button that fired the event?",o:["JButton boton = (JButton) e.getSource();","JButton boton = e.getSource();","JButton boton = e.getButton();","JButton boton = this;","JButton boton = (JButton) e;"],a:0,e:"Se obtiene la referencia con e.getSource() y un cast a JButton."},
+{t:"t4",q:"A checkbox enables or disables a filter (listener pT) on a text field. The correct implementation in its actionPerformed is:",o:["if (chk.isSelected()) txt.addKeyListener(pT); else txt.removeKeyListener(pT);","if (chk.isSelected()) pT.addKeyListener(txt); else pT.removeKeyListener(txt);","if (chk.isSelected()) txt.consume(pT); else txt.addKeyListener(pT);","txt.setKeyListener(chk.isSelected() ? pT : null);","None of the answers is right"],a:0,e:"Es el ejemplo de desregistro del tema: add o remove sobre la fuente según el estado del checkbox."},
+/* ---------- T5 ---------- */
+{t:"t5",q:"Regarding the restrictions imposed by the human visual system, it is advisable to…",o:["use a font size of at least 11 and avoid writing texts in capital letters","always write messages in capital letters so they are read more clearly","not exceed a font size of 12 points to avoid visual overload","use complicated fonts to attract attention","None of the answers is right"],a:0,e:"Tamaño ≥ 11, interlineado proporcional, sin fuentes complicadas y sin MAYÚSCULAS. 'No superar 12 puntos' es una trampa de examen antiguo."},
+{t:"t5",q:"Considering the visual system restrictions, it is advisable to…",o:["not use redundant codes (shapes, for example) to avoid information overload","not exceed a font size of 12 points to avoid visual overload","always use capital letters in every message","More than one answer is right","None of the answers is right"],a:4,ns:true,e:"Pregunta real (Modelo antiguo, respuesta E). Los códigos redundantes SÍ se recomiendan, el mínimo es 11 (no hay máximo de 12) y las mayúsculas no se recomiendan."},
+{t:"t5",q:"Which color combination is NOT discouraged by the course?",o:["Black text on a white background","Red and green","Blue and yellow","Green and blue","Red and blue"],a:0,e:"Hay que evitar rojo-verde, azul-amarillo, verde-azul y rojo-azul."},
+{t:"t5",q:"Daltonism affects approximately…",o:["8% of men and 1% of women","1% of men and 8% of women","20% of the population","50% of men","None of the answers is right"],a:0,e:"8% de los hombres y 1% de las mujeres, según el tema. Por eso hay que usar códigos redundantes."},
+{t:"t5",q:"A plane seat map shows available seats in blue and booked seats in red, with 12-point row numbers. According to the visual system recommendations, this interface:",o:["satisfies all the recommendations","should use an extra code besides color (e.g. a shape) to avoid confusion","should use a font smaller than 12 points to avoid saturating the visual sensorial memory","More than one answer is right","None of the answers is right"],a:1,ns:true,e:"Pregunta real (2015). El color no debe ser el único código, y además rojo-azul es una combinación a evitar. 12 pt cumple el mínimo de 11."},
+{t:"t5",q:"Regarding the use of colors in the interface, the course recommends…",o:["avoiding bright colors in big areas of the screen","using bright colors as background of large panels","using red and green to distinguish states","using color as the only source of information","None of the answers is right"],a:0,e:"Hay que evitar los colores brillantes en zonas grandes, las combinaciones incompatibles y depender solo del color."},
+{t:"t5",q:"The user model is…",o:["a generalization of an abstract representation of the information known about a certain user","the model the designer offers to the users","a real user who participates in the design team","the physical description of the device","None of the answers is right"],a:0,e:"Incluye su modelo mental, su lenguaje, su precisión motora, sus tiempos de reacción esperados, etc. Lo que ofrece el diseñador es el modelo conceptual (T3)."},
+{t:"t5",q:"Knowing the user model allows us to…",o:["make the system adaptive and customize it according to the preferences and needs of each user","avoid usability testing","remove the need for accessibility","make every user interact in the same way","None of the answers is right"],a:0,e:"Adaptatividad y personalización (letra más grande para mayores, simplificar la información, catálogo por perfil…)."},
+{t:"t5",q:"According to the behaviour classification (Harris, 1990), the reading direction is part of…",o:["culture based (local) models","biology based (universal) models","the Human Processor Model","GOMS","None of the answers is right"],a:0,e:"Culturales: idiomas, procesamiento de imágenes, significado del color y dirección de lectura."},
+{t:"t5",q:"According to the behaviour classification, typing speed is part of…",o:["biology based (universal) models","culture based (local) models","personas","the conceptual model","None of the answers is right"],a:0,e:"Biológicos: velocidad de tecleo, precisión de movimientos y velocidad de aprendizaje."},
+{t:"t5",q:"The meaning of colors is considered…",o:["a culture-based (local) aspect","a biology-based (universal) aspect","a GOMS operator","part of the perceptual processor","None of the answers is right"],a:0,e:"El significado del color cambia entre culturas, así que es un modelo cultural."},
+{t:"t5",q:"The Personas technique was proposed by…",o:["Alan Cooper in 1999 ('The Inmates are Running the Asylum')","Card, Moran and Newell in 1983","Paul Fitts in the 50s","Jens Rasmussen","Henry Dreyfuss in 1955"],a:0,e:"Alan Cooper, 1999."},
+{t:"t5",q:"Personas are…",o:["fictional characters with a narrative description of typical behaviour patterns, using concrete details without generalizations, based on interviews and ethnographic research","statistical averages of all the users","real users who test the application","mathematical models to predict task times","None of the answers is right"],a:0,e:"Personajes ficticios, narrativos, concretos y basados en investigación con usuarios reales."},
+{t:"t5",q:"Which of the following is a drawback of Personas?",o:["There is no way to determine how many users a persona represents","They focus on marketing and sales goals","They provide a human face for designers","They are too mathematical","None of the answers is right"],a:0,e:"Contras: no se sabe cuántos usuarios representa, no se pueden validar ni falsar y no son científicas. La 'cara humana' es un pro."},
+{t:"t5",q:"Which of the following is an advantage of Personas?",o:["They provide a human face for designers and focus the design on people rather than on marketing goals","They can be scientifically validated","They give the exact percentage of users represented","They estimate task times with 20% error","None of the answers is right"],a:0,e:"Pros: centran el diseño en personas, facilitan cumplir los requisitos de interacción y dan una cara humana."},
+{t:"t5",q:"The Human Processor Model was developed by…",o:["Card, Moran and Newell (1983)","Jens Rasmussen","Alan Cooper (1999)","Paul Fitts","Seibel (1963)"],a:0,e:"Card, Moran y Newell. Rasmussen es el Human Information System Model."},
+{t:"t5",q:"The Human Processor Model models the human interaction system with three subsystems:",o:["perceptual, cognitive and motor","sensorial, short-term and long-term","visual, auditory and haptic","goals, operators and methods","None of the answers is right"],a:0,e:"Perceptivo, cognitivo y motor. Sensorial, STM y LTM son los tipos de memoria."},
+{t:"t5",q:"In the Human Processor Model, the average cycle time of the perceptual processor is…",o:["100 [50–200] ms","70 [25–170] ms","70 [30–100] ms","240 ms","1500 ms"],a:0,e:"Perceptivo 100 ms, cognitivo 70 ms y motor 70 ms. Reacción media 240 ms."},
+{t:"t5",q:"The average reaction time according to the Human Processor Model is…",o:["240 ms (100 + 70 + 70), ranging from 105 to 470 ms","70 ms","100 ms","1.35 s","None of the answers is right"],a:0,e:"Perceptivo (100) + cognitivo (70) + motor (70) = 240 ms."},
+{t:"t5",q:"Regarding the processors of the Human Processor Model:",o:["each processor operates independently; in some cases they work in parallel and in others sequentially","they always work sequentially","they always work in parallel","they share a single clock and cannot overlap","None of the answers is right"],a:0,e:"Funcionan de forma independiente, a veces en paralelo y a veces en secuencia."},
+{t:"t5",q:"The visual memory of the perceptual processor has a decay time of about…",o:["200 ms and a size of about 17 characters","1500 ms and a size of about 5 characters","7±2 seconds","unlimited time","None of the answers is right"],a:0,e:"Visual: 200 ms y 17 caracteres. Auditiva: 1500 ms y 5 caracteres."},
+{t:"t5",q:"Regarding sensorial memory:",o:["there is one per sense, it is continuously updated and information is received without paying attention","it has unlimited capacity and slow access","it is the work memory, limited to 7±2 elements","it is stimulated by recognition","None of the answers is right"],a:0,e:"La opción de capacidad ilimitada describe la LTM y la de 7±2 la STM."},
+{t:"t5",q:"A screen with a blinking background is discouraged mainly because…",o:["continuous and repeated stimulation causes habituation, making us less sensitive to changes","it overloads the long-term memory","it violates Fitts' law","it increases the cognitive processor cycle time","None of the answers is right"],a:0,e:"La habituación, un fenómeno de la memoria sensorial. Es el ejemplo del tema."},
+{t:"t5",q:"The short-term memory…",o:["is the work memory, limited in time and size (7±2 elements) and with high access speed","has unlimited capacity and slow access","receives information without paying attention","is stimulated mainly by recognition","None of the answers is right"],a:0,e:"STM = memoria de trabajo, 7±2 elementos y acceso rápido."},
+{t:"t5",q:"To avoid saturating the short-term memory, a technique is to…",o:["split up (chunk) the information","rely on recognition","avoid habituation","increase the font size","None of the answers is right"],a:0,e:"Técnicas de STM: ensayo (repetir) y trocear o agrupar. El reconocimiento es de la LTM."},
+{t:"t5",q:"The Undo and Redo options in a menu…",o:["lighten the load of the short-term memory","lighten the load of the long-term memory","lighten the load of the sensorial memory","lighten the restrictions of the human visual system","None of the answers is right"],a:0,e:"Pregunta real (modelo antiguo). Deshacer/rehacer, recordar los últimos datos y el portapapeles alivian la STM."},
+{t:"t5",q:"Remembering the last data introduced by the user in a form mainly helps…",o:["the short-term memory","the long-term memory","the sensorial memory","the motor processor","None of the answers is right"],a:0,e:"Evita tener que recordar o reescribir datos (STM)."},
+{t:"t5",q:"The long-term memory…",o:["has unlimited capacity and life, but slow access; it is stimulated by recognition","has limited capacity (7±2) and fast access","is updated continuously without attention","decays in 200 ms","None of the answers is right"],a:0,e:"LTM: capacidad y vida ilimitadas, acceso lento y reconocimiento."},
+{t:"t5",q:"Tooltips and context help mainly…",o:["lighten the work of the long-term memory, by relying on recognition","lighten the work of the short-term memory","avoid habituation of the sensorial memory","reduce the motor processor time","None of the answers is right"],a:0,e:"El tema los pone como estrategias para la LTM: ayudan a reconocer la información."},
+{t:"t5",q:"Using lists and menus to select information instead of forcing the user to type it is a design strategy for…",o:["the long-term memory (recognition)","the short-term memory (chunking)","the sensorial memory","Fitts' law","None of the answers is right"],a:0,e:"Reconocer es más fácil que recordar, así que se apoya en la LTM."},
+{t:"t5",q:"Printing the keyboard shortcut next to the menu option it executes…",o:["leans on recognition, helping the long-term memory","overloads the short-term memory","causes habituation","violates consistency","None of the answers is right"],a:0,e:"Ejemplo literal de estrategia de LTM."},
+{t:"t5",q:"Which modeling technique estimates the time to hit a target with a quick movement as a function of the target size and the distance to it?",o:["Fitts' law","Hick's law","The Power Law of Practice","GOMS","The Human Information System Model"],a:0,e:"Fitts: T = Im·log₂(D/A + 1)."},
+{t:"t5",q:"In Fitts' law, T = Im · log2(D/A + 1), A is…",o:["the target's width/height in the same direction as the movement","the acceleration of the mouse","the number of choices","the time of the first attempt","None of the answers is right"],a:0,e:"A es el tamaño del objetivo en la dirección del movimiento, D la distancia e Im ≈ 100 ms."},
+{t:"t5",q:"Using Fitts' law (Im = 0.1 s), which target is reached fastest? (D = distance, A = width)",o:["D = 8.5 cm, A = 2.5 cm","D = 8 cm, A = 1 cm","D = 5 cm, A = 1 cm","All take the same time","None of the answers is right"],a:0,e:"0,1·log₂(8,5/2,5 + 1) = 0,214 s; 0,1·log₂(9) = 0,317 s; 0,1·log₂(6) = 0,258 s. Es el ejemplo del tema: el tamaño importa."},
+{t:"t5",q:"Using Fitts' law with Im = 100 ms, a button 1 cm wide placed 7 cm away from the cursor takes…",o:["0.3 s","0.7 s","0.1 s","0.8 s","None of the answers is right"],a:0,e:"0,1·log₂(7/1 + 1) = 0,1·log₂8 = 0,1·3 = 0,3 s."},
+{t:"t5",q:"Making submenu options appear as close as possible to the initial position of the mouse is a consequence of…",o:["Fitts' law","Hick's law","The Power Law of Practice","Personas","None of the answers is right"],a:0,e:"Menos distancia D significa menos tiempo de apuntar (Fitts)."},
+{t:"t5",q:"Hick's law (also known as the principle of uncertainty) estimates…",o:["the time we need to make a decision, e.g. to select a menu item","the time to point at a target","the learning effect of repeating a task","the time to type a word","None of the answers is right"],a:0,e:"T = Ic·H, con H = log₂(n + 1) e Ic = 150 ms/bit."},
+{t:"t5",q:"In Hick's law, T = Ic · H, H is computed as…",o:["log2(n + 1), where n is the number of choices","log2(D/A + 1)","n^(-a)","7 ± 2","None of the answers is right"],a:0,e:"H = log₂(n + 1) bits. Trampa: n + 1, no n."},
+{t:"t5",q:"Using Hick's law with Ic = 150 ms/bit, choosing among 7 options takes…",o:["0.45 s","0.15 s","1.05 s","0.30 s","None of the answers is right"],a:0,e:"0,15·log₂(7 + 1) = 0,15·3 = 0,45 s."},
+{t:"t5",q:"The Power Law of Practice states that…",o:["if the same action is repeated over time, performance tends to improve: Tn = T1 · n^(-a), a ≈ 0.4","the time to decide grows with the number of choices","the time to point grows with distance","users never improve after the first attempt","None of the answers is right"],a:0,e:"Tn = T1·n^(−a), con a = 0,4 [0,2–0,6] (Seibel, 1963). Estima el efecto del aprendizaje."},
+{t:"t5",q:"Using the Power Law of Practice (a = 0.4), if a task takes 10 s the first time, the 32nd attempt takes…",o:["2.5 s","5 s","0.31 s","10 s","None of the answers is right"],a:0,e:"32^(−0,4) = 2^(−2) = 0,25, y 10·0,25 = 2,5 s."},
+{t:"t5",q:"GOMS stands for…",o:["Goals, Operators, Methods and Selection rules","Goals, Objects, Models and Systems","Graphical Operations Measurement System","Goals, Operations, Memory and Speed","None of the answers is right"],a:0,e:"Goals, Operators, Methods, Selection rules. También se llama Keystroke Model."},
+{t:"t5",q:"Which of the following is an assumption of the GOMS model?",o:["Users do not make mistakes","Users do not know how to perform the tasks","The response time is unknown","Each user's specific times are used","None of the answers is right"],a:0,e:"Supuestos: saben hacer la tarea, no cometen errores y los parámetros y el tiempo de respuesta son conocidos."},
+{t:"t5",q:"GOMS is a prediction model with a precision error of about…",o:["20%","5%","50%","1%","It has no error"],a:0,e:"≈20%. Es una herramienta de ingeniería para evaluar rápido alternativas de diseño."},
+{t:"t5",q:"In GOMS, the H (Homing) operator means…",o:["moving the hands from one device to another (≈ 0.4 s)","pressing a key (≈ 0.2 s)","pointing at an area of the screen (≈ 1.1 s)","deciding what to do next (≈ 1.35 s)","the system response (≈ 0.25 s)"],a:0,e:"K = 0,2; H = 0,4; P = 1,1; M = 1,35; R = 0,25."},
+{t:"t5",q:"In GOMS, when the distance or size of the target is unknown, the pointing operator P takes…",o:["1.1 s","0.2 s","0.4 s","1.35 s","0.25 s"],a:0,e:"P ≈ 1,1 s. Si se conocen, P = 0,1·log₂(2D/S + 1)."},
+{t:"t5",q:"In GOMS, the time of the mental operator M can be estimated as…",o:["1.35 s, or 0.15 · log2(n + 1) (Hick)","0.2 s","0.9·nD + 0.16·lD","0.1 · log2(2D/S + 1)","None of the answers is right"],a:0,e:"M = 1,35 s o 0,15·log₂(n + 1). La fórmula 0,9·nD + 0,16·lD es la de D (dibujar) y la del logaritmo con 2D/S es la de P."},
+{t:"t5",q:"Using GOMS, a user decides among 3 menu options (M with Hick), points with the mouse (P = 1.1 s) and clicks (K = 0.2 s). The estimated time is…",o:["1.6 s","2.65 s","1.3 s","0.3 s","None of the answers is right"],a:0,e:"M = 0,15·log₂(4) = 0,3. Total = 0,3 + 1,1 + 0,2 = 1,6 s."},
+{t:"t5",q:"A drawback of biology-based models (Fitts, Hick, GOMS…) is that…",o:["average times are used instead of the specifics of each user, and special users are not considered","they are not scientific","they have an error of more than 50%","they cannot be used to compare design alternatives","None of the answers is right"],a:0,e:"Pros: marco de evaluación, alta precisión (≤ 20%) y método científico. Contras: tiempos medios y no consideran a los usuarios especiales."},
+{t:"t5",q:"The two most popular biology-based models are…",o:["the Human Information System Model (Rasmussen) and the Human Processor Model (Card, Moran & Newell)","Personas and Scenarios","GOMS and Personas","the conceptual model and the mental model","None of the answers is right"],a:0,e:"Rasmussen y Card, Moran y Newell."},
+{t:"t5",q:"Regarding the input/output channels of the perceptual system:",o:["input happens through the senses, and output through the movement of fingers, limbs, eyes, head and vocal system","input only happens through sight","output is only produced by the keyboard","None of the answers is right","More than one answer is right"],a:0,e:"Entrada por los sentidos (vista, oído, tacto, olfato, gusto) y salida por el movimiento."},
+{t:"t5",q:"Providing cut, copy and paste from the clipboard is a design recommendation related to…",o:["the short-term memory","the long-term memory","the sensorial memory","Hick's law","None of the answers is right"],a:0,e:"Evita tener que retener o reescribir información, así que alivia la STM."},
+{t:"t5",q:"The possibility of returning to the default state of the system is a strategy related to…",o:["the long-term memory","the short-term memory","the sensorial memory","the motor processor","None of the answers is right"],a:0,e:"Aparece en la lista de estrategias para la LTM del tema."}
+];
+
+/* Flashcards */
+const F = [
+["t1","¿Qué 3 librerías forman JFC?","AWT, Swing y Java2D."],
+["t1","AWT: idea de diseño e inconvenientes","Usa los componentes NATIVOS del SO y funciona en todas las versiones del JDK.\nInconvenientes: solo ofrece lo común a todos los SO, y la portabilidad era complicada porque cada sistema se comporta distinto."],
+["t1","Swing: año, JDK y paquete","Publicado en 1997, incluido en el JDK desde la 1.2, paquete javax.swing.\nComponentes escritos en Java, L&F homogéneo, funciona con Java 1.1 o superior. Está basado en AWT."],
+["t1","Los 4 elementos de AWT y sus paquetes","Componentes, Contenedores, Eventos y Layouts.\njava.awt.* y java.awt.event.*"],
+["t1","Ventajas de Swing sobre AWT","Cambiar el L&F en ejecución; más componentes (tablas, árboles, sliders, spinners, progress bars, internal frames, texto); bordes; tooltips; asociar eventos de teclado."],
+["t1","¿Qué tiene un componente?","Propiedades (con valores por defecto), métodos (funcionalidad) y eventos."],
+["t1","Patrón de contenedores y componentes","COMPOSITE: árbol parte-todo en el que se trata igual un objeto individual que una composición.\n(Observer es el de los eventos.)"],
+["t1","¿Dónde se añaden los componentes de un JFrame?","En un JPanel llamado ContentPane, contenido en el JFrame (contenedor de alto nivel)."],
+["t2","Definición de HCI (ACM-SIGCHI 1992)","Disciplina que se ocupa del diseño, evaluación e implementación de sistemas informáticos interactivos para uso humano y del estudio de los fenómenos que los rodean."],
+["t2","UI: % de código y de esfuerzo","≈50% del código fuente y >70% del esfuerzo de desarrollo (Gartner)."],
+["t2","Consecuencias de una UI pobre","Rechazo del sistema, baja productividad, formación inviable y tasas de error altas que generan frustración."],
+["t2","Usabilidad (ISO 9241)","Grado en que un producto puede ser usado por usuarios específicos para conseguir objetivos específicos con EFICACIA, EFICIENCIA y SATISFACCIÓN en un contexto de uso específico."],
+["t2","Eficacia vs eficiencia vs satisfacción","Eficacia: lograr los objetivos de forma completa y exacta.\nEficiencia: lo mismo en relación con los recursos usados.\nSatisfacción: comodidad y aceptación."],
+["t2","Dimensiones de la usabilidad","Learnability, Efficiency y Safety (+ Ergonomics y Aesthetics)."],
+["t2","Learnability: 4 principios","Prediction, Synthesis, Familiarity, Consistency\n(“Para Ser Fácil, Consistente”)."],
+["t2","Flexibility: 4 principios","Initiative in the dialog, Task delegation, Replacement capacity, Customization capacity."],
+["t2","Robustness: 4 principios","Observability, Recoverability, Response times, Task advisability."],
+["t2","Prediction","La experiencia inicial basta para adivinar el resultado de interacciones futuras. Se consigue controlando la visibilidad de las operaciones (habilitadas o deshabilitadas)."],
+["t2","Synthesis: tipos","Informar de los cambios del sistema.\nInmediata: sin que el usuario la pida (la ideal).\nEsporádica: solo a petición."],
+["t2","Consistency: cómo se consigue","Guías de estilo, L&F común y no cambiar técnicas ya conocidas (F1 = Ayuda)."],
+["t2","Diálogo modal (“Guardar como”)","Es Initiative in the dialog: interacción guiada por el sistema."],
+["t2","Task delegation / Replacement: ejemplos","Delegación: copias de seguridad, corrector ortográfico.\nSustitución: un color por nombre, por hex o con paleta."],
+["t2","Recoverability y esfuerzo proporcional","Alcanzar el objetivo tras un error. Si una acción es difícil de deshacer, debe ser difícil de hacer (borrar frente a renombrar)."],
+["t2","Response times","Lo más cortos posible. Si no lo son, avisar de que se está procesando (observabilidad)."],
+["t2","Accesibilidad: 3 estrategias de color y fuente","Alto contraste, poder aumentar la letra y no usar solo el color para informar."],
+["t3","DCU: definición y normas ISO","UPA: el proceso lo dirige la información sobre los usuarios.\nISO 13407, actualizada en la ISO 9241-210:2010."],
+["t3","DCU: origen e hitos","Ingeniería civil y arquitectura. Dreyfuss, Designing for People (1955), teléfono Bell 500: built, perceived, used.\nUser Centered System Design en la 1ª CHI (1983)."],
+["t3","Modelo conceptual / UI / modelo mental","Conceptual: lo que ofrece el diseñador.\nUI: lo que ve el usuario.\nMental: lo que el usuario entiende."],
+["t3","Las 4 fases del DCU","1) Contexto de uso, 2) Requisitos, 3) Soluciones de diseño, 4) Evaluación. Iterativas."],
+["t3","Contexto de uso: qué incluye","Usuarios y stakeholders, sus características, objetivos y tareas, y entornos (técnico, físico, social y cultural)."],
+["t3","Los 3 entornos","Técnico: hardware, ancho de banda, software.\nFísico: luz, ruido, temperatura, espacio, ergonomía.\nSocial y cultural: prácticas, organización, actitudes."],
+["t3","Personas en DCU: reglas","Identidad ficticia y datos reales; se contextualizan con escenarios; no más de 7-8; cubrir la mayor parte de la audiencia; sin solaparse."],
+["t3","Requisitos: el equilibrio","Viabilidad de negocio, factibilidad tecnológica y necesidades y deseos del usuario."],
+["t3","Pasos para especificar requisitos","Identificar necesidades (y restricciones), derivar requisitos (contexto, ergonomía y accesibilidad, usabilidad, organizativos) y resolver trade-offs."],
+["t3","Actividades de crear soluciones","Diseñar tareas, interacción y UI; concretar (escenarios, simulaciones, prototipos, mock-ups); modificar según la evaluación; comunicar a los implementadores."],
+["t3","2 métodos de evaluación","User-based testing (observar o preguntar; beta testing en campo) e inspección por expertos (guías: más simple, rápida y barata). Se complementan porque encuentran problemas distintos."],
+["t4","Modelo de eventos de Java","Delegación: la fuente delega el tratamiento en un listener. Patrón Observer."],
+["t4","Elementos del modelo de eventos","Fuentes, listeners y adaptadores (+ clases de evento y registro)."],
+["t4","getSource()","Método de EventObject que devuelve el componente que generó el evento (como Object, así que hace falta cast)."],
+["t4","Sintaxis del registro","fuente.addXxxListener(listener)\nDesregistrar: fuente.removeXxxListener(listener)"],
+["t4","2 formas de que el listener acceda a la ventana","Clase interna (inner class) o clase externa que recibe una referencia en el constructor."],
+["t4","¿Qué genera un ActionEvent?","Clic en un botón, seleccionar un elemento de una lista o de un menú, Intro en un textfield.\nMétodo: actionPerformed(ActionEvent). No hay adaptador."],
+["t4","Adaptadores: qué son y cuándo existen","Clases que implementan vacíos todos los métodos de una interfaz listener. Existen solo para interfaces con más de un método. Se usan con EXTENDS."],
+["t4","consume()","e.consume() detiene el evento: no tiene efecto más allá de ese listener. Ej.: si no es dígito, e.consume()."],
+["t4","Mismo comportamiento en varios componentes","Un único listener (externo si se comparte entre clases) y varios registros. Se usa (Tipo) e.getSource()."],
+["t4","FocusListener / KeyListener","Focus: focusGained, focusLost.\nKey: keyPressed, keyReleased, keyTyped."],
+["t4","MouseListener / MouseMotionListener","Mouse: mouseClicked, Entered, Exited, Pressed, Released.\nMotion: mouseDragged, mouseMoved."],
+["t4","WindowListener (7 métodos)","windowOpened, Closing, Closed, Activated, Deactivated, Iconified, Deiconified."],
+["t4","ItemListener / TextListener / ContainerListener / ComponentListener","Item: itemStateChanged. Text: textValueChanged.\nContainer: componentAdded/Removed.\nComponent: componentHidden/Shown/Moved/Resized."],
+["t5","Restricciones visuales del texto","Letra ≥ 11, interlineado proporcional, sin fuentes complicadas y sin MAYÚSCULAS."],
+["t5","Colores a evitar y daltonismo","Rojo-verde, azul-amarillo, verde-azul y rojo-azul; brillantes en zonas grandes. Usar códigos redundantes. Daltonismo: 8% de hombres y 1% de mujeres."],
+["t5","Modelo de usuario","Generalización de una representación abstracta de lo que se sabe de un usuario: modelo mental, lenguaje, precisión motora, tiempos de reacción…\nSirve para adaptar y personalizar."],
+["t5","Modelos culturales vs biológicos","Culturales (locales): idioma, imágenes, significado del color, dirección de lectura.\nBiológicos (universales): velocidad de tecleo, precisión, velocidad de aprendizaje."],
+["t5","Personas: autor, pros y contras","Alan Cooper, 1999.\nPros: centradas en personas, cara humana.\nContras: no se sabe cuántos representa, no se pueden validar ni falsar, no son científicas."],
+["t5","Human Processor Model","Card, Moran y Newell (1983). Subsistemas perceptivo (100 ms), cognitivo (70 ms) y motor (70 ms). Reacción 240 ms (105-470)."],
+["t5","Memorias perceptuales","Visual: 200 ms, 17 caracteres.\nAuditiva: 1500 ms, 5 caracteres."],
+["t5","Memoria sensorial","Una por sentido, se actualiza continuamente y no requiere atención. Habituación: hay que evitarla (fondos que parpadean)."],
+["t5","STM: características, técnicas y diseño","Memoria de trabajo, 7±2 elementos, acceso rápido. Técnicas: ensayo y troceo.\nDiseño: deshacer/rehacer, recordar los últimos datos, portapapeles; no obligar a recordar pantallas anteriores."],
+["t5","LTM: características y diseño","Capacidad y vida ilimitadas, acceso lento; reconocimiento.\nDiseño: atajos visibles, listas y menús, tooltips y ayuda contextual, volver al estado por defecto."],
+["t5","Ley de Fitts","T = Im·log₂(D/A + 1), Im = 100 ms. A = ancho en la dirección del movimiento. Tiempo de apuntar."],
+["t5","Ley de Hick","T = Ic·log₂(n + 1), Ic = 150 ms/bit. Tiempo de decidir (elegir en un menú). Principio de incertidumbre."],
+["t5","Power Law of Practice","Tn = T1·n^(−a), a = 0,4 [0,2-0,6]. Efecto del aprendizaje (Seibel, 1963)."],
+["t5","GOMS: significado y supuestos","Goals, Operators, Methods, Selection rules (Keystroke Model), error ≈ 20%.\nSupone que los usuarios saben, no se equivocan y que los parámetros y el tiempo de respuesta son conocidos."],
+["t5","Operadores GOMS","K = 0,2 s · H = 0,4 s · P = 1,1 s (o 0,1·log₂(2D/S + 1)) · M = 1,35 s (o 0,15·log₂(n + 1)) · D = 0,9n + 0,16l · R = 0,25 s"],
+["t5","Modelos biológicos: pros y contras","Pros: marco de evaluación, error ≤ 20%, científicos.\nContras: tiempos medios y no consideran a los usuarios especiales."],
+["t5","Línea temporal de autores","Fitts (años 50) · Dreyfuss 1955 · Seibel 1963 · CHI 1983 · Card-Moran-Newell 1983 · Harris 1990 · ACM-SIGCHI 1992 · Swing 1997 · Cooper 1999 · ISO 9241-210 2010"]
+].map((x,i)=>({id:"f"+i,t:x[0],f:x[1],b:x[2]}));
+
+(function(){ const c={}; Q.forEach(q=>{ c[q.t]=(c[q.t]||0)+1; q.id=q.t+"-"+c[q.t]; }); })();
+const QBY = {}; Q.forEach(q=>QBY[q.id]=q);
+
+/* ============================ ESTADO ============================ */
+const KEY="cpm-objetivo8-v1", DAY=864e5;
+function defState(){ return {q:{},f:{},read:{},sims:[],conf:{sure:[0,0],doubt:[0,0],guess:[0,0]},prob:{},settings:{examDate:"",plus:4,minus:1,n:20,minutes:30},days:[],theme:""}; }
+let S = (function(){ try{ const raw=KV.getItem(KEY); if(raw){ const s=JSON.parse(raw); const d=defState(); return Object.assign(d,s,{settings:Object.assign(d.settings,s.settings||{}),conf:Object.assign(d.conf,s.conf||{})}); } }catch(e){} return defState(); })();
+function save(){ try{ KV.setItem(KEY, JSON.stringify(S)); }catch(e){} }
+function today(){ const d=new Date(); return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0"); }
+function touchDay(){ const t=today(); if(!S.days.includes(t)){ S.days.push(t); save(); } renderStreak(); }
+function streak(){ let n=0; const set=new Set(S.days); const d=new Date(); if(!set.has(today())) d.setDate(d.getDate()-1);
+  for(;;){ const k=d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0"); if(set.has(k)){n++; d.setDate(d.getDate()-1);} else break; } return n; }
+function renderStreak(){ document.getElementById("hdrStreak").textContent="🔥 "+streak(); }
+
+/* ============================ UTILIDADES ============================ */
+const $=s=>document.querySelector(s);
+const esc=s=>String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const shuffle=a=>{ a=a.slice(); for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; } return a; };
+const pick=a=>a[Math.floor(Math.random()*a.length)];
+const LET="ABCDE";
+const META=/^(None|All of them|Every answer|More than one|Both|Only [A-E]\b|\([a-e]\)|[a-e]\)|[A-E] and [A-E])/i;
+function optOrder(q){ if(q.ns) return q.o.map((_,i)=>i); const mv=[],fx=[]; q.o.forEach((o,i)=>(META.test(o)?fx:mv).push(i)); return shuffle(mv).concat(fx); }
+function examMs(){ if(!S.settings.examDate) return null; const t=new Date(S.settings.examDate+"T09:00:00").getTime(); return isNaN(t)?null:t; }
+function daysLeft(){ const t=examMs(); if(t==null) return null; return Math.ceil((t-Date.now())/DAY); }
+const BOXDAYS=[0,0.007,1,2,4,8];
+function schedule(st,correct){
+  st.box = correct ? Math.min(5,(st.box||0)+1) : 1;
+  let d=BOXDAYS[st.box]*DAY; const ex=examMs();
+  if(ex){ const left=ex-Date.now(); if(left>0) d=Math.min(d, Math.max(left/3, 0.007*DAY)); }
+  st.due=Date.now()+d;
+}
+function qst(id){ return S.q[id]||(S.q[id]={box:0,due:0,ok:0,ko:0,seen:0}); }
+function recordQ(id,correct){ const st=qst(id); st.seen++; correct?st.ok++:st.ko++; st.last=Date.now(); schedule(st,correct); touchDay(); save(); }
+function mastery(t){ const qs=Q.filter(q=>!t||q.t===t); return qs.reduce((s,q)=>s+Math.min((S.q[q.id]||{}).box||0,3)/3,0)/qs.length; }
+const PBOX=[0.3,0.45,0.65,0.8,0.9,0.95];
+function predicted(){
+  const {plus,minus}=S.settings;
+  const ev=Q.reduce((s,q)=>{ const p=PBOX[(S.q[q.id]||{}).box||0]; return s+Math.max(0,p*plus-(1-p)*minus); },0)/Q.length;
+  let g=ev/plus*10;
+  const sims=S.sims.slice(-2);
+  if(sims.length){ const sg=sims.reduce((s,x)=>s+x.grade,0)/sims.length; g=0.5*g+0.5*sg; }
+  return Math.max(0,Math.min(10,g));
+}
+function dueQ(){ const now=Date.now(); return Q.filter(q=>{ const s=S.q[q.id]; return s&&s.seen&&s.due<=now; }); }
+function dueF(){ const now=Date.now(); return F.filter(f=>{ const s=S.f[f.id]; return !s||s.due<=now; }); }
+
+/* ============================ ROUTER ============================ */
+let VIEW="home", timerInt=null;
+const views={home,learn,practice,flash,problems,exam,strategy};
+function go(v,arg){ if(timerInt&&v!=="exam"){ /* el simulacro sigue en memoria */ }
+  VIEW=v; document.querySelectorAll("#nav button").forEach(b=>b.classList.toggle("on",b.dataset.v===v));
+  window.scrollTo(0,0); views[v](arg); }
+document.getElementById("nav").addEventListener("click",e=>{ const b=e.target.closest("button"); if(b) go(b.dataset.v); });
+
+/* ============================ INICIO ============================ */
+function nextStep(){
+  const unread=TK.filter(t=>!S.read[t]);
+  const dq=dueQ().length, df=dueF().filter(f=>S.f[f.id]).length;
+  if(unread.length===TK.length) return {t:"Empieza por el T1",d:"Lee el resumen del T1 (10 min) y haz su test justo después. Lo que recuerdas al terminar de leer es lo que de verdad has aprendido.",b:"Ir al T1",a:()=>go("learn","t1")};
+  if(dq+df>=8) return {t:`Repaso espaciado: ${dq} preguntas y ${df} flashcards pendientes`,d:"Repasar justo antes de olvidar es lo que más rinde por minuto invertido.",b:dq?"Repasar preguntas":"Repasar flashcards",a:()=>dq?startPractice("due"):go("flash")};
+  if(unread.length){ const t=unread[0]; return {t:`Aprende ${TOPICS[t].name}`,d:"Lee el resumen y haz el test del tema enseguida.",b:"Ir al tema",a:()=>go("learn",t)}; }
+  const weak=TK.map(t=>[t,mastery(t)]).sort((a,b)=>a[1]-b[1])[0];
+  if(weak[1]<0.7) return {t:`Refuerza tu tema más flojo: ${TOPICS[weak[0]].name}`,d:`Dominio actual: ${Math.round(weak[1]*100)}%. Practica hasta pasar del 70%.`,b:"Practicar este tema",a:()=>startPractice(weak[0])};
+  const solved=Object.values(S.prob).reduce((s,x)=>s+(x.ok||0),0);
+  if(solved<8) return {t:"Practica los cálculos (Fitts, Hick, GOMS…)",d:"Son puntos casi seguros si dominas las fórmulas.",b:"Ir a Cálculos",a:()=>go("problems")};
+  return {t:"Haz un simulacro cronometrado",d:"Practica en condiciones de examen y comprueba tu estrategia de blancos.",b:"Empezar simulacro",a:()=>go("exam")};
+}
+function home(){
+  const g=predicted(), dl=daysLeft(), ns=nextStep();
+  const seen=Q.filter(q=>(S.q[q.id]||{}).seen).length;
+  const c=S.conf, pct=a=>a[0]+a[1]?Math.round(a[0]/(a[0]+a[1])*100)+"%":"—";
+  const thr=Math.round(S.settings.minus/(S.settings.plus+S.settings.minus)*100);
+  const app=$("#app");
+  app.innerHTML=`
+  <h1>Tu panel de estudio</h1>
+  <div class="card next"><div class="small muted">SIGUIENTE PASO RECOMENDADO</div><h2 style="margin:.2em 0">${esc(ns.t)}</h2><p class="muted">${esc(ns.d)}</p><button class="btn" id="nsBtn">${esc(ns.b)} →</button></div>
+  <div class="grid g3">
+    <div class="card"><div class="small muted">Nota estimada</div><div class="kpi" style="color:${g>=8?"var(--ok)":g>=5?"var(--warn)":"var(--ko)"}">${g.toFixed(1)} <small>/ 10</small></div>
+      <div class="bar" style="margin-top:8px;position:relative"><i style="width:${g*10}%;background:${g>=8?"var(--ok)":"var(--accent)"}"></i></div>
+      <div class="small muted" style="margin-top:4px">Objetivo: 8,0 · ${g>=8?"¡vas por encima!":"te faltan "+(8-g).toFixed(1)}</div></div>
+    <div class="card"><div class="small muted">Examen</div>
+      <div class="kpi">${dl==null?"—":dl<0?"Pasado":dl+" <small>días</small>"}</div>
+      <label class="small muted">Fecha: <input type="date" id="exDate" value="${esc(S.settings.examDate)}"></label></div>
+    <div class="card"><div class="small muted">Progreso</div><div class="kpi">${seen}<small>/${Q.length} preguntas vistas</small></div>
+      <div class="small muted">${dueQ().length} preguntas y ${dueF().filter(f=>S.f[f.id]).length} flashcards pendientes de repaso</div></div>
+  </div>
+  <div class="card"><h2 style="margin-top:0">Dominio por tema</h2>
+    ${TK.map(t=>{ const m=mastery(t); return `<div style="margin:10px 0"><div class="row" style="justify-content:space-between"><span><span class="tdot" style="background:${TOPICS[t].color}"></span> ${TOPICS[t].name} ${S.read[t]?'<span class="tag">leído</span>':''}</span><span class="small muted">${Math.round(m*100)}%</span></div>
+      <div class="bar" style="margin-top:4px"><i style="width:${m*100}%;background:${TOPICS[t].color}"></i></div>
+      <div class="row" style="margin-top:6px"><button class="btn ghost sm" data-learn="${t}">Leer</button><button class="btn ghost sm" data-prac="${t}">Practicar</button></div></div>`; }).join("")}
+    <p class="small muted">Una pregunta cuenta como dominada cuando la aciertas 3 veces seguidas en repasos espaciados.</p>
+  </div>
+  <div class="grid g2">
+  <div class="card"><h2 style="margin-top:0">Tu calibración</h2>
+    <p class="small muted">¿Aciertas cuando dices que estás seguro? Responder solo compensa si tu tasa de acierto supera el <b>${thr}%</b> (con +${S.settings.plus}/−${S.settings.minus}).</p>
+    <table><tr><th>Cuando dices…</th><th>Aciertas</th><th>Respuestas</th></tr>
+    <tr><td>Seguro</td><td>${pct(c.sure)}</td><td>${c.sure[0]+c.sure[1]}</td></tr>
+    <tr><td>Dudo</td><td>${pct(c.doubt)}</td><td>${c.doubt[0]+c.doubt[1]}</td></tr>
+    <tr><td>A ciegas</td><td>${pct(c.guess)}</td><td>${c.guess[0]+c.guess[1]}</td></tr></table>
+    <p class="small">${calAdvice()}</p></div>
+  <div class="card"><h2 style="margin-top:0">Simulacros</h2>
+    ${S.sims.length?`<div class="hist">${S.sims.slice(-10).map(s=>`<div style="height:${Math.max(4,s.grade*9)}px;background:${s.grade>=8?"var(--ok)":"var(--accent)"}" title="${new Date(s.date).toLocaleDateString()}"><span>${s.grade.toFixed(1)}</span></div>`).join("")}</div>
+    <p class="small muted">Últimas notas (verde = 8 o más).</p>`:`<p class="muted">Aún no has hecho ninguno. Cuando domines más del 70% de cada tema, haz uno al día.</p>`}
+    <button class="btn ghost sm" onclick="go('exam')">Ir a Simulacro</button></div>
+  </div>
+  <div class="card"><h2 style="margin-top:0">Cómo funciona esta web</h2>
+    <ol class="tight">
+      <li><b>Aprender</b>: lee un tema (resumen + diagrama + trampas) y haz su test <b>en el momento</b>.</li>
+      <li><b>Practicar → Repaso inteligente</b> cada día: mezcla temas y te enseña primero lo que estás a punto de olvidar.</li>
+      <li><b>Flashcards</b> para datos sueltos (autores, fechas, tiempos, métodos de listeners).</li>
+      <li><b>Cálculos</b>: Fitts, Hick, Power law, GOMS y Human Processor con problemas infinitos resueltos paso a paso.</li>
+      <li><b>Simulacro</b> con tiempo y puntuación +4/−1, y al final un análisis de qué habría pasado si dejas en blanco las dudosas.</li>
+    </ol>
+    <p class="small muted">El progreso se guarda en este navegador. Atajos: <span class="kbd">1</span>–<span class="kbd">5</span> eligen opción, <span class="kbd">Q</span>/<span class="kbd">W</span>/<span class="kbd">E</span> la seguridad, <span class="kbd">Intro</span> pasa a la siguiente y <span class="kbd">Espacio</span> gira la flashcard.</p>
+    <button class="btn ghost sm" id="resetBtn">Borrar todo el progreso</button>
+  </div>`;
+  $("#nsBtn").onclick=ns.a;
+  $("#exDate").onchange=e=>{ S.settings.examDate=e.target.value; save(); home(); };
+  app.querySelectorAll("[data-learn]").forEach(b=>b.onclick=()=>go("learn",b.dataset.learn));
+  app.querySelectorAll("[data-prac]").forEach(b=>b.onclick=()=>startPractice(b.dataset.prac));
+  $("#resetBtn").onclick=e=>{ const b=e.target; if(b.dataset.c){ S=defState(); save(); home(); renderStreak(); } else { b.dataset.c=1; b.textContent="¿Seguro? Pulsa otra vez para borrar"; b.classList.add("ko"); } };
+}
+function calAdvice(){
+  const d=S.conf.doubt, n=d[0]+d[1], thr=S.settings.minus/(S.settings.plus+S.settings.minus);
+  if(n<10) return "Marca tu seguridad en cada pregunta: con unas 10 dudosas ya podremos decirte si te conviene responderlas en el examen.";
+  const p=d[0]/n;
+  return p>thr+0.05?`✅ Cuando dudas aciertas el ${Math.round(p*100)}%: <b>responde las dudosas</b> en el examen.`:p<thr-0.05?`⚠️ Cuando dudas solo aciertas el ${Math.round(p*100)}%: <b>déjalas en blanco</b> salvo que hayas descartado opciones.`:`Estás justo en el umbral: responde solo si has descartado al menos una opción.`;
+}
+
+/* ============================ APRENDER ============================ */
+function learn(topic){
+  $("#app").innerHTML=document.getElementById("tpl-learn").innerHTML;
+  const toc=$("#learnToc");
+  toc.innerHTML=TK.map(t=>`<button class="btn ghost sm" data-goto="${t}"><span class="tdot" style="background:${TOPICS[t].color}"></span>${TOPICS[t].short}${S.read[t]?" ✓":""}</button>`).join("");
+  toc.querySelectorAll("[data-goto]").forEach(b=>b.onclick=()=>document.querySelector(`section[data-topic="${b.dataset.goto}"]`).scrollIntoView({behavior:"smooth"}));
+  $("#app").querySelectorAll("[data-read]").forEach(c=>{ c.checked=!!S.read[c.dataset.read]; c.onchange=()=>{ S.read[c.dataset.read]=c.checked; touchDay(); save(); learnTocRefresh(); }; });
+  $("#app").querySelectorAll("[data-quiz]").forEach(b=>b.onclick=()=>{ S.read[b.dataset.quiz]=true; save(); startPractice(b.dataset.quiz); });
+  if(topic) setTimeout(()=>{ const s=document.querySelector(`section[data-topic="${topic}"]`); if(s) s.scrollIntoView(); },30);
+}
+function learnTocRefresh(){ document.querySelectorAll("#learnToc [data-goto]").forEach(b=>{ const t=b.dataset.goto; b.innerHTML=`<span class="tdot" style="background:${TOPICS[t].color}"></span>${TOPICS[t].short}${S.read[t]?" ✓":""}`; }); }
+
+/* ============================ PRACTICAR ============================ */
+let P=null;
+function practice(){
+  const dq=dueQ().length, wrong=Q.filter(q=>{const s=S.q[q.id]; return s&&s.ko>0&&s.box<3;}).length;
+  $("#app").innerHTML=`<h1>Practicar</h1>
+  <p class="muted">Sesiones de 10 preguntas con feedback inmediato. Antes de ver la solución te pido tu nivel de seguridad: así aprendes cuándo te conviene dejar una pregunta en blanco.</p>
+  <div class="grid g2">
+   <div class="card"><h3 style="margin-top:0">🔀 Repaso inteligente <span class="tag">recomendado</span></h3><p class="small muted">Mezcla temas: primero lo pendiente de repaso, después lo nuevo de tus temas más flojos.</p><button class="btn" data-m="smart">Empezar</button></div>
+   <div class="card"><h3 style="margin-top:0">⏰ Pendientes de repaso</h3><p class="small muted">${dq} preguntas en su momento óptimo de repaso.</p><button class="btn ghost" data-m="due" ${dq?"":"disabled"}>Repasar</button></div>
+   <div class="card"><h3 style="margin-top:0">❌ Mis fallos</h3><p class="small muted">${wrong} preguntas falladas que aún no dominas.</p><button class="btn ghost" data-m="wrong" ${wrong?"":"disabled"}>Repasar fallos</button></div>
+   <div class="card"><h3 style="margin-top:0">📚 Por tema</h3><div class="row">${TK.map(t=>`<button class="btn ghost sm" data-m="${t}"><span class="tdot" style="background:${TOPICS[t].color}"></span>${TOPICS[t].short} (${Q.filter(q=>q.t===t).length})</button>`).join("")}</div></div>
+  </div>`;
+  $("#app").querySelectorAll("[data-m]").forEach(b=>b.onclick=()=>startPractice(b.dataset.m));
+}
+function selectQuestions(mode,n=10){
+  const now=Date.now(); const st=id=>S.q[id]||{};
+  if(mode==="due") return shuffle(dueQ()).sort((a,b)=>(st(a.id).box||0)-(st(b.id).box||0)).slice(0,n);
+  if(mode==="wrong") return shuffle(Q.filter(q=>{const s=S.q[q.id]; return s&&s.ko>0&&s.box<3;})).slice(0,n);
+  if(TOPICS[mode]){ const pool=Q.filter(q=>q.t===mode);
+    const unseen=shuffle(pool.filter(q=>!st(q.id).seen)), due=pool.filter(q=>st(q.id).seen&&st(q.id).due<=now), rest=shuffle(pool.filter(q=>st(q.id).seen&&st(q.id).due>now)).sort((a,b)=>(st(a.id).box||0)-(st(b.id).box||0));
+    return shuffle(due).concat(unseen,rest).slice(0,n); }
+  // smart: pendientes + nuevas de los temas más flojos + menor caja, intercaladas
+  const due=shuffle(dueQ()).slice(0,Math.ceil(n*0.6));
+  const order=TK.slice().sort((a,b)=>mastery(a)-mastery(b));
+  const unseenBy=order.map(t=>shuffle(Q.filter(q=>q.t===t&&!st(q.id).seen&&(S.read[t]||!Object.values(S.read).some(Boolean)||true))));
+  const out=due.slice(); let k=0;
+  while(out.length<n && unseenBy.some(a=>a.length)){ const a=unseenBy[k%unseenBy.length]; if(a.length&&!out.includes(a[0])) out.push(a.shift()); else if(a.length) a.shift(); k++; }
+  if(out.length<n){ const rest=Q.filter(q=>!out.includes(q)).sort((a,b)=>(st(a.id).box||0)-(st(b.id).box||0)||(st(a.id).due||0)-(st(b.id).due||0)); out.push(...rest.slice(0,n-out.length)); }
+  return shuffle(out);
+}
+function startPractice(mode){
+  VIEW="practice"; document.querySelectorAll("#nav button").forEach(b=>b.classList.toggle("on",b.dataset.v==="practice"));
+  const qs=selectQuestions(mode);
+  if(!qs.length){ practice(); return; }
+  P={mode,qs,i:0,res:[],sel:null,stage:"choose",order:optOrder(qs[0])};
+  renderP(); window.scrollTo(0,0);
+}
+function renderP(){
+  const q=P.qs[P.i], T=TOPICS[q.t];
+  const st=S.q[q.id]||{};
+  const lock=P.stage==="done";
+  let html=`<div class="row" style="justify-content:space-between"><span class="pill"><span class="tdot" style="background:${T.color}"></span>${T.short}</span><span class="small muted">Pregunta ${P.i+1}/${P.qs.length}${st.seen?` · vista ${st.seen} ${st.seen==1?"vez":"veces"}`:" · nueva"}</span></div>
+  <div class="bar" style="margin:8px 0 4px"><i style="width:${(P.i)/P.qs.length*100}%"></i></div>
+  <div class="card"><div class="qtext">${esc(q.q)}</div>${q.c?`<pre>${esc(q.c)}</pre>`:""}
+  <div id="opts">${P.order.map((oi,pos)=>{ let cls="opt"; if(lock){ cls+=" lock"; if(oi===q.a) cls+=" right"; else if(oi===P.sel) cls+=" wrong"; } else if(oi===P.sel) cls+=" sel";
+    return `<button class="${cls}" data-oi="${oi}"><span class="let">${LET[pos]}</span><span>${esc(q.o[oi])}</span></button>`; }).join("")}</div>`;
+  if(P.stage==="conf") html+=`<div class="conf"><div class="small" style="font-weight:600;margin-bottom:6px">¿Cuánta seguridad tienes? <span class="muted">(en el examen decidirías si responder o dejarla en blanco)</span></div>
+    <div class="row"><button class="btn ok sm" data-c="sure">Seguro <span class="kbd">Q</span></button><button class="btn warn sm" data-c="doubt">Dudo <span class="kbd">W</span></button><button class="btn ko sm" data-c="guess">A ciegas <span class="kbd">E</span></button></div></div>`;
+  if(P.stage==="choose") html+=`<div class="row" style="margin-top:8px"><button class="btn ghost sm" id="blankBtn">No lo sé: la dejaría en blanco</button></div>`;
+  if(lock){ const r=P.res[P.i];
+    html+=`<div class="fb ${r.blank?"na":r.ok?"ok":"ko"}"><b>${r.blank?"En blanco (0 puntos en el examen).":r.ok?"✔ Correcto":"✘ Incorrecto"}</b> ${!r.blank&&!r.ok?`La correcta es <b>${LET[P.order.indexOf(q.a)]}</b>.`:""}<p style="margin:.4em 0 0">${esc(q.e)}</p></div>
+    <div class="row" style="margin-top:12px"><button class="btn" id="nextBtn">${P.i+1<P.qs.length?"Siguiente":"Ver resultado"} <span class="kbd" style="background:transparent;color:inherit">↵</span></button></div>`; }
+  html+=`</div>`;
+  $("#app").innerHTML=html;
+  if(!lock) $("#opts").querySelectorAll(".opt").forEach(b=>b.onclick=()=>{ P.sel=+b.dataset.oi; P.stage="conf"; renderP(); });
+  document.querySelectorAll("[data-c]").forEach(b=>b.onclick=()=>answerP(b.dataset.c));
+  const bb=$("#blankBtn"); if(bb) bb.onclick=()=>answerP(null);
+  const nb=$("#nextBtn"); if(nb){ nb.onclick=nextP; nb.focus(); }
+}
+function answerP(conf){
+  const q=P.qs[P.i]; const blank=conf===null; const ok=!blank&&P.sel===q.a;
+  P.res[P.i]={ok,blank,conf};
+  recordQ(q.id, ok);
+  if(!blank){ S.conf[conf][ok?0:1]++; save(); }
+  P.stage="done"; renderP();
+}
+function nextP(){
+  if(P.i+1<P.qs.length){ P.i++; P.sel=null; P.stage="choose"; P.order=optOrder(P.qs[P.i]); renderP(); window.scrollTo(0,0); return; }
+  const ok=P.res.filter(r=>r.ok).length, bl=P.res.filter(r=>r.blank).length, ko=P.res.length-ok-bl;
+  const {plus,minus}=S.settings; const pts=ok*plus-ko*minus, g=Math.max(0,pts)/(P.res.length*plus)*10;
+  const failed=P.qs.filter((q,i)=>!P.res[i].ok);
+  $("#app").innerHTML=`<h1>Resultado de la sesión</h1>
+  <div class="grid g3"><div class="card"><div class="small muted">Aciertos</div><div class="kpi" style="color:var(--ok)">${ok}</div></div>
+  <div class="card"><div class="small muted">Fallos / blancos</div><div class="kpi">${ko} / ${bl}</div></div>
+  <div class="card"><div class="small muted">Nota equivalente (+${plus}/−${minus})</div><div class="kpi" style="color:${g>=8?"var(--ok)":"var(--warn)"}">${g.toFixed(1)}</div></div></div>
+  ${failed.length?`<div class="card"><h3 style="margin-top:0">Repasa ahora lo que fallaste (volverá a salirte pronto)</h3>${failed.map(q=>`<p><b>${esc(q.q)}</b><br><span style="color:var(--ok)">✔ ${esc(q.o[q.a])}</span><br><span class="small muted">${esc(q.e)}</span></p>`).join("")}</div>`:`<div class="card"><p>🎯 ¡Sesión perfecta! Estas preguntas volverán más espaciadas.</p></div>`}
+  <div class="row"><button class="btn" id="againBtn">Otra sesión</button><button class="btn ghost" onclick="go('home')">Volver al inicio</button></div>`;
+  $("#againBtn").onclick=()=>startPractice(P.mode==="due"&&!dueQ().length?"smart":P.mode);
+}
+
+/* ============================ FLASHCARDS ============================ */
+let FC=null;
+function flash(){
+  const due=dueF(); const news=due.filter(f=>!S.f[f.id]).length, rev=due.length-news;
+  $("#app").innerHTML=`<h1>Flashcards</h1>
+  <p class="muted">Intenta responder <b>en voz alta o por escrito</b> antes de girar la tarjeta. Después puntúa con honestidad: el sistema Leitner te volverá a mostrar antes lo que te cuesta.</p>
+  <div class="card"><div class="row" style="justify-content:space-between"><span><b>${rev}</b> para repasar · <b>${news}</b> nuevas · ${F.length} en total</span>
+  <select id="fcTopic"><option value="">Todos los temas</option>${TK.map(t=>`<option value="${t}">${TOPICS[t].name}</option>`).join("")}</select></div>
+  <div class="row" style="margin-top:10px"><button class="btn" id="fcStart" ${due.length?"":"disabled"}>Empezar (${Math.min(due.length,20)})</button><button class="btn ghost" id="fcAll">Repasar todas del tema</button></div></div>
+  <div class="card"><h3 style="margin-top:0">Estado por caja (Leitner)</h3>${[0,1,2,3,4,5].map(b=>{ const n=F.filter(f=>((S.f[f.id]||{}).box||0)===b).length; return `<div class="row small" style="margin:4px 0"><span style="width:110px">${b===0?"Nuevas":"Caja "+b}</span><div class="bar" style="flex:1"><i style="width:${n/F.length*100}%"></i></div><span style="width:30px;text-align:right">${n}</span></div>`; }).join("")}</div>`;
+  const run=all=>{ const t=$("#fcTopic").value; let pool=(all?F:dueF()).filter(f=>!t||f.t===t); if(!pool.length) return;
+    pool=all?shuffle(pool):shuffle(pool).sort((a,b)=>((S.f[a.id]||{}).box||0)-((S.f[b.id]||{}).box||0));
+    FC={cards:pool.slice(0,all?pool.length:20),i:0,flip:false,done:0}; renderFC(); };
+  $("#fcStart").onclick=()=>run(false); $("#fcAll").onclick=()=>run(true);
+}
+function renderFC(){
+  if(FC.i>=FC.cards.length){ $("#app").innerHTML=`<h1>Flashcards</h1><div class="card"><p>✅ Has repasado ${FC.done} tarjetas.</p><div class="row"><button class="btn" onclick="flash()">Volver</button><button class="btn ghost" onclick="startPractice('smart')">Ahora, preguntas tipo test →</button></div></div>`; return; }
+  const c=FC.cards[FC.i], T=TOPICS[c.t];
+  $("#app").innerHTML=`<h1>Flashcards</h1><div class="row" style="justify-content:space-between"><span class="pill"><span class="tdot" style="background:${T.color}"></span>${T.short}</span><span class="small muted">${FC.i+1}/${FC.cards.length}</span></div>
+  <div class="card flash" id="fcCard"><div class="front">${esc(c.f)}</div>${FC.flip?`<div class="back">${esc(c.b)}</div>`:`<div class="small muted" style="margin-top:14px">Piensa la respuesta y pulsa para girar <span class="kbd">Espacio</span></div>`}</div>
+  ${FC.flip?`<div class="row" style="justify-content:center"><button class="btn ko" data-r="0">No lo sabía <span class="kbd">1</span></button><button class="btn warn" data-r="1">A medias <span class="kbd">2</span></button><button class="btn ok" data-r="2">Lo sabía <span class="kbd">3</span></button></div>`:""}`;
+  $("#fcCard").onclick=()=>{ if(!FC.flip){ FC.flip=true; renderFC(); } };
+  document.querySelectorAll("[data-r]").forEach(b=>b.onclick=()=>rateFC(+b.dataset.r));
+}
+function rateFC(r){
+  const c=FC.cards[FC.i]; const st=S.f[c.id]||(S.f[c.id]={box:0,due:0});
+  if(r===0){ st.box=1; st.due=Date.now(); FC.cards.push(c); }
+  else if(r===1){ st.box=Math.max(1,st.box); st.due=Date.now()+0.5*DAY; }
+  else schedule(st,true);
+  FC.done++; FC.i++; FC.flip=false; touchDay(); save(); renderFC();
+}
+
+/* ============================ CÁLCULOS ============================ */
+const r3=x=>Math.round(x*1000)/1000, L2=Math.log2, fmt=x=>String(r3(x)).replace(".",",");
+const GEN={
+  fitts:{name:"Ley de Fitts",make(){ const D=pick([2,3,4,5,6,7,8,9,10,12,15]), A=pick([0.5,1,1.5,2,2.5,3,4]); const x=D/A+1, T=0.1*L2(x);
+    return {st:`Un botón mide <b>${fmt(A)} cm</b> de ancho (en la dirección del movimiento) y está a <b>${fmt(D)} cm</b> del cursor. Estima el tiempo de apuntar con la ley de Fitts (Im = 100 ms = 0,1 s).`,ans:T,unit:"s",
+      steps:["T = Im · log₂(D/A + 1)",`D/A + 1 = ${fmt(D)}/${fmt(A)} + 1 = ${fmt(x)}`,`log₂(${fmt(x)}) = ${fmt(L2(x))}`,`T = 0,1 · ${fmt(L2(x))} = <b>${fmt(T)} s</b>`]}; }},
+  fittsCmp:{name:"Fitts: ¿qué botón es más rápido?",make(){ let ts; do{ ts=[0,1,2].map(()=>{ const D=pick([2,3,4,5,6,8,8.5,10,12]), A=pick([0.5,1,1.5,2,2.5,3]); return {D,A,T:0.1*L2(D/A+1)}; }); }while(new Set(ts.map(t=>r3(t.T))).size<3);
+    const best=ts.reduce((b,t,i)=>t.T<ts[b].T?i:b,0);
+    return {st:`¿Qué objetivo se alcanza antes? (Im = 0,1 s)<br>${ts.map((t,i)=>`<b>${LET[i]}</b>: D = ${fmt(t.D)} cm, A = ${fmt(t.A)} cm`).join("<br>")}`,choice:["A","B","C"],ans:best,
+      steps:ts.map((t,i)=>`${LET[i]}: 0,1·log₂(${fmt(t.D)}/${fmt(t.A)} + 1) = 0,1·log₂(${fmt(t.D/t.A+1)}) = ${fmt(t.T)} s`).concat([`Más rápido: <b>${LET[best]}</b>. No basta con mirar la distancia: importa el cociente D/A.`])}; }},
+  hick:{name:"Ley de Hick",make(){ const n=pick([2,3,4,5,6,7,8,9,10,11,12,15,20]); const H=L2(n+1), T=0.15*H;
+    return {st:`Un menú tiene <b>${n} opciones</b>. Estima el tiempo de decisión con la ley de Hick (Ic = 150 ms/bit = 0,15 s/bit).`,ans:T,unit:"s",steps:["T = Ic · H,  con H = log₂(n + 1)",`H = log₂(${n} + 1) = log₂(${n+1}) = ${fmt(H)} bits`,`T = 0,15 · ${fmt(H)} = <b>${fmt(T)} s</b>`]}; }},
+  power:{name:"Power Law of Practice",make(){ const T1=pick([4,5,6,8,10,12,15,20,30]), n=pick([2,3,4,5,8,10,16,20,32]); const f=Math.pow(n,-0.4), Tn=T1*f;
+    return {st:`Una tarea tarda <b>${T1} s</b> la primera vez. ¿Cuánto tardará en el intento número <b>${n}</b>? (a = 0,4)`,ans:Tn,unit:"s",steps:["Tn = T1 · n^(−a)",`${n}^(−0,4) = ${fmt(f)}`,`Tn = ${T1} · ${fmt(f)} = <b>${fmt(Tn)} s</b>`]}; }},
+  hp:{name:"Human Processor",make(){ const k=pick([1,2,3]); const T=100+70*k+70;
+    return {st:`Con los tiempos medios del Human Processor Model (perceptivo 100 ms, cognitivo 70 ms, motor 70 ms), ¿cuánto tarda una reacción que necesita <b>1 ciclo perceptivo, ${k} ${k>1?"ciclos cognitivos":"ciclo cognitivo"} y 1 ciclo motor</b>? (en ms)`,ans:T,unit:"ms",steps:[`T = τP + ${k}·τC + τM`,`T = 100 + ${k}·70 + 70 = <b>${T} ms</b>`, k===1?"Es la reacción media de 240 ms del tema (rango 105–470 ms).":"Cada decisión extra añade un ciclo cognitivo de 70 ms."]}; }},
+  gomsMenu:{name:"GOMS: menú de 2 niveles",make(){ const n=pick([3,5,7,8,9,11,15]), m=pick([2,3,4,5,7]); const M1=0.15*L2(n+1), M2=0.15*L2(m+1); const T=M1+1.1+0.2+0.25+M2+1.1+0.2;
+    return {st:`Un usuario elige una opción de un menú principal con <b>${n} opciones</b> (decide con Hick, apunta con el ratón y hace clic), espera a que se despliegue el submenú (R) y elige entre <b>${m} opciones</b> de la misma forma. Usa P = 1,1 s, K = 0,2 s, R = 0,25 s y M = 0,15·log₂(n + 1). Tiempo total:`,ans:T,unit:"s",
+      steps:[`M₁ = 0,15·log₂(${n+1}) = ${fmt(M1)} s`,"P = 1,1 s; K = 0,2 s (clic)","R = 0,25 s (aparece el submenú)",`M₂ = 0,15·log₂(${m+1}) = ${fmt(M2)} s`,"P = 1,1 s; K = 0,2 s",`T = ${fmt(M1)} + 1,1 + 0,2 + 0,25 + ${fmt(M2)} + 1,1 + 0,2 = <b>${fmt(T)} s</b>`,"Es el mismo esquema que el ejemplo de Amazon del tema (3,71 s)."]}; }},
+  gomsLogin:{name:"GOMS: login novato vs experto",make(){ const u=pick([6,8,10,12]), p=pick([6,8,10,12]); const expert=Math.random()<0.5;
+    const nov=1.1+0.2+0.4+u*0.2 + 0.4+1.1+0.2+0.4+p*0.2 + 0.4+1.1+0.2;
+    const exp=1.1+0.2+0.4+u*0.2 + 0.2 + p*0.2 + 0.2;
+    return expert?{st:`Login con usuario de <b>${u}</b> caracteres y contraseña de <b>${p}</b>. El usuario <b>experto</b> empieza con la mano en el ratón, apunta y hace clic en el primer campo, pasa al teclado y luego usa <b>Tab</b> para cambiar de campo e <b>Intro</b> para enviar (botón por defecto). K = 0,2; H = 0,4; P = 1,1. Tiempo:`,ans:exp,unit:"s",
+      steps:["P (apuntar al usuario) 1,1 + K (clic) 0,2 + H (al teclado) 0,4",`${u}·K = ${fmt(u*0.2)} s (escribir el usuario)`,"K (Tab) = 0,2",`${p}·K = ${fmt(p*0.2)} s (contraseña)`,"K (Intro) = 0,2",`T = <b>${fmt(exp)} s</b>`,"Con 10 + 10 caracteres sale 6,1 s, frente a 9,5 s del novato."]}
+    :{st:`Login con usuario de <b>${u}</b> caracteres y contraseña de <b>${p}</b>. El usuario <b>novato</b> empieza con la mano en el ratón y usa el ratón para ir de campo en campo y pulsar el botón “Sign in”. K = 0,2; H = 0,4; P = 1,1. Tiempo:`,ans:nov,unit:"s",
+      steps:["P + K + H (al primer campo y al teclado) = 1,1 + 0,2 + 0,4",`${u}·K = ${fmt(u*0.2)} s`,"H (vuelta al ratón) + P + K + H = 0,4 + 1,1 + 0,2 + 0,4",`${p}·K = ${fmt(p*0.2)} s`,"H + P + K (al botón y clic) = 0,4 + 1,1 + 0,2",`T = <b>${fmt(nov)} s</b>`,"Cada cambio de dispositivo cuesta H = 0,4 s y cada apuntado P = 1,1 s: por eso el experto con teclado es más rápido."]}; }},
+  gomsPoint:{name:"GOMS: P con Fitts",make(){ const D=pick([4,6,8,10,12,16]), Sz=pick([1,2,4]); const P=0.1*L2(2*D/Sz+1), T=P+0.2;
+    return {st:`Con el operador P calculado con Fitts, Tpos = 0,1·log₂(2D/S + 1), ¿cuánto se tarda en apuntar a un botón de <b>S = ${Sz} cm</b> situado a <b>D = ${D} cm</b> y hacer clic (K = 0,2 s)?`,ans:T,unit:"s",
+      steps:["Tpos = 0,1·log₂(2D/S + 1)",`2D/S + 1 = 2·${D}/${Sz} + 1 = ${fmt(2*D/Sz+1)}`,`P = 0,1·log₂(${fmt(2*D/Sz+1)}) = ${fmt(P)} s`,`T = P + K = ${fmt(P)} + 0,2 = <b>${fmt(T)} s</b>`,"Ojo: en GOMS el tema usa 2D/S + 1; en la fórmula general de Fitts, D/A + 1."]}; }}
+};
+let PR=null;
+function problems(){
+  $("#app").innerHTML=`<h1>Cálculos</h1>
+  <p class="muted">Problemas generados al azar (infinitos). Primero mira algún <b>ejemplo resuelto</b>, después resuélvelos tú: escribe la fórmula, sustituye y calcula. Se admite un margen del 3% por redondeos.</p>
+  <div class="card"><div class="row">${Object.entries(GEN).map(([k,g])=>{ const s=S.prob[k]||{}; return `<button class="btn ghost sm" data-g="${k}">${g.name}${s.ok?` <span class="tag">${s.ok}✓</span>`:""}</button>`; }).join("")}</div>
+  <label class="row small" style="margin-top:10px"><input type="checkbox" id="worked" ${S.workedFirst?"checked":""}> Modo ejemplo resuelto (ver los pasos antes de responder)</label></div>
+  <div id="probBox"></div>
+  <div class="card"><h3 style="margin-top:0">Chuleta de fórmulas</h3><div class="tablewrap"><table>
+  <tr><td>Fitts</td><td>T = 0,1 · log₂(D/A + 1) s</td></tr><tr><td>Hick</td><td>T = 0,15 · log₂(n + 1) s</td></tr>
+  <tr><td>Power law</td><td>Tn = T1 · n^(−0,4)</td></tr><tr><td>GOMS</td><td>K 0,2 · H 0,4 · P 1,1 o 0,1·log₂(2D/S + 1) · M 1,35 o 0,15·log₂(n + 1) · R 0,25 · D 0,9n + 0,16l</td></tr>
+  <tr><td>Human Processor</td><td>τP 100 ms · τC 70 ms · τM 70 ms → reacción 240 ms</td></tr></table></div>
+  <p class="small muted">log₂(x) = ln(x)/ln(2). Valores útiles: log₂3 ≈ 1,585 · log₂5 ≈ 2,322 · log₂6 ≈ 2,585 · log₂9 ≈ 3,17 · log₂12 ≈ 3,585.</p></div>`;
+  $("#app").querySelectorAll("[data-g]").forEach(b=>b.onclick=()=>newProb(b.dataset.g));
+  $("#worked").onchange=e=>{ S.workedFirst=e.target.checked; save(); if(PR) renderProb(); };
+  newProb(PR?PR.k:"fitts");
+}
+function newProb(k){ PR={k,p:GEN[k].make(),state:"ask",val:null}; renderProb(); }
+function renderProb(){
+  const {k,p}=PR, worked=S.workedFirst, show=PR.state!=="ask"||worked;
+  let h=`<div class="card"><div class="pill">${GEN[k].name}</div><p class="qtext" style="font-weight:500">${p.st}</p>`;
+  if(PR.state==="ask"){
+    h+= p.choice?`<div class="row">${p.choice.map((c,i)=>`<button class="btn ghost" data-ch="${i}">${c}</button>`).join("")}</div>`
+      :`<div class="row"><input type="text" inputmode="decimal" id="pAns" placeholder="Tu resultado en ${p.unit}" style="width:180px"><button class="btn" id="pChk">Comprobar</button></div>`;
+  } else { const ok=PR.state==="ok";
+    h+=`<div class="fb ${ok?"ok":"ko"}"><b>${ok?"✔ Correcto":"✘ Revisa los pasos"}</b> · Solución: <b>${p.choice?p.choice[p.ans]:fmt(p.ans)+" "+p.unit}</b>${PR.val!=null&&!p.choice?` (tú: ${esc(PR.val)})`:""}</div>`; }
+  if(show) h+=`<div style="margin-top:10px"><div class="small muted" style="font-weight:600">PASOS</div><ol>${p.steps.map(s=>`<li>${s}</li>`).join("")}</ol></div>`;
+  if(PR.state!=="ask") h+=`<button class="btn" id="pNext">Otro problema</button>`;
+  h+=`</div>`;
+  $("#probBox").innerHTML=h;
+  document.querySelectorAll("[data-ch]").forEach(b=>b.onclick=()=>checkProb(+b.dataset.ch));
+  const c=$("#pChk"); if(c){ c.onclick=()=>checkProb($("#pAns").value); $("#pAns").onkeydown=e=>{ if(e.key==="Enter") checkProb($("#pAns").value); }; $("#pAns").focus(); }
+  const n=$("#pNext"); if(n){ n.onclick=()=>newProb(PR.k); n.focus(); }
+}
+function checkProb(v){
+  const p=PR.p; let ok;
+  if(p.choice) ok=v===p.ans; else { const x=parseFloat(String(v).replace(",",".")); if(isNaN(x)) return; PR.val=v; ok=Math.abs(x-p.ans)<=Math.max(0.011,Math.abs(p.ans)*0.03); }
+  const s=S.prob[PR.k]||(S.prob[PR.k]={ok:0,ko:0}); ok?s.ok++:s.ko++; touchDay(); save();
+  PR.state=ok?"ok":"ko"; renderProb();
+}
+
+/* ============================ SIMULACRO ============================ */
+let EX=null;
+function exam(){
+  if(EX&&!EX.finished){ renderEx(); return; }
+  const s=S.settings;
+  $("#app").innerHTML=`<h1>Simulacro de examen</h1>
+  <p class="muted">Condiciones de examen: sin feedback hasta entregar, con tiempo y con penalización. Puedes dejar preguntas en blanco y marcar las dudosas. Al final verás tu nota y cómo habría cambiado si dejabas en blanco las dudosas.</p>
+  <div class="card"><h3 style="margin-top:0">Configuración</h3><div class="row">
+  <label>Preguntas <select id="sN">${[10,15,20,25,30].map(n=>`<option ${n==s.n?"selected":""}>${n}</option>`).join("")}</select></label>
+  <label>Minutos <input type="number" id="sMin" value="${s.minutes}" min="5" max="120" style="width:70px"></label>
+  <label>Acierto + <input type="number" id="sPlus" value="${s.plus}" step="0.25" style="width:70px"></label>
+  <label>Fallo − <input type="number" id="sMinus" value="${s.minus}" step="0.25" style="width:70px"></label></div>
+  <p class="small muted">Por defecto: formato histórico de la EII (20 preguntas, +4/−1). Las preguntas se reparten entre los 5 temas en proporción.</p>
+  <button class="btn" id="sGo">Empezar simulacro</button></div>
+  ${S.sims.length?`<div class="card"><h3 style="margin-top:0">Historial</h3><table><tr><th>Fecha</th><th>Nota</th><th>✔ / ✘ / —</th><th>Si dejas en blanco las dudosas</th></tr>${S.sims.slice().reverse().slice(0,10).map(x=>`<tr><td>${new Date(x.date).toLocaleString()}</td><td><b>${x.grade.toFixed(2)}</b></td><td>${x.right} / ${x.wrong} / ${x.blank}</td><td>${x.alt!=null?x.alt.toFixed(2):"—"}</td></tr>`).join("")}</table></div>`:""}`;
+  $("#sGo").onclick=()=>{ s.n=+$("#sN").value; s.minutes=+$("#sMin").value||30; s.plus=+$("#sPlus").value||4; s.minus=+$("#sMinus").value; if(isNaN(s.minus)) s.minus=1; save(); startEx(); };
+}
+function startEx(){
+  const n=S.settings.n, tot=Q.length; let qs=[];
+  const quota={}; let sum=0; TK.forEach(t=>{ quota[t]=Math.floor(n*Q.filter(q=>q.t===t).length/tot); sum+=quota[t]; });
+  const order=shuffle(TK); let i=0; while(sum<n){ quota[order[i++%TK.length]]++; sum++; }
+  TK.forEach(t=>qs.push(...shuffle(Q.filter(q=>q.t===t)).slice(0,quota[t])));
+  qs=shuffle(qs);
+  EX={qs,orders:qs.map(optOrder),ans:qs.map(()=>null),flag:qs.map(()=>false),i:0,end:Date.now()+S.settings.minutes*60000,finished:false};
+  if(timerInt) clearInterval(timerInt);
+  timerInt=setInterval(()=>{ const t=$("#exTimer"); const left=EX.end-Date.now(); if(left<=0){ finishEx(); return; } if(t&&VIEW==="exam") t.textContent=mmss(left); },1000);
+  renderEx();
+}
+const mmss=ms=>{ const s=Math.max(0,Math.round(ms/1000)); return String(Math.floor(s/60)).padStart(2,"0")+":"+String(s%60).padStart(2,"0"); };
+function renderEx(){
+  const q=EX.qs[EX.i], ord=EX.orders[EX.i];
+  $("#app").innerHTML=`<div class="row" style="justify-content:space-between"><h1 style="margin:0">Simulacro</h1><span class="pill timer">⏱ <span id="exTimer">${mmss(EX.end-Date.now())}</span></span></div>
+  <div class="card"><div class="navgrid">${EX.qs.map((_,k)=>`<button data-j="${k}" class="${EX.ans[k]!=null?"ans":""} ${EX.flag[k]?"flag":""} ${k===EX.i?"cur":""}">${k+1}</button>`).join("")}</div>
+  <p class="small muted" style="margin:.6em 0 0">${EX.ans.filter(a=>a!=null).length} respondidas · ${EX.flag.filter(Boolean).length} marcadas como dudosas · pulsa una opción seleccionada para dejarla en blanco</p></div>
+  <div class="card"><div class="small muted">Pregunta ${EX.i+1} de ${EX.qs.length}</div><div class="qtext">${esc(q.q)}</div>${q.c?`<pre>${esc(q.c)}</pre>`:""}
+  ${ord.map((oi,pos)=>`<button class="opt ${EX.ans[EX.i]===oi?"sel":""}" data-oi="${oi}"><span class="let">${LET[pos]}</span><span>${esc(q.o[oi])}</span></button>`).join("")}
+  <div class="row" style="margin-top:10px;justify-content:space-between">
+   <label class="row small"><input type="checkbox" id="flagC" ${EX.flag[EX.i]?"checked":""}> Marcar como dudosa</label>
+   <div class="row"><button class="btn ghost sm" id="prevB" ${EX.i?"":"disabled"}>← Anterior</button><button class="btn ghost sm" id="nextB" ${EX.i<EX.qs.length-1?"":"disabled"}>Siguiente →</button></div></div></div>
+  <div class="row"><button class="btn" id="finB">Entregar examen</button><span class="small muted" id="finMsg"></span></div>`;
+  document.querySelectorAll(".navgrid [data-j]").forEach(b=>b.onclick=()=>{ EX.i=+b.dataset.j; renderEx(); });
+  document.querySelectorAll(".opt").forEach(b=>b.onclick=()=>{ const oi=+b.dataset.oi; EX.ans[EX.i]=EX.ans[EX.i]===oi?null:oi; renderEx(); });
+  $("#flagC").onchange=e=>{ EX.flag[EX.i]=e.target.checked; renderEx(); };
+  $("#prevB").onclick=()=>{ EX.i--; renderEx(); }; $("#nextB").onclick=()=>{ EX.i++; renderEx(); };
+  $("#finB").onclick=e=>{ const bl=EX.ans.filter(a=>a==null).length; if(!e.target.dataset.c){ e.target.dataset.c=1; e.target.textContent="Confirmar entrega"; $("#finMsg").textContent=bl?`Tienes ${bl} en blanco.`:"Todas respondidas."; } else finishEx(); };
+}
+function finishEx(){
+  if(!EX||EX.finished) return; clearInterval(timerInt); timerInt=null; EX.finished=true;
+  const {plus,minus}=S.settings; let R=0,W=0,B=0,alt=0; const per={};
+  EX.qs.forEach((q,k)=>{ const a=EX.ans[k]; per[q.t]=per[q.t]||[0,0,0];
+    if(a==null){ B++; per[q.t][2]++; } else if(a===q.a){ R++; per[q.t][0]++; if(!EX.flag[k]) alt+=plus; } else { W++; per[q.t][1]++; if(!EX.flag[k]) alt-=minus; }
+    if(a!=null) recordQ(q.id,a===q.a); });
+  const max=EX.qs.length*plus, pts=R*plus-W*minus, grade=Math.max(0,pts)/max*10, altG=Math.max(0,alt)/max*10;
+  const hasFlags=EX.flag.some((f,k)=>f&&EX.ans[k]!=null);
+  S.sims.push({date:Date.now(),grade,right:R,wrong:W,blank:B,n:EX.qs.length,alt:hasFlags?altG:null}); save();
+  VIEW="exam"; document.querySelectorAll("#nav button").forEach(b=>b.classList.toggle("on",b.dataset.v==="exam"));
+  $("#app").innerHTML=`<h1>Resultado del simulacro</h1>
+  <div class="grid g3"><div class="card"><div class="small muted">Nota</div><div class="kpi" style="color:${grade>=8?"var(--ok)":grade>=5?"var(--warn)":"var(--ko)"}">${grade.toFixed(2)}</div><div class="small muted">${pts} de ${max} puntos</div></div>
+  <div class="card"><div class="small muted">Aciertos / fallos / blancos</div><div class="kpi">${R} / ${W} / ${B}</div></div>
+  <div class="card"><div class="small muted">Si hubieras dejado en blanco las dudosas</div><div class="kpi">${hasFlags?altG.toFixed(2):"—"}</div><div class="small muted">${hasFlags?(altG>grade?"Te habría convenido dejarlas en blanco.":altG<grade?"Hiciste bien en responderlas.":"Sin diferencia."):"No marcaste ninguna como dudosa."}</div></div></div>
+  <div class="card"><h3 style="margin-top:0">Por tema</h3><table><tr><th>Tema</th><th>✔</th><th>✘</th><th>—</th></tr>${TK.filter(t=>per[t]).map(t=>`<tr><td><span class="tdot" style="background:${TOPICS[t].color}"></span> ${TOPICS[t].name}</td><td>${per[t][0]}</td><td>${per[t][1]}</td><td>${per[t][2]}</td></tr>`).join("")}</table></div>
+  <div class="card"><h3 style="margin-top:0">Revisión</h3>${EX.qs.map((q,k)=>{ const a=EX.ans[k], ok=a===q.a; return `<div style="border-top:1px solid var(--border);padding:10px 0"><div class="small" style="font-weight:700;color:${a==null?"var(--warn)":ok?"var(--ok)":"var(--ko)"}">${k+1}. ${a==null?"En blanco":ok?"Correcta":"Incorrecta"}${EX.flag[k]?" · marcada como dudosa":""}</div>
+    <div><b>${esc(q.q)}</b></div>${q.c?`<pre>${esc(q.c)}</pre>`:""}${a!=null&&!ok?`<div style="color:var(--ko)">✘ Tu respuesta: ${esc(q.o[a])}</div>`:""}<div style="color:var(--ok)">✔ ${esc(q.o[q.a])}</div><div class="small muted">${esc(q.e)}</div></div>`; }).join("")}</div>
+  <div class="row"><button class="btn" id="exAgain">Otro simulacro</button><button class="btn ghost" onclick="startPractice('wrong')">Repasar mis fallos</button></div>`;
+  $("#exAgain").onclick=()=>{ EX=null; exam(); };
+  touchDay();
+}
+
+/* ============================ ESTRATEGIA ============================ */
+function strategy(){
+  $("#app").innerHTML=document.getElementById("tpl-strategy").innerHTML;
+  const ids=["cN","cR","cW","cP","cM"]; const s=S.settings; $("#cN").value=s.n; $("#cP").value=s.plus; $("#cM").value=s.minus;
+  const calc=()=>{ const N=+$("#cN").value||20, R=+$("#cR").value||0, W=+$("#cW").value||0, P=+$("#cP").value||4, M=+$("#cM").value||0;
+    const g=Math.max(0,R*P-W*M)/(N*P)*10; $("#cOut").innerHTML=`${g.toFixed(2)} <small>/ 10 · ${N-R-W} en blanco</small>`; $("#cOut").style.color=g>=8?"var(--ok)":"var(--text)";
+    const need=Math.ceil((0.8*N*P+W*M)/P); $("#cHint").textContent=R+W>N?"Aciertos + fallos no puede superar el número de preguntas.":`Para un 8 con ${W} fallos necesitas ${need} aciertos de ${N}. Sin ningún fallo, ${Math.ceil(0.8*N)}.`; };
+  ids.forEach(i=>$("#"+i).oninput=calc); calc();
+}
+
+/* ============================ TECLADO, TEMA, INICIO ============================ */
+document.addEventListener("keydown",e=>{
+  if(e.target.matches("input,select,textarea")) return;
+  if(VIEW==="practice"&&P&&$("#opts")){
+    if(P.stage!=="done"&&/^[1-5]$/.test(e.key)){ const pos=+e.key-1; if(pos<P.order.length){ P.sel=P.order[pos]; P.stage="conf"; renderP(); } }
+    else if(P.stage==="conf"){ const m={q:"sure",w:"doubt",e:"guess"}[e.key.toLowerCase()]; if(m) answerP(m); }
+    else if(P.stage==="done"&&e.key==="Enter"){ e.preventDefault(); nextP(); }
+  } else if(VIEW==="flash"&&FC&&$("#fcCard")){
+    if(e.key===" "){ e.preventDefault(); if(!FC.flip){ FC.flip=true; renderFC(); } }
+    else if(FC.flip&&/^[1-3]$/.test(e.key)) rateFC(+e.key-1);
+  } else if(VIEW==="exam"&&EX&&!EX.finished&&$(".navgrid")){
+    if(/^[1-5]$/.test(e.key)){ const oi=EX.orders[EX.i][+e.key-1]; if(oi!=null){ EX.ans[EX.i]=EX.ans[EX.i]===oi?null:oi; renderEx(); } }
+    else if(e.key==="ArrowRight"&&EX.i<EX.qs.length-1){ EX.i++; renderEx(); }
+    else if(e.key==="ArrowLeft"&&EX.i>0){ EX.i--; renderEx(); }
+  }
+});
+function applyTheme(){ if(S.theme) document.documentElement.setAttribute("data-theme",S.theme); else document.documentElement.removeAttribute("data-theme"); }
+document.getElementById("themeBtn").onclick=()=>{ const dark=S.theme?S.theme==="dark":matchMedia("(prefers-color-scheme: dark)").matches; S.theme=dark?"light":"dark"; save(); applyTheme(); };
+applyTheme(); renderStreak(); go("home");
+</script>
+<script>
+KV.ready.then(()=>{ const s=document.createElement("script"); s.textContent=document.getElementById("main-script").textContent; document.body.appendChild(s); });
+</script>
+</body>
+</html>
