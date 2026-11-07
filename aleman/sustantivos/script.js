@@ -341,9 +341,9 @@ KV.ready.then(() => {
     { id: "streak7", icon: "7", name: "Eine Woche", desc: "Racha de 7 días.", test: () => liveStreak() >= 7 },
     { id: "half", icon: "½", name: "Halbe Strecke", desc: "Llega a Amrum, la mitad de la ruta.", test: () => levelInfo(S.xp).lvl >= 9 },
     { id: "end", icon: "⚓", name: "Angekommen", desc: "Llega a Rügen.", test: () => levelInfo(S.xp).lvl >= PORTS.length },
-    { id: "esde", icon: "DE", name: "Dolmetscher", desc: "Domina los 42 sustantivos de español a alemán.", test: () => allMastered("esde") },
-    { id: "dees", icon: "ES", name: "Übersetzer", desc: "Domina los 42 sustantivos de alemán a español.", test: () => allMastered("dees") },
-    { id: "genus", icon: "G", name: "Genus-Genie", desc: "Domina el género de los 42 sustantivos.", test: () => allMastered("genus") },
+    { id: "esde", icon: "DE", name: "Dolmetscher", desc: `Domina los ${NOUNS.length} sustantivos de español a alemán.`, test: () => allMastered("esde") },
+    { id: "dees", icon: "ES", name: "Übersetzer", desc: `Domina los ${NOUNS.length} sustantivos de alemán a español.`, test: () => allMastered("dees") },
+    { id: "genus", icon: "G", name: "Genus-Genie", desc: `Domina el género de los ${NOUNS.length} sustantivos.`, test: () => allMastered("genus") },
   ];
   function checkAchievements(end = false) {
     for (const a of ACHIEVEMENTS) {
