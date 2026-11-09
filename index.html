@@ -54,7 +54,7 @@
       padding: max(56px, env(safe-area-inset-top)) 24px max(40px, env(safe-area-inset-bottom));
     }
 
-    header { margin-bottom: clamp(40px, 8vh, 80px); }
+    header { margin-bottom: clamp(32px, 6vh, 56px); }
     .eyebrow {
       display: block;
       color: var(--accent-2-hi);
@@ -62,24 +62,21 @@
       font-weight: 600;
       letter-spacing: 0.2em;
       text-transform: uppercase;
-      margin-bottom: 16px;
+      margin-bottom: 12px;
     }
     h1 {
       display: inline-block;
       font-family: "Anton", "Inter", sans-serif;
       font-weight: 400;
       text-transform: uppercase;
-      letter-spacing: 0.01em;
-      font-size: clamp(3.4rem, 13vw, 10rem);
-      line-height: 0.9;
+      letter-spacing: 0.02em;
+      font-size: clamp(2.4rem, 7vw, 4.2rem);
+      line-height: 1;
       margin: 0;
-      background: linear-gradient(120deg, #ffffff 45%, var(--accent) 75%, var(--accent-2) 100%);
-      -webkit-background-clip: text;
-      background-clip: text;
-      color: transparent;
+      color: var(--text);
     }
     .intro {
-      margin: 22px 0 0;
+      margin: 14px 0 0;
       max-width: 34ch;
       color: var(--muted);
       font-size: 1.1rem;
@@ -249,7 +246,7 @@
   <div class="wrap">
     <header>
       <span class="eyebrow">jorgellaneza.es</span>
-      <h1>Jorge<br>Llaneza</h1>
+      <h1>Llaneza&rsquo;s playground</h1>
       <p class="intro">A handful of static sites built for one-off reasons. <b>Do not take most of them seriously.</b></p>
     </header>
 
