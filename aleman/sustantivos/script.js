@@ -13,9 +13,9 @@ KV.ready.then(() => {
     "Emden", "Borkum", "Norderney", "Wangerooge", "Bremerhaven", "Cuxhaven", "Helgoland", "Hamburg", "Amrum",
     "Föhr", "Sylt", "Kiel", "Fehmarn", "Lübeck", "Warnemünde", "Stralsund", "Hiddensee", "Rügen",
   ];
-  const DIRS = ["esde", "dees", "genus"];
-  const DIR_LABEL = { esde: "Español → Deutsch", dees: "Deutsch → Español", genus: "der, die o das" };
-  const DIR_SHORT = { esde: "ES → DE", dees: "DE → ES", genus: "GÉNERO" };
+  const DIRS = ["esde", "dees", "genus", "plural"];
+  const DIR_LABEL = { esde: "Español → Deutsch", dees: "Deutsch → Español", genus: "der, die o das", sgpl: "Singular → Plural", plsg: "Plural → Singular" };
+  const DIR_SHORT = { esde: "ES → DE", dees: "DE → ES", genus: "GÉNERO", plural: "PLURAL", sgpl: "SG → PL", plsg: "PL → SG" };
   const MODE_LABEL = { train: "Training", review: "Repaso", blitz: "Sturmflut", survival: "Seenot" };
   const ARTS = ["der", "die", "das"];
   const SHORT_ART = { r: "der", e: "die", s: "das" }; // la notación de tus apuntes: r Ort, e Insel, s Meer
@@ -133,6 +133,64 @@ KV.ready.then(() => {
     if (art !== noun.art) return { kind: "wrongart", art, lower };
     return { kind: match, umlaut, lower, art: true };
   }
+  // Plural: aquí la terminación y la diéresis son justo lo que se pregunta, así que la errata
+  // solo se perdona en la raíz; el final desde donde se separa del singular tiene que estar bien.
+  function checkPlural(input, noun, way) {
+    const { art, word } = splitArticle(input);
+    const a = foldDe(word);
+    if (!a) return { kind: "empty" };
+    const sg = foldDe(noun.de), forms = plForms(noun), pls = forms.map(foldDe);
+    if (way === "plsg") {
+      if (pls.includes(a) && a !== sg) return { kind: "isplural" };
+      return checkDe(input, noun);
+    }
+    const lower = word[0] && word[0] === word[0].toLowerCase() && word[0] !== word[0].toUpperCase();
+    if (a === sg && !pls.includes(sg)) return { kind: "issingular" };
+    let match = null, form = forms[pls.indexOf(a)];
+    if (form) match = "exact";
+    else {
+      form = forms.find((f, k) => {
+        const pl = pls[k];
+        let p = 0;
+        while (p < sg.length && sg[p] === pl[p]) p++;
+        return lev(a, pl) <= tolerance(pl) && a.endsWith(pl.slice(Math.max(0, p - 1)));
+      });
+      if (form) match = "typo";
+    }
+    if (!match) return { kind: "wrong" };
+    if (art && art !== "die") return { kind: "wrongart", art, lower, form };
+    const umlaut = match === "typo" && /[äöüß]/.test(form) && stripDe(word) === stripDe(form);
+    return { kind: match, umlaut, lower, form };
+  }
+  // Algunos tienen más de un plural ("Banken, Bänke"): vale cualquiera.
+  const plForms = (n) => n.pl.split(/\s*,\s*/);
+  const plFull = (n) => plForms(n).map((p) => `die ${p}`).join(" / ");
+  const hasCard = (i, dir) => dir !== "plural" || !!NOUNS[i].pl;
+
+  // Plurales falsos pero creíbles para las opciones: las terminaciones de siempre, con y sin diéresis.
+  const UML = { a: "ä", o: "ö", u: "ü", A: "Ä", O: "Ö", U: "Ü" };
+  function umlaut(w) {
+    if (/(ung|heit|keit|schaft|ion|tät|ik|ur|um)$/.test(w)) return null;
+    const m = w.match(/^(.*?)(au|[aouAOU])([^aeiouäöüAEIOUÄÖÜ]+)$/);
+    if (!m) return null;
+    const v = m[2] === "au" ? "äu" : UML[m[2]];
+    return m[1] + v + m[3];
+  }
+  function fakePlurals(noun) {
+    const sg = noun.de;
+    const u = umlaut(sg);
+    const c = [sg, sg + "s"];
+    if (/e$/.test(sg)) c.push(sg + "r");                  // Seite: Seites, Seiter
+    else if (/(el|er)$/.test(sg)) c.push(sg + "n", sg + "e"); // Insel: Inseln, Insels, Insele
+    else if (/en$/.test(sg)) c.push(sg + "e", sg + "er"); // Hafen: Hafens, Hafene, Hafener
+    else c.push(sg + "e", sg + "en", sg + "er");
+    if (u) c.push(u, ...(/(e|el|er|en)$/.test(sg) ? [] : [u + "e", u + "er"]));
+    const right = plForms(noun).map(foldDe);
+    const out = [...new Set(c)].filter((w) => !right.includes(foldDe(w)) && !/(.)\1\1/.test(w));
+    for (let i = out.length - 1; i > 0; i--) { const j = (Math.random() * (i + 1)) | 0; [out[i], out[j]] = [out[j], out[i]]; }
+    return out;
+  }
+
   function checkEs(input, noun) {
     const a = foldEs(input);
     if (!a) return { kind: "empty" };
@@ -174,6 +232,7 @@ KV.ready.then(() => {
     const now = Date.now();
     const fresh = [], due = [], rest = [];
     NOUNS.forEach((_, i) => dirs.forEach((dir) => {
+      if (!hasCard(i, dir)) return;
       const c = { i, dir };
       const st = S.mastery[cardKey(c)];
       let list = rest, w;
@@ -324,7 +383,8 @@ KV.ready.then(() => {
   }
 
   // ---------------------------------------------------------------- logros
-  const allMastered = (dir) => NOUNS.every((_, i) => getM({ i, dir }) >= MAX_M);
+  const allMastered = (dir) => NOUNS.every((_, i) => !hasCard(i, dir) || getM({ i, dir }) >= MAX_M);
+  const PLURALS = NOUNS.filter((n) => n.pl).length;
   const ACHIEVEMENTS = [
     { id: "first", icon: "1", name: "Leinen los", desc: "Tu primer acierto.", test: (r) => r && r.correct >= 1 },
     { id: "combo10", icon: "10", name: "Rückenwind", desc: "10 aciertos seguidos.", test: (r) => r && r.bestCombo >= 10 },
@@ -344,6 +404,7 @@ KV.ready.then(() => {
     { id: "esde", icon: "DE", name: "Dolmetscher", desc: `Domina los ${NOUNS.length} sustantivos de español a alemán.`, test: () => allMastered("esde") },
     { id: "dees", icon: "ES", name: "Übersetzer", desc: `Domina los ${NOUNS.length} sustantivos de alemán a español.`, test: () => allMastered("dees") },
     { id: "genus", icon: "G", name: "Genus-Genie", desc: `Domina el género de los ${NOUNS.length} sustantivos.`, test: () => allMastered("genus") },
+    { id: "plural", icon: "PL", name: "Mehrzahl", desc: `Domina el plural de los ${PLURALS} sustantivos que lo tienen.`, test: () => allMastered("plural") },
   ];
   function checkAchievements(end = false) {
     for (const a of ACHIEVEMENTS) {
@@ -407,9 +468,9 @@ KV.ready.then(() => {
 
     document.querySelectorAll("#dir-seg button").forEach((b) => b.setAttribute("aria-checked", String(b.dataset.dir === S.dir)));
     const dirs = trainDirs();
-    const total = NOUNS.length * dirs.length;
-    const done = NOUNS.reduce((n, _, i) => n + dirs.filter((dir) => getM({ i, dir }) >= MAX_M).length, 0);
-    const fresh = NOUNS.reduce((n, _, i) => n + dirs.filter((dir) => getM({ i, dir }) === 0).length, 0);
+    const total = NOUNS.reduce((n, _, i) => n + dirs.filter((dir) => hasCard(i, dir)).length, 0);
+    const done = NOUNS.reduce((n, _, i) => n + dirs.filter((dir) => hasCard(i, dir) && getM({ i, dir }) >= MAX_M).length, 0);
+    const fresh = NOUNS.reduce((n, _, i) => n + dirs.filter((dir) => hasCard(i, dir) && getM({ i, dir }) === 0).length, 0);
     $("train-sub").textContent = done === total
       ? `${ROUND_LEN} preguntas · todo dominado, a mantenerlo`
       : fresh === total
@@ -450,10 +511,11 @@ KV.ready.then(() => {
     col.innerHTML = "";
     NOUNS.forEach((n, i) => {
       const ms = DIRS.map((dir) => getM({ i, dir }));
+      const own = ms.filter((_, k) => hasCard(i, DIRS[k]));
       const known = ms[2] >= 1;
       const tile = document.createElement("button");
       tile.type = "button";
-      tile.className = "tile" + (ms.every((m) => m >= MAX_M) ? " gold" : ms.every((m) => m === 0) ? " fresh" : "") + (n.de.length > 13 ? " long" : "");
+      tile.className = "tile" + (own.every((m) => m >= MAX_M) ? " gold" : own.every((m) => m === 0) ? " fresh" : "") + (n.de.length > 13 ? " long" : "");
       if (known) tile.dataset.g = n.art;
       tile.innerHTML = `<span class="tile-de"><span class="tile-art"></span><span class="tile-word" lang="de"></span></span><span class="tile-tr"></span><span class="meters"></span>`;
       tile.querySelector(".tile-art").textContent = known ? n.art : "···";
@@ -462,11 +524,11 @@ KV.ready.then(() => {
       const meters = tile.querySelector(".meters");
       DIRS.forEach((dir, k) => {
         const m = document.createElement("span");
-        m.className = "meter " + dir;
+        m.className = "meter " + dir + (hasCard(i, dir) ? "" : " none");
         m.innerHTML = Array.from({ length: MAX_M }, (_, j) => `<i class="${j < ms[k] ? "on" : ""}"></i>`).join("");
         meters.appendChild(m);
       });
-      tile.setAttribute("aria-label", `${known ? n.art + " " : ""}${n.de}: ${n.es}. Dominio ${ms.join(", ")} de ${MAX_M}`);
+      tile.setAttribute("aria-label", `${known ? n.art + " " : ""}${n.de}: ${n.es}. Dominio ${own.join(", ")} de ${MAX_M}`);
       tile.addEventListener("click", () => speak(full(n), true));
       col.appendChild(tile);
     });
@@ -542,34 +604,47 @@ KV.ready.then(() => {
     const type = card.dir === "genus" ? "genus"
       : R.mode === "survival" ? "type"
         : getM(card) < MC_CAP ? "mc" : "type";
-    Q = { card, noun, type, hint: 0, answered: false, start: performance.now(), limit: R.qLimit };
+    // En plural cada pregunta elige sentido: del singular al plural o al revés.
+    const way = card.dir === "plural" ? (Math.random() < 0.5 ? "sgpl" : "plsg") : null;
+    const forms = way ? plForms(noun) : [];
+    const pl = forms[(Math.random() * forms.length) | 0]; // la forma que se enseña o se pide
+    Q = { card, noun, type, way, pl, hint: 0, answered: false, start: performance.now(), limit: R.qLimit };
     renderQuestion();
   }
 
-  function setTicketWord(withArt) {
-    const { noun } = Q;
+  function setTicketWord(withArt, word = Q.noun.de, art = Q.noun.art, cls = art) {
     const w = $("ticket-word");
     w.innerHTML = "";
     if (withArt) {
       const a = document.createElement("span");
-      a.className = "w-art " + noun.art;
-      a.textContent = noun.art;
+      a.className = "w-art " + cls;
+      a.textContent = art;
       w.appendChild(a);
     }
-    w.appendChild(document.createTextNode(noun.de));
+    w.appendChild(document.createTextNode(word));
+  }
+  // Lo que hay que escribir o elegir en cada pregunta.
+  function target() {
+    const { card, noun, way } = Q;
+    if (way === "sgpl") return `die ${Q.pl}`;
+    return card.dir === "dees" ? noun.es : full(noun);
   }
 
   function renderQuestion() {
-    const { card, noun, type } = Q;
+    const { card, noun, type, way } = Q;
     const ticket = $("ticket");
     ticket.dataset.dir = card.dir;
     delete ticket.dataset.reveal;
     ticket.classList.remove("good", "bad");
-    $("ticket-dir").textContent = DIR_SHORT[card.dir];
-    $("ticket-label").textContent = DIR_LABEL[card.dir];
+    $("ticket-dir").textContent = DIR_SHORT[way || card.dir];
+    $("ticket-label").textContent = DIR_LABEL[way || card.dir];
     if (card.dir === "esde") $("ticket-word").textContent = noun.es;
+    else if (way === "sgpl") setTicketWord(true);
+    else if (way === "plsg") setTicketWord(true, Q.pl, "die", "pl");
     else setTicketWord(card.dir === "dees");
-    $("ticket-hint").textContent = card.dir === "esde" && type === "type" ? "con artículo: der, die o das" : "";
+    $("ticket-hint").textContent = type !== "type" ? ""
+      : card.dir === "esde" || way === "plsg" ? "con artículo: der, die o das"
+        : way === "sgpl" ? "el artículo es opcional" : "";
 
     $("feedback").hidden = true;
     const choices = $("choices");
@@ -599,8 +674,8 @@ KV.ready.then(() => {
       input.value = "";
       input.readOnly = false;
       input.className = "";
-      input.placeholder = card.dir === "esde" ? "der Ort" : "en español";
-      $("keyrow").hidden = card.dir !== "esde";
+      input.placeholder = card.dir === "esde" ? "der Ort" : way === "sgpl" ? "en plural" : way === "plsg" ? "en singular, con artículo" : "en español";
+      $("keyrow").hidden = card.dir !== "esde" && card.dir !== "plural";
       updateArtButtons();
       $("btn-hint").disabled = false;
       $("btn-skip").disabled = false;
@@ -608,12 +683,31 @@ KV.ready.then(() => {
       input.focus({ preventScroll: true });
     }
 
-    if (card.dir !== "esde") speak(card.dir === "dees" ? full(noun) : noun.de);
+    if (way) speak(way === "sgpl" ? full(noun) : `die ${Q.pl}`);
+    else if (card.dir !== "esde") speak(card.dir === "dees" ? full(noun) : noun.de);
     updateHud();
+  }
+
+  function shuffled(a) {
+    for (let i = a.length - 1; i > 0; i--) { const j = (Math.random() * (i + 1)) | 0; [a[i], a[j]] = [a[j], a[i]]; }
+    return a;
+  }
+
+  // Plural con opciones: plurales mal formados del mismo sustantivo, o el singular con los tres
+  // artículos (más el plural disfrazado de singular) al ir hacia atrás.
+  function buildPluralChoices() {
+    const { noun, way } = Q;
+    if (way === "sgpl") {
+      return shuffled([{ label: `die ${Q.pl}`, ok: true }, ...fakePlurals(noun).slice(0, 3).map((w) => ({ label: `die ${w}`, ok: false }))]);
+    }
+    const opts = ARTS.map((a) => ({ label: `${a} ${noun.de}`, ok: a === noun.art }));
+    if (Q.pl !== noun.de) opts.push({ label: `${ARTS[(Math.random() * 3) | 0]} ${Q.pl}`, ok: false });
+    return shuffled(opts);
   }
 
   function buildChoices() {
     const { card, noun } = Q;
+    if (card.dir === "plural") return buildPluralChoices();
     const label = (n) => (card.dir === "esde" ? full(n) : n.es);
     const pool = NOUNS.filter((n) => n !== noun && !sharesOk(n, noun));
     for (let i = pool.length - 1; i > 0; i--) { const j = (Math.random() * (i + 1)) | 0; [pool[i], pool[j]] = [pool[j], pool[i]]; }
@@ -624,7 +718,7 @@ KV.ready.then(() => {
 
   function answerChoice(btn, opt) {
     if (!Q || Q.answered) return;
-    const right = Q.card.dir === "esde" ? full(Q.noun) : Q.noun.es;
+    const right = target();
     [...$("choices").children].forEach((b) => {
       b.disabled = true;
       if (b.textContent === right) b.classList.add("right");
@@ -653,7 +747,7 @@ KV.ready.then(() => {
     const input = $("answer-input");
     const text = input.value.trim();
     if (!text) { input.focus(); return; }
-    const res = Q.card.dir === "esde" ? checkDe(text, Q.noun) : checkEs(text, Q.noun);
+    const res = Q.way ? checkPlural(text, Q.noun, Q.way) : Q.card.dir === "esde" ? checkDe(text, Q.noun) : checkEs(text, Q.noun);
     if (res.kind === "empty") return;
     resolve(res, text);
   }
@@ -690,7 +784,7 @@ KV.ready.then(() => {
       R.combo++;
       R.bestCombo = Math.max(R.bestCombo, R.combo);
       R.correct++;
-      const base = type === "genus" ? 6 : type === "mc" ? 5 : card.dir === "esde" ? 12 : 10;
+      const base = type === "genus" ? 6 : type === "mc" ? 5 : card.dir === "dees" ? 10 : 12;
       let f = res.kind === "exact" ? 1 : 0.5;
       if (res.kind === "noart" && res.typo) f = 0.4;
       if (Q.hint) f *= 0.5;
@@ -753,7 +847,8 @@ KV.ready.then(() => {
     }
 
     showFeedback(res, ok, partial, pts, given);
-    if (card.dir === "esde" || (card.dir === "genus")) speak(full(noun));
+    if (card.dir === "plural") speak(`${full(noun)}, ${plFull(noun)}`);
+    else if (card.dir === "esde" || (card.dir === "genus")) speak(full(noun));
 
     checkAchievements(false);
     save();
@@ -783,7 +878,10 @@ KV.ready.then(() => {
     const titles = {
       exact: Q.fast ? "Blitzschnell!" : "Richtig!", typo: "Fast!", synonym: "Auch richtig", noart: "Ohne Artikel",
       wrongart: "Falscher Artikel", wrong: "Falsch", skip: "Lösung", timeout: "Zeit um!",
+      issingular: "Das ist Singular", isplural: "Das ist Plural",
     };
+    // La forma que se pedía escrita, para los avisos de ortografía.
+    const spelled = Q.way === "sgpl" ? res.form || Q.pl : noun.de;
     $("fb-title").textContent = titles[res.kind] || "Falsch";
     $("fb-points").textContent = pts ? `+${pts}` + (ok && comboMult(R.combo) > 1 ? ` · ×${comboMult(R.combo)}` : "") : "";
 
@@ -794,11 +892,17 @@ KV.ready.then(() => {
     if (res.kind === "noart") {
       add("Falta el artículo: ", b(full(noun)), ". Media puntuación y la carta no sube.");
       if (res.typo) add(" Además, se escribe ", b(noun.de), ".");
+    } else if (res.kind === "wrongart" && Q.way === "sgpl") {
+      add("El plural está bien, pero en plural el artículo siempre es ", b("die"), ".");
     } else if (res.kind === "wrongart") {
       add("La palabra está bien, pero es ", b(noun.art), ", no ", res.art, ".");
+    } else if (res.kind === "issingular") {
+      add("Eso es el singular. El plural es ", b(plFull(noun)), ".");
+    } else if (res.kind === "isplural") {
+      add("Eso es el plural. El singular es ", b(full(noun)), ".");
     } else if (res.kind === "typo") {
-      if (res.umlaut) add("Lleva diéresis: ", b(noun.de), ". Media puntuación.");
-      else if (card.dir === "esde") add("Se escribe ", b(noun.de), ". Media puntuación.");
+      if (res.umlaut) add("Lleva diéresis: ", b(spelled), ". Media puntuación.");
+      else if (card.dir === "esde" || card.dir === "plural") add("Se escribe ", b(spelled), ". Media puntuación.");
       else add("Casi. Fíjate en la ortografía. Media puntuación.");
     } else if (res.kind === "synonym") {
       add(b(full(res.other)), ` también es «${res.other.es}», pero aquí se buscaba `, b(full(noun)), ".");
@@ -816,7 +920,7 @@ KV.ready.then(() => {
       add("Con pista: mitad de puntos y la carta no sube de nivel.");
     }
     if (res.lower && (res.kind === "exact" || res.kind === "noart")) {
-      add(msg.childNodes.length ? " " : "", "En alemán los sustantivos van en mayúscula: ", b(noun.de), ".");
+      add(msg.childNodes.length ? " " : "", "En alemán los sustantivos van en mayúscula: ", b(spelled), ".");
     }
     if (!ok && R.mode === "survival" && res.kind !== "timeout") add(msg.childNodes.length ? " " : "", "Pierdes una vida.");
 
@@ -831,14 +935,14 @@ KV.ready.then(() => {
 
   function useHint() {
     if (!Q || Q.answered || Q.type !== "type") return;
-    const target = Q.card.dir === "esde" ? full(Q.noun) : esParts(Q.noun)[0];
+    const answer = Q.way === "sgpl" ? Q.pl : Q.card.dir === "dees" ? esParts(Q.noun)[0] : full(Q.noun);
     Q.hint = Math.min(Q.hint + 1, 3);
-    // En ES→DE la primera pista ya enseña el artículo entero más una letra.
-    const head = Q.card.dir === "esde" ? Q.noun.art.length : 0;
-    const letters = target.replace(/ /g, "").length - head;
+    // Con artículo (ES→DE, plural a singular) la primera pista ya enseña el artículo entero más una letra.
+    const head = Q.card.dir === "esde" || Q.way === "plsg" ? Q.noun.art.length : 0;
+    const letters = answer.replace(/ /g, "").length - head;
     const shown = head + (Q.hint === 1 ? 1 : Q.hint === 2 ? Math.ceil(letters / 3) : Math.ceil(letters / 2));
     let n = 0;
-    const masked = [...target].map((ch) => (ch === " " ? "  " : n++ < shown ? ch : "_")).join(" ");
+    const masked = [...answer].map((ch) => (ch === " " ? "  " : n++ < shown ? ch : "_")).join(" ");
     const hint = $("ticket-hint");
     hint.innerHTML = "";
     const span = document.createElement("span");
@@ -941,7 +1045,7 @@ KV.ready.then(() => {
   function renderResult(record) {
     const total = R.correct + R.wrong;
     const acc = total ? R.correct / total : 0;
-    const dirName = { esde: "ES → DE", dees: "DE → ES", genus: "Género", mix: "Mixto" };
+    const dirName = { esde: "ES → DE", dees: "DE → ES", genus: "Género", plural: "Plural", mix: "Mixto" };
     $("res-mode").textContent = MODE_LABEL[R.mode] + (R.mode === "train" ? " · " + dirName[S.dir] : "");
     let title, sub;
     if (R.mode === "blitz") {
@@ -991,7 +1095,7 @@ KV.ready.then(() => {
       a.className = n.art;
       w.textContent = n.de;
       const sub = li.querySelector(".m-sub");
-      sub.textContent = n.es;
+      sub.textContent = card.dir === "plural" ? `pl. ${plFull(n)}` : n.es;
       if (given) {
         sub.append(" · tú: ");
         const s = document.createElement("s");
@@ -1059,7 +1163,7 @@ KV.ready.then(() => {
     input.setSelectionRange(s + 1, s + 1);
     input.focus({ preventScroll: true });
   });
-  $("btn-speak").addEventListener("click", () => Q && speak(full(Q.noun), true));
+  $("btn-speak").addEventListener("click", () => Q && speak(Q.way ? `${full(Q.noun)}, ${plFull(Q.noun)}` : full(Q.noun), true));
   $("btn-quit").addEventListener("click", quitRound);
   $("btn-again").addEventListener("click", () => startRound(R ? (R.mode === "review" ? "train" : R.mode) : "train"));
   $("btn-review").addEventListener("click", () => R && startRound("review", R.reviewCards));

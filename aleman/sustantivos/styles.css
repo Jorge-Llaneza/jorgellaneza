@@ -17,6 +17,7 @@
   --go: #3ccf8e;
   --stop: #ff5a5f;
   --hot: #ff9b3d;
+  --foam: #7fd6e3;
   --display: "Bricolage Grotesque", "Arial Narrow", sans-serif;
   --body: "Atkinson Hyperlegible", -apple-system, BlinkMacSystemFont, sans-serif;
 }
@@ -171,6 +172,7 @@ h2 { margin: 0 0 6px; font-family: var(--display); font-weight: 700; font-size: 
 }
 .seg button span { opacity: 0.6; }
 .seg button[aria-checked="true"] { background: var(--paper); color: var(--ink); }
+.seg button[data-dir="plural"][aria-checked="true"] { background: var(--foam); color: var(--ink); }
 .seg button[data-dir="genus"][aria-checked="true"] {
   background: linear-gradient(90deg, var(--der) 0 33.3%, var(--die) 33.3% 66.6%, var(--das) 66.6%);
   color: #fff;
@@ -308,6 +310,8 @@ h2 { margin: 0 0 6px; font-family: var(--display); font-weight: 700; font-size: 
 .lg.esde, .meter.esde i.on { background: var(--brass); }
 .lg.dees, .meter.dees i.on { background: var(--paper); }
 .lg.genus { background: linear-gradient(90deg, var(--der) 33%, var(--die) 33% 66%, var(--das) 66%); }
+.lg.plural, .meter.plural i.on { background: var(--foam); }
+.meter.none { opacity: 0.25; }
 .collection { margin-top: 14px; display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 8px; }
 .tile {
   position: relative;
@@ -423,6 +427,7 @@ h2 { margin: 0 0 6px; font-family: var(--display); font-weight: 700; font-size: 
 }
 .ticket[data-dir="dees"] .ticket-stub { background: var(--ink); color: var(--paper); }
 .ticket[data-dir="genus"] .ticket-stub { background: linear-gradient(var(--der) 0 33.3%, var(--die) 33.3% 66.6%, var(--das) 66.6%); color: #fff; }
+.ticket[data-dir="plural"] .ticket-stub { background: var(--foam); color: var(--ink); }
 .ticket-stub span {
   writing-mode: vertical-rl;
   transform: rotate(180deg);
@@ -455,6 +460,7 @@ h2 { margin: 0 0 6px; font-family: var(--display); font-weight: 700; font-size: 
 .ticket-word .w-art.der { color: #2563d9; }
 .ticket-word .w-art.die { color: #d93439; }
 .ticket-word .w-art.das { color: #12935a; }
+.ticket-word .w-art.pl { opacity: 0.45; }
 .ticket-hint { font-size: 1rem; opacity: 0.75; min-height: 1.5em; }
 .ticket-hint .mask { font-family: var(--display); font-weight: 700; font-size: 1.35rem; letter-spacing: 0.16em; opacity: 1; }
 .ticket.good { animation: good 0.4s; }
@@ -716,6 +722,7 @@ h2 { margin: 0 0 6px; font-family: var(--display); font-weight: 700; font-size: 
   .launch { grid-template-columns: 1fr; }
   .seg { display: grid; grid-template-columns: 1fr 1fr; }
   .seg button { text-align: center; padding: 8px 6px; }
+  .seg button[data-dir="mix"] { grid-column: 1 / -1; }
   .mode { grid-template-columns: 1fr auto; gap: 4px 12px; padding: 14px 4px; }
   .mode-name { grid-column: 1; grid-row: 1; }
   .mode-rec { grid-column: 2; grid-row: 1; }
