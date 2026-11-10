@@ -215,7 +215,7 @@ KV.ready.then(() => {
     hint.classList.remove('warn');
     const s = db.settings;
     if (s.input === 'piano') hint.textContent = 'Click or tap the keys under the staff.';
-    else if (s.input === 'keys') hint.textContent = 'Type the letter: C D E F G A B, or 1 to 7 for Do to Si. Shift + letter for a sharp, hold Space for a flat. Octave is ignored.';
+    else if (s.input === 'keys') hint.textContent = 'Type D R M F S L I for Do Re Mi Fa Sol La Si (I for Si), or 1 to 7. Shift + letter for a sharp, hold Space for a flat. Octave is ignored.';
     else if (s.input === 'mic') hint.textContent = 'Play a real piano or any instrument near the mic. One note at a time; let a repeated note go quiet before playing it again.';
     else if (s.input === 'midi') {
       if (!navigator.requestMIDIAccess) {
@@ -1163,9 +1163,7 @@ KV.ready.then(() => {
     const s = db.settings;
     const h = $('keys-hint');
     if (s.input === 'keys') {
-      h.innerHTML = s.names === 'solfege'
-        ? 'Type <kbd>C</kbd><kbd>D</kbd><kbd>E</kbd><kbd>F</kbd><kbd>G</kbd><kbd>A</kbd><kbd>B</kbd> or <kbd>1</kbd>&ndash;<kbd>7</kbd> for Do&ndash;Si. <kbd>Shift</kbd> + key = sharp, hold <kbd>Space</kbd> + key = flat.'
-        : 'Type <kbd>C</kbd><kbd>D</kbd><kbd>E</kbd><kbd>F</kbd><kbd>G</kbd><kbd>A</kbd><kbd>B</kbd>. <kbd>Shift</kbd> + letter = sharp, hold <kbd>Space</kbd> + letter = flat.';
+      h.innerHTML = 'Type <kbd>D</kbd><kbd>R</kbd><kbd>M</kbd><kbd>F</kbd><kbd>S</kbd><kbd>L</kbd><kbd>I</kbd> or <kbd>1</kbd>&ndash;<kbd>7</kbd> for Do&ndash;Si. <kbd>Shift</kbd> + key = sharp, hold <kbd>Space</kbd> + key = flat.';
     } else if (s.input === 'piano') {
       h.textContent = 'Click the key. Letter keys work too, but ignore the octave.';
     } else {
@@ -1174,7 +1172,7 @@ KV.ready.then(() => {
   }
 
   // ---------- keyboard ----------
-  // Space held down turns the next letter into a flat, so B♭ is typed as B♭ and not as Shift + A.
+  // Space held down turns the next letter into a flat, so Si♭ is typed as Si♭ and not as Shift + La.
   let flatHeld = false;
   document.addEventListener('keydown', (e) => {
     if (current === 'play') {
@@ -1182,7 +1180,7 @@ KV.ready.then(() => {
       if (e.code === 'Space') { e.preventDefault(); flatHeld = true; return; }
       if (e.repeat || e.ctrlKey || e.metaKey || e.altKey) return;
       let li = -1;
-      if (e.key.length === 1) li = 'cdefgab'.indexOf(e.key.toLowerCase());
+      if (e.key.length === 1) li = 'drmfsli'.indexOf(e.key.toLowerCase());
       const dm = /^(Digit|Numpad)([1-7])$/.exec(e.code);
       if (li < 0 && dm) li = +dm[2] - 1;
       if (li >= 0) {
