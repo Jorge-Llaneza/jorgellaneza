@@ -324,10 +324,13 @@
     <section class="backup" aria-labelledby="backup-title">
       <div>
         <h2 id="backup-title">Your progress</h2>
-        <p>Scores, streaks and settings from the study tools are kept in this browser only. Download a copy to move them to another device or browser, then load it there.</p>
+        <p id="data-where">Scores, streaks and settings from the study tools are kept in this browser only. Download a copy to move them to another device or browser, then load it there.</p>
         <p class="kept" id="data-kept"></p>
+        <p class="kept" id="sync-state" hidden></p>
       </div>
       <div class="actions">
+        <button type="button" id="sync-in" hidden>Sign in with Google</button>
+        <button type="button" id="sync-out" hidden>Sign out</button>
         <button type="button" id="data-download">Download data</button>
         <button type="button" id="data-load">Load data</button>
         <input type="file" id="data-file" accept="application/json,.json" hidden>
@@ -354,6 +357,56 @@
           : !KV.persistent
             ? "<b>Not saved.</b> This browser is blocking storage, so progress only lasts until you close the tab."
             : "<b>The browser may delete it</b> if the disk runs low (Safari also does after a week away). Installing a tool as an app usually stops that; a backup always does.";
+      });
+
+      const where = document.getElementById("data-where");
+      const syncState = document.getElementById("sync-state");
+      const syncIn = document.getElementById("sync-in");
+      const syncOut = document.getElementById("sync-out");
+      const time = (t) => new Date(t).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+
+      function showAccount() {
+        const a = KV.account;
+        if (a.state === "off") return;
+        const signedIn = a.state !== "signedout";
+        syncIn.hidden = signedIn;
+        syncOut.hidden = !signedIn;
+        syncState.hidden = !signedIn;
+        where.textContent = signedIn
+          ? "Progress in the German games and Notes is copied to your Google account, so every device you sign in on has the same. A game open on two devices at once keeps whichever saved last. The other tools keep theirs in this browser only; download a copy to move it."
+          : "Scores, streaks and settings from the study tools are kept in this browser only. Sign in with Google to have the German games and Notes on every device, or download a copy of everything and load it on the other one.";
+        if (!signedIn) return;
+        syncState.innerHTML = "<b>Signed in as " + (a.email || "your Google account").replace(/[<&]/g, "") + ".</b> " + (
+          a.state === "syncing" ? "Syncing&hellip;"
+            : a.state === "offline" ? "Offline: changes go up when the connection is back."
+            : a.state === "error" ? "Last sync failed: " + a.error.replace(/[<&]/g, "")
+            : a.lastSync ? "Synced at " + time(a.lastSync) + "."
+            : "");
+      }
+      window.addEventListener("kv-account", showAccount);
+      KV.ready.then(() => { showAccount(); KV.account.prepare(); });
+
+      syncIn.addEventListener("click", () => {
+        syncIn.disabled = true;
+        say("");
+        KV.account.signIn()
+          .then(() => say("Signed in. Sign in on another device too and the German games and Notes will match.", "ok"))
+          .catch((e) => {
+            const code = e && e.code ? e.code : "";
+            if (code === "auth/popup-closed-by-user" || code === "auth/cancelled-popup-request") return;
+            say(code === "auth/popup-blocked"
+              ? "The browser blocked the sign-in window. Allow popups for jorgellaneza.es and try again."
+              : "Could not sign in: " + (e && e.message ? e.message : "unknown error") + ".", "err");
+          })
+          .finally(() => { syncIn.disabled = false; });
+      });
+
+      syncOut.addEventListener("click", async () => {
+        syncOut.disabled = true;
+        await KV.account.signOut();
+        syncOut.disabled = false;
+        KV.account.prepare();
+        say("Signed out. What this browser has stays here; your account keeps its copy.", "ok");
       });
 
       document.getElementById("data-download").addEventListener("click", async () => {
@@ -388,7 +441,8 @@
         await KV.ready;
         if (!KV.persistent) return say("This browser is blocking storage (private mode?), so nothing can be loaded.", "err");
         const n = Object.keys(data).length;
-        if (!confirm("Replace everything saved in this browser with " + f.name + " (" + plural(n) + ")? Current progress will be lost.")) return;
+        const scope = KV.account.email ? "in this browser, and the German games and Notes in " + KV.account.email + "," : "in this browser";
+        if (!confirm("Replace everything saved " + scope + " with " + f.name + " (" + plural(n) + ")? Current progress will be lost.")) return;
         try {
           await KV.replaceAll(data);
           say("Loaded " + plural(n) + ". Reload any tool you have open in another tab.", "ok");
