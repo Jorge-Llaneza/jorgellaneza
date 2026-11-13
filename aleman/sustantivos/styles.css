@@ -460,7 +460,6 @@ h2 { margin: 0 0 6px; font-family: var(--display); font-weight: 700; font-size: 
 .ticket-word .w-art.der { color: #2563d9; }
 .ticket-word .w-art.die { color: #d93439; }
 .ticket-word .w-art.das { color: #12935a; }
-.ticket-word .w-art.pl { opacity: 0.45; }
 .ticket-hint { font-size: 1rem; opacity: 0.75; min-height: 1.5em; }
 .ticket-hint .mask { font-family: var(--display); font-weight: 700; font-size: 1.35rem; letter-spacing: 0.16em; opacity: 1; }
 .ticket.good { animation: good 0.4s; }

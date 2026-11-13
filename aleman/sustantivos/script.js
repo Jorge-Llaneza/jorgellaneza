@@ -14,8 +14,8 @@ KV.ready.then(() => {
     "Föhr", "Sylt", "Kiel", "Fehmarn", "Lübeck", "Warnemünde", "Stralsund", "Hiddensee", "Rügen",
   ];
   const DIRS = ["esde", "dees", "genus", "plural"];
-  const DIR_LABEL = { esde: "Español → Deutsch", dees: "Deutsch → Español", genus: "der, die o das", sgpl: "Singular → Plural", plsg: "Plural → Singular" };
-  const DIR_SHORT = { esde: "ES → DE", dees: "DE → ES", genus: "GÉNERO", plural: "PLURAL", sgpl: "SG → PL", plsg: "PL → SG" };
+  const DIR_LABEL = { esde: "Español → Deutsch", dees: "Deutsch → Español", genus: "der, die o das", sgpl: "Singular → Plural" };
+  const DIR_SHORT = { esde: "ES → DE", dees: "DE → ES", genus: "GÉNERO", plural: "PLURAL", sgpl: "SG → PL" };
   const MODE_LABEL = { train: "Training", review: "Repaso", blitz: "Sturmflut", survival: "Seenot" };
   const ARTS = ["der", "die", "das"];
   const SHORT_ART = { r: "der", e: "die", s: "das" }; // la notación de tus apuntes: r Ort, e Insel, s Meer
@@ -135,15 +135,11 @@ KV.ready.then(() => {
   }
   // Plural: aquí la terminación y la diéresis son justo lo que se pregunta, así que la errata
   // solo se perdona en la raíz; el final desde donde se separa del singular tiene que estar bien.
-  function checkPlural(input, noun, way) {
+  function checkPlural(input, noun) {
     const { art, word } = splitArticle(input);
     const a = foldDe(word);
     if (!a) return { kind: "empty" };
     const sg = foldDe(noun.de), forms = plForms(noun), pls = forms.map(foldDe);
-    if (way === "plsg") {
-      if (pls.includes(a) && a !== sg) return { kind: "isplural" };
-      return checkDe(input, noun);
-    }
     const lower = word[0] && word[0] === word[0].toLowerCase() && word[0] !== word[0].toUpperCase();
     if (a === sg && !pls.includes(sg)) return { kind: "issingular" };
     let match = null, form = forms[pls.indexOf(a)];
@@ -604,10 +600,10 @@ KV.ready.then(() => {
     const type = card.dir === "genus" ? "genus"
       : R.mode === "survival" ? "type"
         : getM(card) < MC_CAP ? "mc" : "type";
-    // En plural cada pregunta elige sentido: del singular al plural o al revés.
-    const way = card.dir === "plural" ? (Math.random() < 0.5 ? "sgpl" : "plsg") : null;
+    // En plural solo se pregunta del singular al plural.
+    const way = card.dir === "plural" ? "sgpl" : null;
     const forms = way ? plForms(noun) : [];
-    const pl = forms[(Math.random() * forms.length) | 0]; // la forma que se enseña o se pide
+    const pl = forms[(Math.random() * forms.length) | 0]; // la forma que se pide
     Q = { card, noun, type, way, pl, hint: 0, answered: false, start: performance.now(), limit: R.qLimit };
     renderQuestion();
   }
@@ -640,10 +636,9 @@ KV.ready.then(() => {
     $("ticket-label").textContent = DIR_LABEL[way || card.dir];
     if (card.dir === "esde") $("ticket-word").textContent = noun.es;
     else if (way === "sgpl") setTicketWord(true);
-    else if (way === "plsg") setTicketWord(true, Q.pl, "die", "pl");
     else setTicketWord(card.dir === "dees");
     $("ticket-hint").textContent = type !== "type" ? ""
-      : card.dir === "esde" || way === "plsg" ? "con artículo: der, die o das"
+      : card.dir === "esde" ? "con artículo: der, die o das"
         : way === "sgpl" ? "el artículo es opcional" : "";
 
     $("feedback").hidden = true;
@@ -674,7 +669,7 @@ KV.ready.then(() => {
       input.value = "";
       input.readOnly = false;
       input.className = "";
-      input.placeholder = card.dir === "esde" ? "der Ort" : way === "sgpl" ? "en plural" : way === "plsg" ? "en singular, con artículo" : "en español";
+      input.placeholder = card.dir === "esde" ? "der Ort" : way === "sgpl" ? "en plural" : "en español";
       $("keyrow").hidden = card.dir !== "esde" && card.dir !== "plural";
       updateArtButtons();
       $("btn-hint").disabled = false;
@@ -683,7 +678,7 @@ KV.ready.then(() => {
       input.focus({ preventScroll: true });
     }
 
-    if (way) speak(way === "sgpl" ? full(noun) : `die ${Q.pl}`);
+    if (way) speak(full(noun));
     else if (card.dir !== "esde") speak(card.dir === "dees" ? full(noun) : noun.de);
     updateHud();
   }
@@ -693,16 +688,10 @@ KV.ready.then(() => {
     return a;
   }
 
-  // Plural con opciones: plurales mal formados del mismo sustantivo, o el singular con los tres
-  // artículos (más el plural disfrazado de singular) al ir hacia atrás.
+  // Plural con opciones: el bueno y plurales mal formados del mismo sustantivo.
   function buildPluralChoices() {
-    const { noun, way } = Q;
-    if (way === "sgpl") {
-      return shuffled([{ label: `die ${Q.pl}`, ok: true }, ...fakePlurals(noun).slice(0, 3).map((w) => ({ label: `die ${w}`, ok: false }))]);
-    }
-    const opts = ARTS.map((a) => ({ label: `${a} ${noun.de}`, ok: a === noun.art }));
-    if (Q.pl !== noun.de) opts.push({ label: `${ARTS[(Math.random() * 3) | 0]} ${Q.pl}`, ok: false });
-    return shuffled(opts);
+    const { noun } = Q;
+    return shuffled([{ label: `die ${Q.pl}`, ok: true }, ...fakePlurals(noun).slice(0, 3).map((w) => ({ label: `die ${w}`, ok: false }))]);
   }
 
   function buildChoices() {
@@ -747,7 +736,7 @@ KV.ready.then(() => {
     const input = $("answer-input");
     const text = input.value.trim();
     if (!text) { input.focus(); return; }
-    const res = Q.way ? checkPlural(text, Q.noun, Q.way) : Q.card.dir === "esde" ? checkDe(text, Q.noun) : checkEs(text, Q.noun);
+    const res = Q.way ? checkPlural(text, Q.noun) : Q.card.dir === "esde" ? checkDe(text, Q.noun) : checkEs(text, Q.noun);
     if (res.kind === "empty") return;
     resolve(res, text);
   }
@@ -878,7 +867,7 @@ KV.ready.then(() => {
     const titles = {
       exact: Q.fast ? "Blitzschnell!" : "Richtig!", typo: "Fast!", synonym: "Auch richtig", noart: "Ohne Artikel",
       wrongart: "Falscher Artikel", wrong: "Falsch", skip: "Lösung", timeout: "Zeit um!",
-      issingular: "Das ist Singular", isplural: "Das ist Plural",
+      issingular: "Das ist Singular",
     };
     // La forma que se pedía escrita, para los avisos de ortografía.
     const spelled = Q.way === "sgpl" ? res.form || Q.pl : noun.de;
@@ -898,8 +887,6 @@ KV.ready.then(() => {
       add("La palabra está bien, pero es ", b(noun.art), ", no ", res.art, ".");
     } else if (res.kind === "issingular") {
       add("Eso es el singular. El plural es ", b(plFull(noun)), ".");
-    } else if (res.kind === "isplural") {
-      add("Eso es el plural. El singular es ", b(full(noun)), ".");
     } else if (res.kind === "typo") {
       if (res.umlaut) add("Lleva diéresis: ", b(spelled), ". Media puntuación.");
       else if (card.dir === "esde" || card.dir === "plural") add("Se escribe ", b(spelled), ". Media puntuación.");
@@ -937,8 +924,8 @@ KV.ready.then(() => {
     if (!Q || Q.answered || Q.type !== "type") return;
     const answer = Q.way === "sgpl" ? Q.pl : Q.card.dir === "dees" ? esParts(Q.noun)[0] : full(Q.noun);
     Q.hint = Math.min(Q.hint + 1, 3);
-    // Con artículo (ES→DE, plural a singular) la primera pista ya enseña el artículo entero más una letra.
-    const head = Q.card.dir === "esde" || Q.way === "plsg" ? Q.noun.art.length : 0;
+    // Con artículo (ES→DE) la primera pista ya enseña el artículo entero más una letra.
+    const head = Q.card.dir === "esde" ? Q.noun.art.length : 0;
     const letters = answer.replace(/ /g, "").length - head;
     const shown = head + (Q.hint === 1 ? 1 : Q.hint === 2 ? Math.ceil(letters / 3) : Math.ceil(letters / 2));
     let n = 0;
