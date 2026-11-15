@@ -234,7 +234,9 @@
       q.where = { fieldFilter: { field: { fieldPath: "s" }, op: "GREATER_THAN",
         value: { timestampValue: new Date(meta.since - 60000).toISOString() } } };
     }
-    const rows = await api(DOCS + "/users/" + meta.auth.uid + ":runQuery", { structuredQuery: q });
+    const rows = await api(DOCS + "/users/" + meta.auth.uid + ":runQuery", { structuredQuery: q })
+      // The rules refuse even reading: this account is not on the list of those who may sync.
+      .catch((e) => { if (e.status === 403) e.denied = true; throw e; });
     const seen = new Set(), changed = [], stamps = [], puts = [], dels = [];
     let since = meta.since;
     rows.forEach((row) => {
@@ -337,7 +339,8 @@
       if (started && changed.some((k) => read.has(k))) location.reload();
     } catch (e) {
       if (!meta.auth) return;
-      setState(navigator.onLine === false ? "offline" : "error", e && e.message ? e.message : String(e));
+      setState(e && e.denied ? "denied" : navigator.onLine === false ? "offline" : "error",
+        e && e.message ? e.message : String(e));
     }
   }
 
@@ -483,8 +486,9 @@
       touch([...keys]);
     },
     // Google sign-in and Firestore sync. state: "off" (not set up or no storage),
-    // "signedout", "syncing", "ok", "offline" or "error" (see error). Every change fires
-    // a "kv-account" event on window.
+    // "signedout", "syncing", "ok", "offline", "denied" (signed in, but the Firestore rules
+    // don't let this account sync, so everything stays on this device) or "error" (see
+    // error). Every change fires a "kv-account" event on window.
     account: {
       get state() { return account.state; },
       get error() { return account.error; },

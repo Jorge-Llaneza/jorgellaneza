@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <title>Llaneza&rsquo;s playground</title>
-  <meta name="description" content="Static sites hung off jorgellaneza.es: a countdown, a handful of study tools and a music production page.">
+  <meta name="description" content="Static sites hung off jorgellaneza.es: a handful of study tools and a music production page.">
   <meta name="theme-color" content="#2b2b2b">
   <link rel="icon" type="image/svg+xml" href="/favicon.svg">
   <link rel="manifest" href="/manifest.webmanifest">
@@ -308,17 +308,6 @@
           </a>
         </li>
         <li>
-          <a class="site" href="/infofiesta/">
-            <time class="date" datetime="2026-10-23">23 Oct 2026</time>
-            <div>
-              <span class="name">Infofiesta</span>
-              <span class="desc">Countdown to Saturday 14 November, 23:00. The last ten seconds get loud.</span>
-            </div>
-            <span class="tag green">Countdown</span>
-            <span class="arrow" aria-hidden="true">&rarr;</span>
-          </a>
-        </li>
-        <li>
           <a class="site" href="/mpproductions/">
             <time class="date" datetime="2026-10-08">8 Oct 2026</time>
             <div>
@@ -383,6 +372,11 @@
         syncIn.hidden = signedIn;
         syncOut.hidden = !signedIn;
         syncState.hidden = !signedIn;
+        if (a.state === "denied") {
+          where.textContent = "Scores, streaks and settings from the study tools are kept in this browser only. Download a copy to move them to another device or browser, then load it there.";
+          syncState.innerHTML = "<b>" + (a.email || "This Google account").replace(/[<&]/g, "") + " isn't allowed to sync.</b> Syncing is limited to a few accounts, so nothing was copied and your progress stays in this browser.";
+          return;
+        }
         where.textContent = signedIn
           ? "Progress in the German games and Notes is copied to your Google account, so every device you sign in on has the same. A game open on two devices at once keeps whichever saved last. The other tools keep theirs in this browser only; download a copy to move it."
           : "Scores, streaks and settings from the study tools are kept in this browser only. Sign in with Google to have the German games and Notes on every device, or download a copy of everything and load it on the other one.";
@@ -401,7 +395,11 @@
         syncIn.disabled = true;
         say("");
         KV.account.signIn()
-          .then(() => say("Signed in. Sign in on another device too and the German games and Notes will match.", "ok"))
+          .then(() => {
+            if (KV.account.state === "denied") return say("Signed in, but this account isn't allowed to sync. Nothing left this browser.", "err");
+            if (KV.account.state !== "ok") return;
+            say("Signed in. Sign in on another device too and the German games and Notes will match.", "ok");
+          })
           .catch((e) => {
             const code = e && e.code ? e.code : "";
             if (code === "auth/popup-closed-by-user" || code === "auth/cancelled-popup-request") return;
@@ -414,10 +412,11 @@
 
       syncOut.addEventListener("click", async () => {
         syncOut.disabled = true;
+        const denied = KV.account.state === "denied";
         await KV.account.signOut();
         syncOut.disabled = false;
         KV.account.prepare();
-        say("Signed out. What this browser has stays here; your account keeps its copy.", "ok");
+        say(denied ? "Signed out. What this browser has stays here." : "Signed out. What this browser has stays here; your account keeps its copy.", "ok");
       });
 
       document.getElementById("data-download").addEventListener("click", async () => {
@@ -452,7 +451,7 @@
         await KV.ready;
         if (!KV.persistent) return say("This browser is blocking storage (private mode?), so nothing can be loaded.", "err");
         const n = Object.keys(data).length;
-        const scope = KV.account.email ? "in this browser, and the German games and Notes in " + KV.account.email + "," : "in this browser";
+        const scope = KV.account.email && KV.account.state !== "denied" ? "in this browser, and the German games and Notes in " + KV.account.email + "," : "in this browser";
         if (!confirm("Replace everything saved " + scope + " with " + f.name + " (" + plural(n) + ")? Current progress will be lost.")) return;
         try {
           await KV.replaceAll(data);
