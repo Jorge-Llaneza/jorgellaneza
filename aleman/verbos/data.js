@@ -234,4 +234,12 @@ const VERBOS = [
   { de: "verlassen", aux: "hat", pp: "verlassen", es: "dejar, abandonar", hint: "un lugar o a una persona",
     ok: ["dejar", "abandonar", "salir de", "irse de", "marcharse de"],
     note: "Prefijo inseparable ver-: participio igual que el infinitivo. Irregular: du verlässt, verließ. + Akk. sin preposición: das Haus verlassen. Sich verlassen auf + Akk. = fiarse de." },
+  { de: "mitnehmen", aux: "hat", pp: "mitgenommen", es: "llevar consigo, llevarse", hint: "cuando vas a algún sitio",
+    ok: ["llevar", "llevarse", "llevar consigo", "llevar a alguien"],
+    near: { "bringen": "bringen es llevar o traer algo a alguien. Aquí se busca llevarte algo contigo.", "tragen": "tragen es llevar a cuestas o llevar puesto. Aquí se busca llevarte algo contigo." },
+    note: "Separable e irregular como nehmen: du nimmst mit, nahm mit, mitgenommen. Kannst du mich mitnehmen? Zum Mitnehmen = para llevar. Figurado: Das hat mich mitgenommen = me afectó." },
+  { de: "auswählen", aux: "hat", pp: "ausgewählt", es: "elegir, seleccionar", hint: "entre varias opciones",
+    ok: ["elegir", "seleccionar", "escoger"],
+    near: { "wählen": "wählen es elegir en general, votar o marcar un número. Aquí se busca escoger entre varias cosas.", "aussuchen": "aussuchen es casi sinónimo, más coloquial. Aquí se busca auswählen." },
+    note: "Separable y regular: Ich wähle ein Buch aus. Bitte wählen Sie eine Option aus. Die Auswahl = la selección, el surtido." },
 ];

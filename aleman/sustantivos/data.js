@@ -204,4 +204,12 @@ const SUSTANTIVOS = [
     note: "Anglicismo neutro con plural en -s, como das Hobby. Im Team arbeiten = trabajar en equipo. En deporte también die Mannschaft." },
   { art: "die", de: "Erdbeere", pl: "Erdbeeren", es: "la fresa", ok: ["fresa", "frutilla"],
     note: "Compuesto: manda la última parte, die Beere (die Erde = tierra). Todas las bayas son die: Himbeere, Brombeere, Heidelbeere. Erdbeeren mit Sahne." },
+  { art: "das", de: "Haustier", pl: "Haustiere", es: "la mascota, el animal doméstico", ok: ["mascota", "animal doméstico", "animal de compañía"],
+    note: "Compuesto: manda la última parte, das Tier (das Haus = casa). Hast du ein Haustier? Haustiere sind nicht erlaubt = no se admiten mascotas." },
+  { art: "der", de: "Laut", pl: "Laute", es: "el sonido", ok: ["sonido", "fonema", "ruido"],
+    note: "Sin regla fiable; masculino como der Ton. Sonido de la voz o fonético: Das ü ist ein schwieriger Laut. Keinen Laut von sich geben = no decir ni pío. Der Umlaut = la diéresis." },
+  { art: "der", de: "Esel", pl: "Esel", es: "el burro, el asno", ok: ["burro", "asno", "tonto"],
+    note: "Muchos sustantivos en -el son der (der Löffel, der Schlüssel) y el plural no cambia. En femenino: die Eselin. Du Esel! = ¡burro!, ¡tonto!" },
+  { art: "die", de: "Eselsbrücke", hy: "Esels­brücke", pl: "Eselsbrücken", es: "la regla mnemotécnica", ok: ["regla mnemotécnica", "truco para recordar", "truco mnemotécnico", "mnemotecnia"],
+    note: "Compuesto: manda la última parte, die Brücke, con -s- de enlace. Literalmente puente de burro. DOGFU y TeKaMoLo son Eselsbrücken." },
 ];
