@@ -196,4 +196,12 @@ const SUSTANTIVOS = [
     note: "-um latino es das: das Museum, das Studium. Plural latino: Praktika. Ein Praktikum machen; der Praktikant = el becario." },
   { art: "der", de: "Grund", pl: "Gründe", es: "la razón, el motivo, el fondo", ok: ["razón", "motivo", "causa", "fondo", "suelo"],
     note: "Sin regla fiable. Plural con diéresis: Gründe. Aus diesem Grund = por eso. Im Grunde = en el fondo." },
+  { art: "der", de: "Wettbewerb", pl: "Wettbewerbe", es: "la competición, el concurso, la competencia", ok: ["competición", "concurso", "competencia", "certamen"],
+    note: "Compuesto: manda la última parte, der Bewerb. An einem Wettbewerb teilnehmen = participar en un concurso. Der freie Wettbewerb = la libre competencia." },
+  { art: "der", de: "Gründer", pl: "Gründer", es: "el fundador", ok: ["fundador", "fundadora", "creador"],
+    note: "Personas en -er (de un verbo: gründen = fundar) son der y el plural no cambia. En femenino: die Gründerin, Gründerinnen. Die Gründung = la fundación." },
+  { art: "das", de: "Team", pl: "Teams", es: "el equipo", ok: ["equipo", "equipo de trabajo"],
+    note: "Anglicismo neutro con plural en -s, como das Hobby. Im Team arbeiten = trabajar en equipo. En deporte también die Mannschaft." },
+  { art: "die", de: "Erdbeere", pl: "Erdbeeren", es: "la fresa", ok: ["fresa", "frutilla"],
+    note: "Compuesto: manda la última parte, die Beere (die Erde = tierra). Todas las bayas son die: Himbeere, Brombeere, Heidelbeere. Erdbeeren mit Sahne." },
 ];

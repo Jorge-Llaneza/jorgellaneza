@@ -182,4 +182,9 @@ const WORTS = [
   { de: "immer", es: "siempre", hint: "",
     ok: ["siempre", "cada vez", "todo el tiempo"],
     note: "Immer noch = todavía. Immer + comparativo = cada vez más: immer besser. Lo contrario: nie." },
+  { de: "einfach", es: "fácil, sencillo", hint: "",
+    alt: ["einfache", "einfacher", "einfaches", "einfachen", "einfachem"],
+    ok: ["fácil", "facil", "sencillo", "sencilla", "simple", "simplemente", "de ida"],
+    near: { "leicht": "leicht también es fácil, pero además ligero. Aquí se busca einfach." },
+    note: "Einmal einfach nach Berlin = un billete de ida. Como partícula, simplemente: Das ist einfach super! Lo contrario: schwierig." },
 ];
