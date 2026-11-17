@@ -1,8 +1,8 @@
 {
-  "name": "COM · Lógica",
+  "name": "COM · Logic",
   "short_name": "COM",
-  "description": "Parcial de lógica de Computabilidad (Uniovi): test con repetición espaciada, ejercicios generados, deducción natural con huecos y simulacros.",
-  "lang": "es",
+  "description": "Logic midterm of Computability (Uniovi): spaced-repetition quizzes, generated exercises, natural deduction with gaps and mock exams.",
+  "lang": "en",
   "start_url": "/com/",
   "scope": "/com/",
   "id": "/com/",
