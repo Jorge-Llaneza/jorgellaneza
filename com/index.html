@@ -1,0 +1,469 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>COM · Lógica</title>
+<meta name="description" content="Parcial de lógica de Computabilidad (Uniovi, grupo inglés): 306 preguntas tipo Campus Virtual con repetición espaciada, generadores de árboles AND/OR, unificación, Skolem y forma clausal, demostraciones con huecos y simulacros.">
+<meta property="og:title" content="COM · Lógica">
+<meta property="og:description" content="Lógica proposicional y de predicados para el parcial de Computabilidad: test, ejercicios generados sin fin, deducción natural con huecos y simulacros.">
+<meta property="og:type" content="website">
+<meta name="theme-color" content="#00676b">
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icon-192.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#f3f6f5; --surface:#ffffff; --surface2:#e6efed; --text:#152120; --muted:#55645f; --border:#d0ddd9;
+  --accent:#00676b; --accent-ink:#ffffff; --accent-soft:#d9eeec; --ok:#1d8a4c; --ok-soft:#dcf3e5; --ko:#c43c3c; --ko-soft:#fbe3e3;
+  --warn:#a86400; --warn-soft:#fdf0d8; --code:#eef3f2;
+  --p1:#0b7a75; --p2:#2f9e44; --p3:#5c940d; --q1:#1971c2; --q2:#6741d9; --q3:#c2255c; --q4:#d9480f;
+  --serif:"EB Garamond",Garamond,"Times New Roman",serif;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0e1514; --surface:#162120; --surface2:#1e2c2a; --text:#e2ecea; --muted:#94a6a1; --border:#2a3b38;
+    --accent:#4fb8b3; --accent-ink:#0e1514; --accent-soft:#173634; --ok:#4cc38a; --ok-soft:#163327; --ko:#ff7a7a; --ko-soft:#3c1d1f;
+    --warn:#f0b04c; --warn-soft:#382b12; --code:#121b1a;
+    --p1:#38c3bd; --p2:#69db7c; --p3:#a9e34b; --q1:#4dabf7; --q2:#9775fa; --q3:#f06595; --q4:#ff922b;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0e1514; --surface:#162120; --surface2:#1e2c2a; --text:#e2ecea; --muted:#94a6a1; --border:#2a3b38;
+  --accent:#4fb8b3; --accent-ink:#0e1514; --accent-soft:#173634; --ok:#4cc38a; --ok-soft:#163327; --ko:#ff7a7a; --ko-soft:#3c1d1f;
+  --warn:#f0b04c; --warn-soft:#382b12; --code:#121b1a;
+  --p1:#38c3bd; --p2:#69db7c; --p3:#a9e34b; --q1:#4dabf7; --q2:#9775fa; --q3:#f06595; --q4:#ff922b;
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--bg);color:var(--text);font:16px/1.55 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;-webkit-font-smoothing:antialiased}
+a{color:var(--accent)}
+code,pre{font-family:ui-monospace,"Cascadia Code",Consolas,"Segoe UI Symbol",monospace;font-size:.9em}
+pre{background:var(--code);border:1px solid var(--border);border-radius:6px;padding:10px 12px;overflow-x:auto;margin:10px 0;line-height:1.5}
+:not(pre)>code{background:var(--code);padding:1px 5px;border-radius:4px}
+header{position:sticky;top:0;z-index:10;background:var(--bg);border-bottom:1px solid var(--border)}
+.hwrap{max-width:980px;margin:0 auto;padding:10px 16px 0;display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.brand{font-family:var(--serif);font-weight:700;font-size:1.25rem;display:flex;align-items:center;gap:8px}
+.brand .dot{width:28px;height:28px;border-radius:7px;background:var(--accent);color:var(--accent-ink);display:grid;place-items:center;font:700 15px/1 var(--serif)}
+.home{display:grid;place-items:center;width:30px;height:30px;margin-left:-6px;border-radius:7px;color:var(--muted);text-decoration:none;font-size:18px}
+.home:hover{color:var(--text);background:var(--surface2)}
+.home:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.spacer{flex:1}
+nav{max-width:980px;margin:0 auto;padding:6px 16px 0;display:flex;gap:2px;overflow-x:auto;scrollbar-width:none}
+nav::-webkit-scrollbar{display:none}
+nav button{all:unset;cursor:pointer;padding:8px 12px;color:var(--muted);font-weight:500;white-space:nowrap;border-bottom:2px solid transparent}
+nav button:hover{color:var(--text)}
+nav button.on{color:var(--accent);border-bottom-color:var(--accent)}
+main{max-width:980px;margin:0 auto;padding:20px 16px 80px}
+h1,h2,h3{font-family:var(--serif);font-weight:600;letter-spacing:0}
+h1{font-size:2rem;margin:.1em 0 .3em;line-height:1.15}
+h2{font-size:1.45rem;margin:1.3em 0 .4em}
+h3{font-size:1.18rem;margin:1.1em 0 .3em}
+p{margin:.5em 0}
+.muted{color:var(--muted)}
+.small{font-size:.86rem}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:16px 18px;margin:12px 0}
+.grid{display:grid;gap:12px}
+.g2{grid-template-columns:repeat(auto-fit,minmax(260px,1fr))}
+.g3{grid-template-columns:repeat(auto-fit,minmax(200px,1fr))}
+.split{display:grid;gap:12px;grid-template-columns:1.6fr 1fr}
+@media (max-width:720px){ .split{grid-template-columns:1fr} }
+.btn{all:unset;box-sizing:border-box;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:9px 16px;border-radius:7px;background:var(--accent);color:var(--accent-ink);font-weight:600;font-size:.95rem;text-align:center}
+.btn:hover{filter:brightness(1.08)}
+.btn:focus-visible,.opt:focus-visible,nav button:focus-visible,select:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.btn.ghost{background:transparent;color:var(--text);border:1px solid var(--border)}
+.btn.ghost:hover{background:var(--surface2)}
+.btn.sm{padding:6px 11px;font-size:.85rem}
+.btn.ok{background:var(--ok);color:#fff} .btn.ko{background:var(--ko);color:#fff} .btn.warn{background:var(--warn);color:#fff}
+.btn[disabled]{opacity:.45;pointer-events:none}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.pill{display:inline-flex;align-items:center;gap:5px;font-size:.78rem;font-weight:600;padding:2px 9px;border-radius:99px;background:var(--surface2);color:var(--muted)}
+.tdot{width:9px;height:9px;border-radius:50%;display:inline-block}
+.bar{height:8px;background:var(--surface2);border-radius:99px;overflow:hidden}
+.bar>i{display:block;height:100%;border-radius:99px;background:var(--accent);transition:width .4s}
+.kpi{font:600 2.3rem/1.05 var(--serif)}
+.kpi small{font:500 .9rem system-ui,sans-serif;color:var(--muted)}
+.next{border-left:4px solid var(--accent)}
+.opt{all:unset;box-sizing:border-box;display:flex;gap:10px;width:100%;cursor:pointer;padding:10px 12px;border:1px solid var(--border);border-radius:8px;margin:7px 0;background:var(--surface);overflow-wrap:anywhere}
+.opt:hover{border-color:var(--accent)}
+.opt .let{flex:none;width:26px;height:26px;border-radius:6px;display:grid;place-items:center;background:var(--surface2);font-weight:700;font-size:.85rem}
+.opt.multi .let{border-radius:3px;outline:1.5px solid var(--border)}
+.opt.sel{border-color:var(--accent);background:var(--accent-soft)}
+.opt.sel .let{background:var(--accent);color:var(--accent-ink)}
+.opt.right{border-color:var(--ok);background:var(--ok-soft)}
+.opt.right .let{background:var(--ok);color:#fff}
+.opt.wrong{border-color:var(--ko);background:var(--ko-soft)}
+.opt.wrong .let{background:var(--ko);color:#fff}
+.opt.missed{border-color:var(--ok);border-style:dashed}
+.opt.lock{pointer-events:none}
+.fb{border-radius:8px;padding:12px 14px;margin-top:10px}
+.fb.ok{background:var(--ok-soft);border:1px solid var(--ok)}
+.fb.ko{background:var(--ko-soft);border:1px solid var(--ko)}
+.fb.na{background:var(--warn-soft);border:1px solid var(--warn)}
+.qtext{font-size:1.04rem;font-weight:550;margin:6px 0 4px}
+.conf{margin-top:10px;padding:10px 12px;border:1px dashed var(--border);border-radius:8px}
+.trap{background:var(--warn-soft);border-left:4px solid var(--warn);border-radius:6px;padding:10px 14px;margin:12px 0}
+.trap b:first-child{color:var(--warn)}
+.mnemo{background:var(--accent-soft);border-left:4px solid var(--accent);border-radius:6px;padding:10px 14px;margin:12px 0}
+details.self{background:var(--surface2);border-radius:6px;padding:8px 12px;margin:8px 0}
+details.self summary{cursor:pointer;font-weight:600}
+table{border-collapse:collapse;width:100%;font-size:.9rem;margin:8px 0}
+th,td{border:1px solid var(--border);padding:6px 8px;text-align:left;vertical-align:top}
+th{background:var(--surface2)}
+table.tt{width:auto}
+table.tt td,table.tt th{text-align:center;padding:4px 10px}
+.tablewrap{overflow-x:auto}
+.tv{color:var(--ok)} .fv{color:var(--ko)}
+ul.ao{list-style:none;margin:4px 0 4px 6px;padding-left:14px;border-left:2px solid var(--border)}
+ul.ao li{margin:4px 0}
+.aoq{font-weight:700;color:var(--accent)}
+.aob{display:inline-block;min-width:54px;font-weight:600}
+.aowrap{border-top:1px solid var(--border);padding:10px 0;overflow-x:auto}
+ol.steps li{margin:4px 0}
+.flash{min-height:220px;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;cursor:pointer;user-select:none}
+.flash .front{font:600 1.35rem/1.3 var(--serif)}
+.flash .back{margin-top:14px;padding-top:14px;border-top:1px solid var(--border);width:100%;white-space:pre-line}
+.navgrid{display:flex;flex-wrap:wrap;gap:5px}
+.navgrid button{all:unset;cursor:pointer;width:32px;height:32px;border-radius:6px;display:grid;place-items:center;font-size:.8rem;font-weight:600;border:1px solid var(--border);background:var(--surface)}
+.navgrid button.ans{background:var(--accent-soft);border-color:var(--accent)}
+.navgrid button.flag{box-shadow:inset 0 0 0 2px var(--warn)}
+.navgrid button.cur{outline:2px solid var(--text)}
+.timer{font-variant-numeric:tabular-nums;font-weight:700}
+input[type=number],input[type=date],input[type=text],select{font:inherit;color:var(--text);background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:7px 10px;max-width:100%}
+.toc{display:flex;gap:6px;flex-wrap:wrap;margin:8px 0 4px}
+.hist{display:flex;align-items:flex-end;gap:6px;height:90px;padding-top:16px}
+.hist div{flex:1;max-width:36px;background:var(--accent);border-radius:4px 4px 0 0;position:relative;min-height:3px}
+.hist div span{position:absolute;top:-18px;left:50%;transform:translateX(-50%);font-size:.72rem;color:var(--muted)}
+.tag{font-size:.75rem;padding:1px 7px;border-radius:4px;background:var(--surface2);color:var(--muted)}
+.hide{display:none!important}
+ul.tight{margin:.3em 0;padding-left:1.2em} ul.tight li{margin:.15em 0}
+.kbd{font:600 .75rem ui-monospace,monospace;border:1px solid var(--border);border-bottom-width:2px;border-radius:4px;padding:0 5px;background:var(--surface)}
+.fx{font-family:"Cambria Math","STIX Two Math","Segoe UI Symbol","Noto Sans Math",serif;font-size:1.05em}
+.gencard{display:flex;flex-direction:column;gap:6px}
+.gencard h3{margin:0}
+/* deducción natural */
+.nd{font-family:"Cambria Math","Segoe UI Symbol",serif;margin:10px 0;overflow-x:auto}
+.ndbox{border:1.5px solid var(--text);border-radius:2px;padding:0 0 0 8px;margin:2px 0}
+.ndl{display:grid;grid-template-columns:2.2em minmax(10em,1fr) minmax(8em,auto);gap:8px;align-items:center;padding:2px 6px 2px 0;min-height:30px}
+.ndl .n{color:var(--muted);font-family:system-ui,sans-serif;font-size:.85rem}
+.ndl select{font:inherit;padding:2px 6px;max-width:100%}
+.ndl select.okg{border-color:var(--ok);background:var(--ok-soft)}
+.ndl select.kog{border-color:var(--ko);background:var(--ko-soft)}
+.ndl .j{font-family:system-ui,sans-serif;font-size:.9rem}
+.svgfig{width:100%;max-width:560px;display:block;margin:10px auto}
+.svgfig text{fill:var(--text);font:13px system-ui,sans-serif}
+.svgfig .fill1{fill:var(--accent-soft);stroke:var(--accent)}
+.svgfig .fill2{fill:var(--surface2);stroke:var(--border)}
+.svgfig .fill3{fill:var(--ko-soft);stroke:var(--ko)}
+.svgfig .ln{stroke:var(--muted);fill:none;stroke-width:1.5}
+@media (max-width:600px){ .kpi{font-size:1.9rem} h1{font-size:1.6rem} .card{padding:14px} .ndl{grid-template-columns:2em 1fr;} .ndl .j{grid-column:2} }
+</style>
+</head>
+<body>
+<header>
+  <div class="hwrap">
+    <a class="home" href="/" title="Volver a jorgellaneza.es" aria-label="Volver a jorgellaneza.es">&larr;</a>
+    <div class="brand"><span class="dot" aria-hidden="true">⊨</span>COM · Lógica</div>
+    <div class="spacer"></div>
+    <span class="pill" id="hdrStreak" title="Días seguidos estudiando">0 días</span>
+    <button class="btn ghost sm" id="themeBtn" title="Cambiar tema claro/oscuro" aria-label="Cambiar tema">◐</button>
+  </div>
+  <nav id="nav">
+    <button data-v="home">Inicio</button>
+    <button data-v="learn">Aprender</button>
+    <button data-v="practice">Practicar</button>
+    <button data-v="lab">Talleres</button>
+    <button data-v="flash">Flashcards</button>
+    <button data-v="exam">Simulacro</button>
+    <button data-v="strategy">Estrategia</button>
+  </nav>
+</header>
+<main id="app"><p class="muted">Cargando tu progreso…</p></main>
+
+<!-- ===================== RESÚMENES ===================== -->
+<template id="tpl-learn">
+<h1>Aprender</h1>
+<p class="muted">Lee un tema, intenta responder las preguntas de «Explícatelo» antes de abrirlas y haz su test justo después. Las preguntas del examen están en inglés, así que los términos clave van en inglés también.</p>
+<div class="toc" id="learnToc"></div>
+
+<section class="card" data-topic="p1">
+<h2 style="margin-top:0">1 · Formalización en lógica proposicional</h2>
+<p>Una <b>proposición</b> es una oración declarativa que puede ser verdadera o falsa: «it rains», «Gasol is tall», «Juan works with Pedro». No lo son las preguntas, las exclamaciones ni las expresiones sueltas («What time is it?», «2 + 2», «Pedro»). Para formalizar: identifica las proposiciones simples (p, q, r…) y después las palabras que las conectan.</p>
+<div class="tablewrap"><table>
+<tr><th>Conectiva</th><th>Fórmula</th><th>Cómo aparece en el enunciado</th></tr>
+<tr><td>Negación</td><td>¬p</td><td>not p · p is false · p is not true · it is false that p</td></tr>
+<tr><td>Conjunción</td><td>p ∧ q</td><td>p and q · p <b>but</b> q · p <b>however</b> q · p <b>nevertheless</b> q · p <b>despite</b> q</td></tr>
+<tr><td>Disyunción</td><td>p ∨ q</td><td>p or q · p or q or both · at least p or q</td></tr>
+<tr><td>Condicional</td><td>p → q</td><td>if p then q · <b>p only if q</b> · q if p · q when p · <b>q is necessary for p</b> · <b>p is sufficient for q</b> · <b>not p unless q</b></td></tr>
+<tr><td>Bicondicional</td><td>p ↔ q</td><td>p if and only if q · p is necessary and sufficient for q</td></tr>
+</table></div>
+<div class="mnemo"><b>Regla de oro del condicional.</b> Lo que va detrás de <b>only if</b> y lo <b>necessary</b> son el consecuente (a la derecha de →). Lo que va detrás de <b>if</b> y lo <b>sufficient</b> son el antecedente. «Not p unless q» es p → q, así que «p unless q» es ¬q → p ≡ p ∨ q.</div>
+<h3>Prioridad de las conectivas</h3>
+<p>De más a menos: <span class="fx">¬ · ∧ · ∨ · → · ↔</span>. Entre conectivas del mismo nivel manda la de la izquierda: <span class="fx">p → q → r</span> es <span class="fx">(p → q) → r</span>. Ejemplos: <span class="fx">p ∧ ¬q → r</span> = <span class="fx">(p ∧ ¬q) → r</span>; <span class="fx">¬p ↔ q ∨ r</span> = <span class="fx">(¬p) ↔ (q ∨ r)</span>; <span class="fx">p ∨ q ∧ p → r</span> = <span class="fx">(p ∨ (q ∧ p)) → r</span>.</p>
+<h3>Fórmulas bien formadas</h3>
+<p>Las letras proposicionales y las constantes T y F son fórmulas atómicas; si F y G lo son, también ¬F, F ∧ G, F ∨ G, F → G y F ↔ G. Dos conectivas binarias no pueden ir seguidas (<span class="fx">p ∧ ∧ q</span> no es fórmula). La conectiva principal es la raíz del árbol sintáctico: la de menor prioridad.</p>
+<h3>Ejemplo resuelto (examen 20/21)</h3>
+<p>«<i>Only if you have finished studying (p) I will let you go to the party (q), and for me to let you go to the party it is necessary that you do not misbehave (r).</i>» → «only if p, q» es <span class="fx">q → p</span>; «¬r is necessary for q» es <span class="fx">q → ¬r</span>. Solución: <span class="fx">(q → p) ∧ (q → ¬r)</span>, o bien <span class="fx">q → p ∧ ¬r</span>.</p>
+<div class="trap"><b>Trampas típicas.</b> Escribir «p only if q» como q → p. Leer «unless» como «si… entonces no». Olvidar que «but» es ∧. En «It is not true that p or q» la negación abarca todo: ¬(p ∨ q), no ¬p ∨ q. Y en las preguntas de «qué frase corresponde a la fórmula», mira si alguna opción es la recíproca.</div>
+<details class="self"><summary>Explícatelo: ¿por qué «studying is necessary for passing» equivale a «not studying is sufficient for not passing»?</summary><p>Con p = estudiar y q = aprobar, la primera es q → p y la segunda ¬p → ¬q, que es su contrarrecíproca. Las dos dicen que nadie aprueba sin estudiar.</p></details>
+<details class="self"><summary>Explícatelo: «The robot stops when there is no electricity and the sensor is triggered». ¿Por qué hay dos fórmulas posibles?</summary><p>No está claro si «and the sensor is triggered» forma parte del consecuente (¬p → q ∧ r) o es otra afirmación aparte ((¬p → q) ∧ r). El lenguaje natural es ambiguo y la lógica obliga a elegir.</p></details>
+<div class="row"><button class="btn" data-quiz="p1">Hacer el test de este tema →</button><label class="row small"><input type="checkbox" data-read="p1"> Marcar como leído</label></div>
+</section>
+
+<section class="card" data-topic="p2">
+<h2 style="margin-top:0">2 · Semántica, consecuencia lógica y contradicción</h2>
+<p>Una <b>interpretación</b> da un valor T o F a cada letra: con n letras distintas hay <b>2ⁿ</b> interpretaciones (las filas de la tabla de verdad). Si Fᴵ = T, I es un <b>modelo</b> de F; si Fᴵ = F, un <b>contramodelo</b>.</p>
+<svg class="svgfig" viewBox="0 0 520 170" role="img" aria-label="Diagrama: dentro de todas las fórmulas, las satisfacibles contienen a las válidas y el resto son insatisfacibles">
+<rect class="fill2" x="10" y="10" width="500" height="150" rx="10"/>
+<rect class="fill1" x="24" y="24" width="300" height="122" rx="8"/>
+<rect x="40" y="62" width="130" height="70" rx="8" style="fill:var(--surface);stroke:var(--accent)"/>
+<rect class="fill3" x="340" y="24" width="156" height="122" rx="8"/>
+<text x="36" y="46" font-weight="600">Satisfacibles (T en alguna I)</text>
+<text x="56" y="92" font-weight="600">Válidas</text><text x="56" y="112" class="small">(T en todas)</text>
+<text x="186" y="92">Satisfacibles</text><text x="186" y="112">no válidas: F y ¬F</text>
+<text x="352" y="80" font-weight="600">Insatisfacibles</text><text x="352" y="100">(F en todas)</text>
+</svg>
+<p><b>Principio del espejo:</b> F es válida ⇔ ¬F es insatisfacible. Si F es satisfacible pero no válida, ¬F también lo es.</p>
+<p>Un <b>conjunto</b> es <b>consistente</b> si alguna interpretación hace T a todas sus fórmulas a la vez. {p, ¬p} es inconsistente aunque cada fórmula sea satisfacible.</p>
+<h3>Equivalencia y leyes</h3>
+<p>F ≡ G si tienen el mismo valor en toda interpretación; F ≡ G ⇔ F ↔ G es válida. ≡ es un metasímbolo, no una conectiva.</p>
+<div class="tablewrap"><table>
+<tr><th>Ley</th><th>Equivalencia</th></tr>
+<tr><td>Contraposición</td><td class="fx">G → H ≡ ¬H → ¬G</td></tr>
+<tr><td>Eliminar → y ↔</td><td class="fx">G → H ≡ ¬G ∨ H · G ↔ H ≡ (G → H) ∧ (H → G)</td></tr>
+<tr><td>De Morgan</td><td class="fx">¬(G ∨ H) ≡ ¬G ∧ ¬H · ¬(G ∧ H) ≡ ¬G ∨ ¬H</td></tr>
+<tr><td>Distributivas</td><td class="fx">G ∨ (H ∧ J) ≡ (G ∨ H) ∧ (G ∨ J) · G ∧ (H ∨ J) ≡ (G ∧ H) ∨ (G ∧ J)</td></tr>
+<tr><td>Absorción</td><td class="fx">G ∧ (H ∨ G) ≡ G · G ∨ (H ∧ G) ≡ G</td></tr>
+<tr><td>Complemento</td><td class="fx">G ∧ ¬G ≡ F · G ∨ ¬G ≡ T</td></tr>
+<tr><td>Dominación / neutro</td><td class="fx">G ∧ F ≡ F · G ∨ T ≡ T · G ∧ T ≡ G · G ∨ F ≡ G</td></tr>
+<tr><td>Doble negación, idempotencia, conmutativa, asociativa</td><td class="fx">¬¬G ≡ G · G ∧ G ≡ G · …</td></tr>
+</table></div>
+<h3>Consecuencia lógica</h3>
+<p>Γ ⊨ Q si todo modelo de todas las fórmulas de Γ es modelo de Q. Un razonamiento {P₁…Pₙ} ⊨ Q es <b>correcto</b> (sound) si la conclusión es consecuencia lógica de las premisas.</p>
+<ul class="tight">
+<li><b>Teorema I:</b> correcto ⇔ <span class="fx">P₁ ∧ … ∧ Pₙ → Q</span> es válida. Lo usan las tablas de verdad y la contradicción.</li>
+<li><b>Teorema II:</b> correcto ⇔ <span class="fx">{P₁, …, Pₙ, ¬Q}</span> es inconsistente. Lo usa la resolución.</li>
+</ul>
+<h3>Demostración por contradicción</h3>
+<ol class="tight">
+<li>Suponer que la fórmula es <b>F</b> en alguna I: el antecedente (conjunción de premisas) T y la conclusión F.</li>
+<li>Propagar valores desde fuera hacia dentro hasta llegar a las letras.</li>
+<li>Si un dato no basta, abrir casos (por ejemplo, q ↔ r = F da q = T, r = F o q = F, r = T).</li>
+<li>Si <b>todos</b> los casos acaban en contradicción, la fórmula es válida. Si alguno no, ese caso es un contramodelo y no es válida.</li>
+</ol>
+<div class="mnemo"><b>Preguntas de metarrazonamiento.</b> «X no es válida» ⇒ existe una I con Xᴵ = F. Si X = ¬F ∨ G (≡ F → G), esa I da F = T y G = F: F es satisfacible y G no es válida. Escribe siempre qué valores impone esa I y comprueba cada opción en ella.</div>
+<div class="trap"><b>Trampas típicas.</b> Si las premisas son inconsistentes, el razonamiento es correcto sea cual sea la conclusión. Un contramodelo tiene que hacer T <b>todas</b> las premisas. Y en el método de contradicción, encontrar una contradicción en un caso no basta: hacen falta todos.</div>
+<details class="self"><summary>Explícatelo: ¿por qué {p → q, q} ⊨ p no es correcto?</summary><p>Con p = F y q = T las dos premisas son T y la conclusión F: es un contramodelo (falacia de afirmar el consecuente).</p></details>
+<div class="row"><button class="btn" data-quiz="p2">Hacer el test de este tema →</button><label class="row small"><input type="checkbox" data-read="p2"> Marcar como leído</label></div>
+</section>
+
+<section class="card" data-topic="p3">
+<h2 style="margin-top:0">3 · Forma clausal, resolución y deducción natural</h2>
+<p><b>Literal:</b> p o ¬p. <b>Cláusula:</b> disyunción de literales. <b>FNC</b> (CNF): conjunción de cláusulas. <b>FND</b> (DNF): disyunción de conjunciones de literales. <b>Forma clausal:</b> el conjunto de cláusulas de la FNC, {¬p ∨ q, ¬p ∨ r ∨ ¬s, p}.</p>
+<ol class="tight">
+<li>Eliminar ↔ y →.</li>
+<li>Meter ¬ hacia dentro (De Morgan, ¬¬).</li>
+<li>Distributiva de ∨ sobre ∧.</li>
+<li>Simplificar: quitar cláusulas con un literal y su negación, literales repetidos y cláusulas que contienen a otra (absorción).</li>
+</ol>
+<p>Ejemplo del tema: <span class="fx">¬p ∨ q → ¬(q ∧ r)</span> ≡ <span class="fx">(p ∧ ¬q) ∨ ¬q ∨ ¬r</span> ≡ <span class="fx">(p ∨ ¬q ∨ ¬r) ∧ (¬q ∨ ¬r)</span> ≡ <span class="fx">¬q ∨ ¬r</span> (absorción). Forma clausal: {¬q ∨ ¬r}.</p>
+<p><b>□</b> (cláusula vacía) ≡ F, insatisfacible. <b>∅</b> (conjunto sin cláusulas) es válido. <b>Horn:</b> como mucho un literal positivo: hecho H, objetivo ¬G₁ ∨ … ∨ ¬Gₙ, regla H ∨ ¬G₁ ∨ … ∨ ¬Gₙ.</p>
+<h3>Resolución</h3>
+<p>De <span class="fx">L ∨ F</span> y <span class="fx">Lᶜ ∨ G</span> se obtiene <span class="fx">F ∨ G</span>. Para probar Γ ⊨ Q: forma clausal de las premisas y de ¬Q, y aplicar la regla añadiendo cada resolvente al conjunto. Si sale □, el conjunto es inconsistente y el razonamiento correcto. Si se agotan los pares sin □, es consistente.</p>
+<p>Ejemplo del paraguas: {¬p ∨ q ∨ r, ¬r, p, ¬q} → ¬p ∨ q (con ¬r) → q (con p) → □ (con ¬q).</p>
+<div class="trap"><b>Una sola pareja cada vez.</b> p ∨ q y ¬p ∨ ¬q no dan □: dan q ∨ ¬q o p ∨ ¬p. Y no olvides negar la conclusión antes de pasarla a cláusulas.</div>
+<h3>Deducción natural</h3>
+<div class="tablewrap"><table>
+<tr><th>Regla</th><th>Qué hace</th><th>Cómo se cita</th></tr>
+<tr><td>∧I / ∧E</td><td>De A y B, A ∧ B · de A ∧ B, A (o B)</td><td>∧I 2,3 · ∧E 1</td></tr>
+<tr><td>∨I / ∨E</td><td>De A, A ∨ B · de A ∨ B, A → C y B → C, C</td><td>∨I 4 · ∨E 4,1,10</td></tr>
+<tr><td>→I / →E</td><td>Caja que supone A y llega a B ⇒ A → B · de A y A → B, B (modus ponens)</td><td>→I 3-5 · →E 1,3</td></tr>
+<tr><td>↔I / ↔E</td><td>De A → B y B → A, A ↔ B · de A ↔ B, A → B (o B → A)</td><td>↔I 6,11 · ↔E 2</td></tr>
+<tr><td>¬I</td><td>Caja que supone A y llega a B ∧ ¬B ⇒ ¬A</td><td>¬I 5-7</td></tr>
+<tr><td>¬E</td><td>Caja que supone ¬A y llega a B ∧ ¬B ⇒ A</td><td>¬E 6-8</td></tr>
+<tr><td>T-I, T-E, F-I, F-E</td><td>A ∨ ¬A ⇔ T · de A ∧ ¬A, F · de F, cualquier A</td><td></td></tr>
+</table></div>
+<p class="small muted">En Campus Virtual las reglas aparecen escritas al revés: «I →» = →I, «E ∼» = ¬E, «E ∨» = ∨E.</p>
+<div class="mnemo"><b>Cómo leer una caja.</b> Mira la línea que sigue a la caja: si es A → B, la caja se cerró con →I; si es ¬A (con A el supuesto), con ¬I; si es A y el supuesto era ¬A, con ¬E. Antes de esa línea, dentro de la caja, suele estar la contradicción B ∧ ¬B (∧I). Para probar A → B supón A; para probar ¬A supón A; para usar A ∨ B prepara A → C y B → C.</div>
+<p><b>Propiedades:</b> resolución y deducción natural son <b>correctas</b> (Γ ⊢ Q ⇒ Γ ⊨ Q) y <b>completas</b> (Γ ⊨ Q ⇒ Γ ⊢ Q). La lógica proposicional es decidible; SAT fue el primer problema NP-completo.</p>
+<details class="self"><summary>Explícatelo: en la prueba del examen 20/21, ¿por qué la línea 9 (r) se justifica con ¬E 6-8 y no con ¬I?</summary><p>La caja 6-8 supone ¬r y llega a s ∧ ¬s. Concluir r a partir del supuesto ¬r es eliminar la negación (¬E). ¬I habría sido suponer r y concluir ¬r.</p></details>
+<div class="row"><button class="btn" data-quiz="p3">Hacer el test de este tema →</button><button class="btn ghost" data-labgo="nd">Rellenar demostraciones</button><label class="row small"><input type="checkbox" data-read="p3"> Marcar como leído</label></div>
+</section>
+
+<section class="card" data-topic="q1">
+<h2 style="margin-top:0">4 · Lógica de predicados: sintaxis y formalización</h2>
+<p>L1 añade a las conectivas <b>constantes</b> (a, b, john), <b>funciones</b> (f(X), motherOf(X)), <b>variables</b> (X, Y), <b>predicados</b> (p(X,Y), Dog(X)) y <b>cuantificadores</b> ∀ y ∃. La aridad es el número de argumentos.</p>
+<ul class="tight">
+<li><b>Término</b>: constante, variable o función aplicada a términos. Se evalúa a un objeto, no a T/F.</li>
+<li><b>Fórmula atómica</b>: predicado aplicado a términos. Se evalúa a T/F. P(Q(X)) no está bien formada; ¬f(x) tampoco.</li>
+<li><b>Prioridad</b>: ¬, ∀ y ∃ son los que más ligan. En <span class="fx">∀X p(X) → q(X)</span> el ámbito de ∀X es solo p(X) y la X de q(X) está libre.</li>
+<li>Una variable está <b>ligada</b> si está en el ámbito de un cuantificador sobre ella y <b>libre</b> si no. Si hay varios, la liga el más cercano. Una <b>bound formula</b> no tiene variables libres, y el resultado de formalizar siempre debe serlo.</li>
+</ul>
+<div class="tablewrap"><table>
+<tr><th>Frase</th><th>Fórmula</th></tr>
+<tr><td>All p are q</td><td class="fx">∀X (p(X) → q(X))</td></tr>
+<tr><td>Only p are q</td><td class="fx">∀X (q(X) → p(X))</td></tr>
+<tr><td>No p is q</td><td class="fx">∀X (p(X) → ¬q(X)) ≡ ¬∃X (p(X) ∧ q(X))</td></tr>
+<tr><td>Some p are q</td><td class="fx">∃X (p(X) ∧ q(X))</td></tr>
+<tr><td>Not all p are q</td><td class="fx">¬∀X (p(X) → q(X)) ≡ ∃X (p(X) ∧ ¬q(X))</td></tr>
+<tr><td>Every flea hounds some dragon</td><td class="fx">∀Y [F(Y) → ∃X (D(X) ∧ H(Y,X))]</td></tr>
+<tr><td>Some fleas hound all dragons</td><td class="fx">∃Y [F(Y) ∧ ∀X (D(X) → H(Y,X))]</td></tr>
+<tr><td>Everybody lives somewhere / there is a place where everybody lives</td><td class="fx">∀X ∃Y Lives(X,Y) / ∃Y ∀X Lives(X,Y)</td></tr>
+</table></div>
+<div class="mnemo"><b>∀ con →, ∃ con ∧.</b> ∀X (A ∧ B) dice que todo el dominio es A y B. ∃X (A → B) se cumple con cualquier cosa que no sea A. Casi siempre son errores, y por eso son los distractores favoritos.</div>
+<div class="trap"><b>Trampas típicas.</b> El orden de los argumentos: con R(X,Y) = «X reads Y», «X is read by somebody» es ∃Y R(Y,X). El orden de ∀ y ∃ cambia el significado. «Necessary» sigue funcionando como en L0: «for all students to pass it is necessary that some professor explains well» es ∀x (S(x) → P(x)) → ∃x (Pr(x) ∧ E(x)).</div>
+<details class="self"><summary>Explícatelo: ¿por qué ∀x∃y A(x,y) ∧ B(x,y) no es una fórmula cerrada?</summary><p>Los cuantificadores solo alcanzan a A(x,y); en B(x,y), x e y están libres. Con paréntesis, ∀x∃y (A(x,y) ∧ B(x,y)) sí lo sería.</p></details>
+<div class="row"><button class="btn" data-quiz="q1">Hacer el test de este tema →</button><label class="row small"><input type="checkbox" data-read="q1"> Marcar como leído</label></div>
+</section>
+
+<section class="card" data-topic="q2">
+<h2 style="margin-top:0">5 · Semántica en L1: interpretaciones y árboles AND/OR</h2>
+<p>Una <b>interpretación</b> consta de un dominio D <b>no vacío</b>, un elemento de D para cada constante, una función Dⁿ → D para cada función y una función Dⁿ → {T, F} para cada predicado. Puede haber infinitas interpretaciones, así que <b>no hay tablas de verdad</b>.</p>
+<p>∀X G(X) es T si G es T para <b>todo</b> elemento de D; ∃X G(X) si lo es para <b>alguno</b>. En dominios finitos se evalúa con un <b>árbol AND/OR</b>: cada ∀ es un nodo AND y cada ∃ un nodo OR. Un ¬ invierte el resultado del subárbol.</p>
+<p>Ejemplo del examen 20/21: <span class="fx">∀Y¬∀X (p(X,Y) → q(X) ∨ r(Y))</span> con D = {1, 2}, p = «X ≥ Y», q = «X is odd», r = «X &gt; 5».</p>
+<ul class="ao"><li><span class="aoq">∀Y</span> nodo AND ⇒ <b class="tv">T</b>
+<ul class="ao"><li><span class="aob">Y = 1</span> <span class="aoq">¬</span>∀X(…): ∀X es <b class="fv">F</b> porque con X = 2: p(2,1) = T, q(2) ∨ r(1) = F ⇒ la rama vale <b class="tv">T</b></li>
+<li><span class="aob">Y = 2</span> <span class="aoq">¬</span>∀X(…): con X = 2: p(2,2) = T, q(2) ∨ r(2) = F ⇒ ∀X es F ⇒ la rama vale <b class="tv">T</b></li></ul></li></ul>
+<div class="mnemo"><b>Truco para las preguntas de «select the true formulas».</b> Todas comparten el núcleo: calcula una vez la tabla del núcleo K(X,Y) para cada par y después lee cada prefijo sobre la tabla. ∃X∀Y: ¿hay una fila entera de T? ∀X∃Y: ¿cada fila tiene algún T? Un ¬ entre cuantificadores cambia T por F en el nivel que niega.</div>
+<h3>Equivalencias con cuantificadores</h3>
+<div class="tablewrap"><table>
+<tr><th>Vale</th><th>No vale (solo ⊨ en un sentido)</th></tr>
+<tr><td class="fx">¬∀X G ≡ ∃X ¬G · ¬∃X G ≡ ∀X ¬G</td><td class="fx">∀X (G ∨ H) ⊭ ∀X G ∨ ∀X H <span class="muted">(todos aprueban o suspenden)</span></td></tr>
+<tr><td class="fx">∀X (G ∧ H) ≡ ∀X G ∧ ∀X H · ∃X (G ∨ H) ≡ ∃X G ∨ ∃X H</td><td class="fx">∃X G ∧ ∃X H ⊭ ∃X (G ∧ H) <span class="muted">(estudiantes y trabajadores)</span></td></tr>
+<tr><td class="fx">∀X∀Y ≡ ∀Y∀X · ∃X∃Y ≡ ∃Y∃X</td><td class="fx">∀Y∃X G ⊭ ∃X∀Y G <span class="muted">(todos salen con alguien)</span></td></tr>
+<tr><td>Si X no aparece en H: <span class="fx">H ∨ ∀X G(X) ≡ ∀X (H ∨ G(X))</span>, y lo mismo con ∧ y con ∃</td><td>Las direcciones que sí valen: <span class="fx">∀X G ∨ ∀X H ⊨ ∀X (G ∨ H)</span>, <span class="fx">∃X (G ∧ H) ⊨ ∃X G ∧ ∃X H</span>, <span class="fx">∃X∀Y G ⊨ ∀Y∃X G</span></td></tr>
+</table></div>
+<div class="trap"><b>Trampas típicas.</b> ∃X (cow(X) → good(X)) es T en cuanto existe algo que no es una vaca. ∀X p(X) → ∃X p(X) es válida porque el dominio no puede ser vacío. Al evaluar, una rama F basta para tumbar un ∀ y una T basta para un ∃: no hace falta dibujar todo el árbol para saber el resultado, pero en el examen escrito sí hay que justificarlo.</div>
+<details class="self"><summary>Explícatelo: ¿por qué con D = {1,2}, p = «X = Y» y q = «X is odd», ∀X∃Y (p(X,Y) → q(X)) es T y ∀X (∃Y p(X,Y) → q(X)) es F?</summary><p>En la primera, para X = 2 basta elegir Y = 1, que hace falso el antecedente. En la segunda, ∃Y p(2,Y) es T (Y = 2) y q(2) es F, así que la implicación es F para X = 2.</p></details>
+<div class="row"><button class="btn" data-quiz="q2">Hacer el test de este tema →</button><button class="btn ghost" data-labgo="ao">Generar árboles AND/OR</button><label class="row small"><input type="checkbox" data-read="q2"> Marcar como leído</label></div>
+</section>
+
+<section class="card" data-topic="q3">
+<h2 style="margin-top:0">6 · Forma clausal, unificación y resolución general</h2>
+<p>La resolución en L1 necesita cláusulas. Pasos (prueba constructiva del teorema de Skolem):</p>
+<ol class="tight">
+<li>Eliminar ↔ y →.</li>
+<li>Meter ¬ hacia dentro (De Morgan también con cuantificadores).</li>
+<li>Renombrar variables si dos cuantificadores usan el mismo nombre.</li>
+<li>Mover los cuantificadores a la izquierda <b>sin cambiar su orden</b> (distributiva restringida).</li>
+<li>Eliminar los ∃ (skolemizar): ∃X sin ningún ∀ delante ⇒ constante nueva (X/a); ∃Y con ∀X₁…∀Xₘ delante ⇒ función nueva Y/f(X₁,…,Xₘ). Desde aquí la fórmula es <b>≡sat</b> (equisatisfacible), no equivalente.</li>
+<li>Pasar el núcleo a FNC: es la <b>forma normal de Skolem</b> (SNF).</li>
+<li>Quitar los ∀ y escribir cada cláusula por separado.</li>
+</ol>
+<p>Ejemplo del examen 20/21: <span class="fx">∀Y [¬∃X r(f(X),Y) → ¬∃Z (q(Z) ∨ p(Y,Z))]</span> ≡ <span class="fx">∀Y [∃X r(f(X),Y) ∨ ∀Z (¬q(Z) ∧ ¬p(Y,Z))]</span> ≡ <span class="fx">∀Y∃X∀Z [r(f(X),Y) ∨ (¬q(Z) ∧ ¬p(Y,Z))]</span> ≡sat (X/g(Y)) … ⇒ <span class="fx">{r(f(g(Y)),Y) ∨ ¬q(Z), r(f(g(Y)),Y) ∨ ¬p(Y,Z)}</span>.</p>
+<h3>Sustituciones</h3>
+<p>σ = {V₁/t₁, …}: cada variable se cambia por su término en todas sus apariciones y a la vez. Ninguna variable puede ir a un término que la contenga ({X/f(X)} no es válida). <b>Composición σ₁σ₂</b>: (1) aplicar σ₂ a los <b>términos</b> de σ₁ y quitar los X/X; (2) añadir los pares de σ₂ cuya variable no está en σ₁. No es conmutativa: con σ₁ = {Z/g(X,Y)} y σ₂ = {X/a, Y/b, W/c, Z/d}, σ₁σ₂ = {Z/g(a,b), X/a, Y/b, W/c} y σ₂σ₁ = σ₂.</p>
+<h3>Algoritmo de unificación</h3>
+<ol class="tight">
+<li>μ₀ = { }.</li>
+<li>Calcula el conjunto de desacuerdo D(Tμᵢ): la primera posición, de izquierda a derecha, en la que las expresiones difieren.</li>
+<li>Si en D hay dos términos que empiezan por símbolos distintos (a y b, a y f(…), f y g), o una variable X frente a un término que contiene X, <b>no es unificable</b>.</li>
+<li>Si no, δ = {X/t} y <b>μᵢ₊₁ = μᵢδ</b> (composición: se aplica δ a lo anterior).</li>
+<li>Repite hasta que las expresiones sean idénticas: μ es el mgu.</li>
+</ol>
+<p>Ejemplo: {p(X, a, f(g(Y))), p(f(Z), Z, f(U))} → X/f(Z) → Z/a (y X/f(Z) pasa a X/f(a)) → U/g(Y): mgu = {X/f(a), Z/a, U/g(Y)}.</p>
+<div class="trap"><b>Trampas de unificación.</b> No componer (dejar X/f(Z) cuando Z ya vale a). Olvidar una ligadura. Escribir b/f(a) (una constante no se sustituye). No renombrar: p(X,Y) y p(Y,f(X)) de cláusulas distintas sí unifican tras renombrar una de ellas.</div>
+<h3>Resolución general</h3>
+<p>De <span class="fx">G ∨ ¬E₁</span> y <span class="fx">H ∨ E₂</span> con σ = mgu(E₁, E₂) se obtiene <span class="fx">Gσ ∨ Hσ</span>; si varios literales unifican, se eliminan a la vez. Para demostrar Φ ⊨ G: forma clausal de las premisas y de ¬G (¬∃X q(X) da ¬q(X), con variable), renombrar variables entre cláusulas y resolver hasta □.</p>
+<p>Ejemplo del examen 20/21: {p(X) ∨ ¬r(X,f(Y)), q(X) ∨ r(X,Y), ¬p(a), ¬q(X)} → ¬r(a,f(Y)) con {X/a} → q(a) con {X₂/a, Y₂/f(Y)} → □ con {X/a}.</p>
+<p><b>Estrategias:</b> en anchura (todos los resolventes de cada nivel) o con conjunto soporte (cláusulas de la conclusión negada y sus descendientes); la resolución SLD de Prolog es un caso particular de esta última.</p>
+<details class="self"><summary>Explícatelo: ¿por qué en el simulacro 2 vale P(b) para ∀x (R(x) → ∃x P(x))?</summary><p>El ∃x interior es otra variable que no depende de la x exterior: ∀x (¬R(x) ∨ ∃z P(z)) ≡ ∀x ¬R(x) ∨ ∃z P(z), y ese ∃ puede ir delante y dar una constante. Con f(x) también sería equisatisfacible.</p></details>
+<div class="row"><button class="btn" data-quiz="q3">Hacer el test de este tema →</button><button class="btn ghost" data-labgo="mgu">Practicar unificación</button><label class="row small"><input type="checkbox" data-read="q3"> Marcar como leído</label></div>
+</section>
+
+<section class="card" data-topic="q4">
+<h2 style="margin-top:0">7 · Deducción natural en L1 y propiedades</h2>
+<div class="tablewrap"><table>
+<tr><th>Regla</th><th>Qué hace</th><th>Condición</th></tr>
+<tr><td>∀E</td><td>De ∀X A(X), A(a) para cualquier término</td><td>—</td></tr>
+<tr><td>∀I</td><td>Caja que empieza con «(t) free», deriva A(t) ⇒ ∀X A(X)</td><td>t no aparece en ninguna caja abierta anterior</td></tr>
+<tr><td>∃I</td><td>De A(a), ∃X A(X)</td><td>—</td></tr>
+<tr><td>∃E</td><td>De ∃X A(X) y una caja que supone «A(t), t free» y llega a B ⇒ B</td><td>t free y t ∉ B</td></tr>
+</table></div>
+<p>Ejemplo del examen 19/20, {∃X p(X), ∀X (q(X) → ¬p(X))} ⊢ ∃X ¬q(X):</p>
+<pre>1.  ∃X p(X)                 Premise
+2.  ∀X (q(X) → ¬p(X))       Premise
+┌ 3.  p(a), a free          Assumption
+│ 4.  q(a) → ¬p(a)          ∀E 2
+│ ┌ 5.  q(a)                Assumption
+│ │ 6.  ¬p(a)               →E 4,5
+│ └ 7.  p(a) ∧ ¬p(a)        ∧I 3,6
+│ 8.  ¬q(a)                 ¬I 5-7
+└ 9.  ∃X ¬q(X)              ∃I 8
+10. ∃X ¬q(X)                ∃E 1,3-9</pre>
+<div class="mnemo"><b>Patrón.</b> Si hay una premisa ∃, abre primero su caja de ∃E con un testigo nuevo y trabaja dentro; la última línea dentro de la caja se repite fuera con ∃E. Si el objetivo es ∀X A(X), abre una caja «(t) free». Las premisas ∀ se particularizan con ∀E con el término que necesites.</div>
+<div class="trap"><b>Mal uso típico (diapositivas).</b> Con ∃X P(X) y ∃X Q(X) no se pueden suponer P(a) y Q(a) con el mismo a: en la segunda caja a ya no es libre. Por eso {∃X P(X), ∃X Q(X)} ⊬ ∃X (P(X) ∧ Q(X)), y de hecho no es consecuencia lógica.</div>
+<p><b>Propiedades:</b> la lógica de predicados es <b>semidecidible</b>: si Γ ⊨ Q se puede demostrar en tiempo finito, pero si no lo es ningún algoritmo garantiza terminar. Resolución general y deducción natural son correctas y completas. L0 es de orden 0 y L1 de orden 1; hay lógicas de orden superior y extensiones (temporal, difusa…).</p>
+<details class="self"><summary>Explícatelo: ¿por qué {∃X∀Y P(X,Y)} ⊢ ∀Y∃X P(X,Y) se puede demostrar y al revés no?</summary><p>Con el testigo a de la premisa, para cualquier b libre se obtiene P(a,b) y ∃X P(X,b). Al revés, cada Y podría tener un X distinto: no hay un testigo común, y el razonamiento no es correcto.</p></details>
+<div class="row"><button class="btn" data-quiz="q4">Hacer el test de este tema →</button><button class="btn ghost" data-labgo="nd">Rellenar demostraciones</button><label class="row small"><input type="checkbox" data-read="q4"> Marcar como leído</label></div>
+</section>
+</template>
+
+<!-- ===================== ESTRATEGIA ===================== -->
+<template id="tpl-strategy">
+<h1>Estrategia de examen</h1>
+<div class="card">
+<h2 style="margin-top:0">Cómo es el parcial</h2>
+<p>Los simulacros oficiales de Campus Virtual tienen <b>11 preguntas de 1 punto</b> de dos tipos: <b>«Select one»</b> (4 opciones, una correcta) y <b>«Select one or more»</b> (puede haber varias correctas). Los exámenes escritos de cursos anteriores pedían formalizar, completar una deducción natural, pasar a forma clausal, refutar por resolución y evaluar con un árbol AND/OR: en Talleres tienes todo eso.</p>
+<p>No sabemos la penalización exacta de este año. Por defecto los simulacros de aquí restan <b>0,25 por fallo</b> en las de una respuesta (como la pregunta tipo test del examen 19/20) y en las de varias puntúan como Moodle: cada opción correcta marcada suma su parte, cada incorrecta resta y la pregunta nunca baja de 0. Puedes cambiarlo en Simulacro.</p>
+</div>
+<div class="card">
+<h2 style="margin-top:0">¿Responder o dejar en blanco?</h2>
+<p>Con +1 / −0,25, responder compensa si tu probabilidad de acertar <i>p</i> cumple p − 0,25(1 − p) &gt; 0, es decir, <b>p &gt; 20%</b>. Con 4 opciones, responder al azar ya da p = 25%: el valor esperado es +0,06 por pregunta. Si la penalización fuera −1/3, el azar puro daría 0 y convendría descartar al menos una opción antes de responder.</p>
+<p><b>En las de varias respuestas</b> marca solo las opciones de las que estés seguro: cada una que aciertes suma, y una errónea resta lo mismo que suma una buena. Dejar fuera una correcta solo te quita su parte.</p>
+<p>Tu <b>calibración real</b> (cuánto aciertas cuando dices «Dudo») aparece en Inicio.</p>
+</div>
+<div class="card">
+<h2 style="margin-top:0">Calculadora: ¿cuánto necesito?</h2>
+<div class="row">
+<label>Preguntas <input type="number" id="cN" value="11" min="5" max="60" style="width:70px"></label>
+<label>Aciertos <input type="number" id="cR" value="9" min="0" style="width:70px"></label>
+<label>Fallos <input type="number" id="cW" value="0" min="0" style="width:70px"></label>
+<label>Penalización <input type="number" id="cP" value="0.25" step="0.05" style="width:80px"></label>
+</div>
+<p id="cOut" class="kpi" style="margin-top:10px"></p>
+<p id="cHint" class="muted"></p>
+</div>
+<div class="card">
+<h2 style="margin-top:0">Cómo atacar cada tipo de pregunta</h2>
+<ul>
+<li><b>Formalización:</b> subraya only if, unless, necessary, sufficient, but. Escribe la flecha antes de mirar las opciones y busca la tuya; desconfía de las recíprocas.</li>
+<li><b>Metarrazonamiento</b> («¬F ∨ G is not valid…»): traduce a «existe una I con…», apunta qué valores fija y evalúa cada opción en esa I.</li>
+<li><b>Interpretaciones (AND/OR):</b> tabla del núcleo una vez y después cada prefijo. En las de varias respuestas, evalúa cada fórmula por separado.</li>
+<li><b>Forma clausal / conjunto a refutar:</b> no olvides negar la conclusión. Revisa si la constante de Skolem debería ser una función de un ∀ anterior.</li>
+<li><b>Unificación:</b> aplica el algoritmo en orden y compón siempre. Comprueba la opción aplicándola a las dos expresiones: si no quedan idénticas, es falsa.</li>
+<li><b>Composición:</b> σ₁σ₂ aplica σ₂ a σ₁; mira la variable que comparten.</li>
+<li><b>Deducción natural con huecos:</b> reconstruye la prueba entera en sucio. La línea que sigue a cada caja dice qué regla la cerró.</li>
+<li>Primera vuelta: las seguras. Segunda: las dudosas, con la regla del 20%.</li>
+</ul>
+</div>
+<div class="card">
+<h2 style="margin-top:0">Por qué la web está hecha así</h2>
+<ul class="tight">
+<li><b>Práctica de recuperación:</b> responder preguntas fija más que releer.</li>
+<li><b>Repetición espaciada:</b> cada pregunta vuelve cuando estás a punto de olvidarla. Si la aciertas con seguridad, no vuelve en días; si la fallas, vuelve en 10 minutos y otra vez en la misma sesión.</li>
+<li><b>Ejercicios generados:</b> los talleres crean árboles AND/OR, mgu, composiciones, Skolem y formas clausales nuevos cada vez, así que puedes practicar sin repetir.</li>
+<li><b>Práctica intercalada:</b> el repaso mezcla temas, como el examen.</li>
+<li><b>Feedback inmediato:</b> cada pregunta explica por qué y dónde está la trampa.</li>
+</ul>
+<h3>Rutina diaria (45-60 min)</h3>
+<ol class="tight">
+<li>10 min: flashcards pendientes.</li>
+<li>20 min: Practicar → Repaso inteligente.</li>
+<li>15 min: un taller (el de tu tema más flojo) y una demostración con huecos.</li>
+<li>Los últimos 3 días: un simulacro al día y solo «Mis fallos».</li>
+</ol>
+</div>
+</template>
+
+<script src="kv.js"></script>
+<script src="logic.js"></script>
+<script src="data-l0.js"></script>
+<script src="data-l1.js"></script>
+<script src="data-extra.js"></script>
+<script src="app.js"></script>
+</body>
+</html>

@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <rect x="2" y="2" width="60" height="60" rx="12" fill="#00676b"/>
+  <text x="32" y="44" text-anchor="middle" font-family="Cambria Math, Segoe UI Symbol, Georgia, serif" font-weight="700" font-size="34" fill="#ffffff">⊨</text>
+  <rect x="18" y="51" width="28" height="4" rx="2" fill="#63e6be"/>
+</svg>
