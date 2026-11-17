@@ -159,7 +159,13 @@ ul.tight{margin:.3em 0;padding-left:1.2em} ul.tight li{margin:.15em 0}
 .svgfig .fill2{fill:var(--surface2);stroke:var(--border)}
 .svgfig .fill3{fill:var(--ko-soft);stroke:var(--ko)}
 .svgfig .ln{stroke:var(--muted);fill:none;stroke-width:1.5}
-@media (max-width:600px){ .kpi{font-size:1.9rem} h1{font-size:1.6rem} .card{padding:14px} .ndl{grid-template-columns:2em 1fr;} .ndl .j{grid-column:2} }
+.hero{position:relative;overflow:hidden;background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:20px 24px 18px;margin:4px 0 16px}
+.hero h1{margin:0 0 .55em}
+.hero blockquote{position:relative;margin:0;padding-left:16px;border-left:3px solid var(--accent);max-width:62ch}
+.hero blockquote p{font-family:var(--serif);font-size:1.28rem;font-style:italic;line-height:1.4;margin:0 0 .45em}
+.hero blockquote footer{font-size:.85rem;color:var(--muted)}
+.hero .seal{position:absolute;right:18px;top:50%;transform:translateY(-50%);font-size:5.5rem;line-height:1;color:var(--accent);opacity:.13;pointer-events:none;user-select:none}
+@media (max-width:600px){ .kpi{font-size:1.9rem} h1{font-size:1.6rem} .card{padding:14px} .ndl{grid-template-columns:2em 1fr;} .ndl .j{grid-column:2} .hero{padding:16px} .hero blockquote p{font-size:1.1rem} } @media (max-width:760px){ .hero .seal{display:none} }
 </style>
 </head>
 <body>
@@ -404,7 +410,14 @@ ul.tight{margin:.3em 0;padding-left:1.2em} ul.tight li{margin:.15em 0}
 
 <!-- ===================== STRATEGY ===================== -->
 <template id="tpl-strategy">
+<section class="hero">
+<span class="seal" aria-hidden="true">孫子</span>
 <h1>Exam strategy</h1>
+<blockquote>
+<p>“Thus it is that in war the victorious strategist only seeks battle after the victory has been won, whereas he who is destined to defeat first fights and afterwards looks for victory.”</p>
+<footer>Sun Tzu, <cite>The Art of War</cite>, IV · trans. Lionel Giles</footer>
+</blockquote>
+</section>
 <div class="card">
 <h2 style="margin-top:0">What the midterm looks like</h2>
 <p>The official Campus Virtual mock exams have <b>11 questions worth 1 point</b> of two kinds: <b>“Select one”</b> (4 options, one correct) and <b>“Select one or more”</b> (several can be correct). Written exams from previous years asked you to formalize, complete a natural deduction proof, convert to clausal form, refute by resolution and evaluate with an AND/OR tree: Workshops covers all of that.</p>
