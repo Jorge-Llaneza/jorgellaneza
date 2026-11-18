@@ -228,6 +228,44 @@
     .backup .status.ok { color: var(--accent-2-hi); }
     .backup .status.err { color: #e88; }
 
+    .account {
+      margin: 28px 0 20px;
+      display: grid;
+      grid-template-columns: 1fr auto;
+      align-items: center;
+      gap: 10px 28px;
+      padding: 18px 22px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-left: 3px solid var(--accent);
+      border-radius: 12px;
+    }
+    .account[hidden] { display: none; }
+    .account p { margin: 0; color: var(--muted); max-width: 60ch; }
+    .account .lead { color: var(--text); font-weight: 600; font-size: 1.05rem; margin-bottom: 4px; }
+    .account .actions { display: flex; gap: 10px; flex-wrap: wrap; }
+    .account button {
+      font: inherit;
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: #fff;
+      background: var(--accent);
+      padding: 11px 20px;
+      border: 1px solid var(--accent);
+      border-radius: 999px;
+      cursor: pointer;
+      transition: background-color 0.2s, border-color 0.2s;
+    }
+    .account button:hover { background: #4a76cf; }
+    .account button.ghost { color: var(--text); background: transparent; border-color: var(--border); font-weight: 500; }
+    .account button.ghost:hover { border-color: var(--accent); background-color: rgba(90, 135, 225, 0.1); }
+    .account button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+    .account button:disabled { opacity: 0.5; cursor: default; }
+    .account .status { grid-column: 1 / -1; font-size: 0.9rem; color: var(--muted); }
+    .account .status:empty { display: none; }
+    .account .status.ok { color: var(--accent-2-hi); }
+    .account .status.err { color: #e88; }
+
     @media (max-width: 720px) {
       .wrap { padding-left: 16px; padding-right: 16px; }
       .site { grid-template-columns: 1fr auto; gap: 10px 16px; padding: 22px 8px; }
@@ -235,7 +273,8 @@
       .tag { grid-column: 2; grid-row: 1; justify-self: end; }
       .site > div { grid-column: 1 / -1; grid-row: 2; }
       .arrow { display: none; }
-      .backup { grid-template-columns: 1fr; }
+      .backup, .account { grid-template-columns: 1fr; }
+      .account { padding: 16px; }
     }
     @media (prefers-reduced-motion: reduce) {
       .site::before, .arrow { transition: none; }
@@ -249,6 +288,18 @@
       <h1>Llaneza&rsquo;s playground</h1>
       <p class="intro">A handful of static sites built for one-off reasons. <b>Do not take most of them seriously.</b></p>
     </header>
+
+    <section class="account" id="account" aria-label="Google account" hidden>
+      <div>
+        <p class="lead" id="sync-lead">Keep your progress on every device</p>
+        <p id="sync-state">Sign in with Google and the German games, Notes and COM pick up where you left off on any phone or computer. Without it, progress stays in this browser only.</p>
+      </div>
+      <div class="actions">
+        <button type="button" id="sync-in" hidden>Sign in with Google</button>
+        <button type="button" id="sync-out" class="ghost" hidden>Sign out</button>
+      </div>
+      <p class="status" id="sync-status" role="status"></p>
+    </section>
 
     <main>
       <ul class="sites">
@@ -326,11 +377,8 @@
         <h2 id="backup-title">Your progress</h2>
         <p id="data-where">Scores, streaks and settings from the study tools are kept in this browser only. Download a copy to move them to another device or browser, then load it there.</p>
         <p class="kept" id="data-kept"></p>
-        <p class="kept" id="sync-state" hidden></p>
       </div>
       <div class="actions">
-        <button type="button" id="sync-in" hidden>Sign in with Google</button>
-        <button type="button" id="sync-out" hidden>Sign out</button>
         <button type="button" id="data-download">Download data</button>
         <button type="button" id="data-load">Load data</button>
         <input type="file" id="data-file" accept="application/json,.json" hidden>
@@ -365,26 +413,38 @@
       const syncOut = document.getElementById("sync-out");
       const time = (t) => new Date(t).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
 
+      const accountBox = document.getElementById("account");
+      const syncLead = document.getElementById("sync-lead");
+      const syncStatus = document.getElementById("sync-status");
+      const sayAcc = (msg, kind) => { syncStatus.textContent = msg; syncStatus.className = "status" + (kind ? " " + kind : ""); };
+      const clean = (s) => s.replace(/[<&]/g, "");
+
       function showAccount() {
         const a = KV.account;
         if (a.state === "off") return;
+        accountBox.hidden = false;
         const signedIn = a.state !== "signedout";
         syncIn.hidden = signedIn;
         syncOut.hidden = !signedIn;
-        syncState.hidden = !signedIn;
         if (a.state === "denied") {
+          syncLead.textContent = (a.email || "This Google account") + " can't sync yet";
+          syncState.textContent = "The account is signed in, but the server refused it, so nothing was copied and your progress stays in this browser.";
           where.textContent = "Scores, streaks and settings from the study tools are kept in this browser only. Download a copy to move them to another device or browser, then load it there.";
-          syncState.innerHTML = "<b>" + (a.email || "This Google account").replace(/[<&]/g, "") + " isn't allowed to sync.</b> Syncing is limited to a few accounts, so nothing was copied and your progress stays in this browser.";
           return;
         }
         where.textContent = signedIn
-          ? "Progress in the German games and Notes is copied to your Google account, so every device you sign in on has the same. A game open on two devices at once keeps whichever saved last. The other tools keep theirs in this browser only; download a copy to move it."
-          : "Scores, streaks and settings from the study tools are kept in this browser only. Sign in with Google to have the German games and Notes on every device, or download a copy of everything and load it on the other one.";
-        if (!signedIn) return;
-        syncState.innerHTML = "<b>Signed in as " + (a.email || "your Google account").replace(/[<&]/g, "") + ".</b> " + (
+          ? "The German games, Notes and COM are copied to your Google account. A game open on two devices at once keeps whichever saved last. The other tools keep their progress in this browser only; download a copy to move it."
+          : "Scores, streaks and settings from the study tools are kept in this browser only. Download a copy to move them to another device or browser, then load it there.";
+        if (!signedIn) {
+          syncLead.textContent = "Keep your progress on every device";
+          syncState.textContent = "Sign in with Google and the German games, Notes and COM pick up where you left off on any phone or computer. Without it, progress stays in this browser only.";
+          return;
+        }
+        syncLead.textContent = "Signed in as " + (a.email || "your Google account");
+        syncState.innerHTML = "The German games, Notes and COM follow you to every device you sign in on. " + (
           a.state === "syncing" ? "Syncing&hellip;"
             : a.state === "offline" ? "Offline: changes go up when the connection is back."
-            : a.state === "error" ? "Last sync failed: " + a.error.replace(/[<&]/g, "")
+            : a.state === "error" ? "Last sync failed: " + clean(a.error)
             : a.lastSync ? "Synced at " + time(a.lastSync) + "."
             : "");
       }
@@ -393,17 +453,17 @@
 
       syncIn.addEventListener("click", () => {
         syncIn.disabled = true;
-        say("");
+        sayAcc("");
         KV.account.signIn()
           .then(() => {
-            if (KV.account.state === "denied") return say("Signed in, but this account isn't allowed to sync. Nothing left this browser.", "err");
+            if (KV.account.state === "denied") return sayAcc("Signed in, but the server refused this account. Nothing left this browser.", "err");
             if (KV.account.state !== "ok") return;
-            say("Signed in. Sign in on another device too and the German games and Notes will match.", "ok");
+            sayAcc("Signed in. Sign in on your other devices too and the German games, Notes and COM will match.", "ok");
           })
           .catch((e) => {
             const code = e && e.code ? e.code : "";
             if (code === "auth/popup-closed-by-user" || code === "auth/cancelled-popup-request") return;
-            say(code === "auth/popup-blocked"
+            sayAcc(code === "auth/popup-blocked"
               ? "The browser blocked the sign-in window. Allow popups for jorgellaneza.es and try again."
               : "Could not sign in: " + (e && e.message ? e.message : "unknown error") + ".", "err");
           })
@@ -416,7 +476,7 @@
         await KV.account.signOut();
         syncOut.disabled = false;
         KV.account.prepare();
-        say(denied ? "Signed out. What this browser has stays here." : "Signed out. What this browser has stays here; your account keeps its copy.", "ok");
+        sayAcc(denied ? "Signed out. What this browser has stays here." : "Signed out. What this browser has stays here; your account keeps its copy.", "ok");
       });
 
       document.getElementById("data-download").addEventListener("click", async () => {
@@ -451,7 +511,7 @@
         await KV.ready;
         if (!KV.persistent) return say("This browser is blocking storage (private mode?), so nothing can be loaded.", "err");
         const n = Object.keys(data).length;
-        const scope = KV.account.email && KV.account.state !== "denied" ? "in this browser, and the German games and Notes in " + KV.account.email + "," : "in this browser";
+        const scope = KV.account.email && KV.account.state !== "denied" ? "in this browser, and the German games, Notes and COM in " + KV.account.email + "," : "in this browser";
         if (!confirm("Replace everything saved " + scope + " with " + f.name + " (" + plural(n) + ")? Current progress will be lost.")) return;
         try {
           await KV.replaceAll(data);

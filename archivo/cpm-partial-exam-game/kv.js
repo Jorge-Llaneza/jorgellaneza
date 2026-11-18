@@ -9,8 +9,8 @@
 // It also asks for persistent storage (see `persisted` below).
 //
 // Optional sync: once FIREBASE below is filled in and the user signs in with Google
-// (KV.account.signIn(), offered on the root page), the keys in SYNCED (the German games and
-// notes) are mirrored to Firestore under users/{uid}/kv/{key} and merged across devices, the
+// (KV.account.signIn(), offered on the root page), the keys in SYNCED (the German games,
+// notes and com) are mirrored to Firestore under users/{uid}/kv/{key} and merged across devices, the
 // newest write of each key winning. Every other key stays on this device, and the other apps
 // never touch the network. IndexedDB stays what the apps read from, so everything still
 // works offline.
@@ -22,23 +22,23 @@
   let db = null;
 
   // Firebase project for sync: Project settings > General > Your apps > Web app. These values
-  // are public by design; the Firestore rules keep each user to their own documents, and only
-  // the listed Google accounts may sync at all:
+  // are public by design; the Firestore rules let any signed-in Google account sync, keep each
+  // user to their own documents, and only accept the keys in SYNCED (keep both lists in step):
   //
   //   rules_version = '2';
   //   service cloud.firestore {
   //     match /databases/{database}/documents {
-  //       // Who may sync. To open it to any Google account, make this `return request.auth != null;`.
   //       function allowed() {
-  //         return request.auth != null
-  //           && request.auth.token.email_verified == true
-  //           && request.auth.token.email in ['tu-correo@gmail.com'];
+  //         return request.auth != null && request.auth.token.email_verified == true;
+  //       }
+  //       function syncedKey(key) {
+  //         return key in ['substantive-v1', 'verben-v1', 'woerter-v1', 'notes-trainer.v1', 'com-logica-v1'];
   //       }
   //       match /users/{uid}/kv/{key} {
   //         allow read: if allowed() && request.auth.uid == uid;
-  //         allow write: if allowed() && request.auth.uid == uid
+  //         allow write: if allowed() && request.auth.uid == uid && syncedKey(key)
   //           && request.resource.data.keys().hasOnly(['k', 'v', 't', 's'])
-  //           && request.resource.data.k is string
+  //           && request.resource.data.k == key
   //           && (request.resource.data.v == null
   //               || (request.resource.data.v is string && request.resource.data.v.size() <= 1000000))
   //           && request.resource.data.t is int
@@ -52,10 +52,10 @@
   // While apiKey is empty, sync is off and nothing in this file touches the network.
   const FIREBASE = { apiKey: "AIzaSyDpQA26QJJOfMqTAPtrivbm38pTa9hC3Tk", authDomain: "jorgellaneza-es.firebaseapp.com", projectId: "jorgellaneza-es", appId: "1:1001258307299:web:d59456e2cf54275d9cbfd6" };
   const SDK = "https://www.gstatic.com/firebasejs/13.2.0/";
-  // Only these keys go to Firestore: aleman/sustantivos, aleman/verbos, aleman/worts and notes.
-  const SYNCED = new Set(["substantive-v1", "verben-v1", "woerter-v1", "notes-trainer.v1"]);
+  // Only these keys go to Firestore: aleman/sustantivos, aleman/verbos, aleman/worts, notes and com.
+  const SYNCED = new Set(["substantive-v1", "verben-v1", "woerter-v1", "notes-trainer.v1", "com-logica-v1"]);
   // Only those apps sync, plus the root page, which has the sign-in and the backup buttons.
-  const SYNC = !!FIREBASE.apiKey && /^\/(index\.html)?$|^\/(aleman|notes)\//.test(location.pathname);
+  const SYNC = !!FIREBASE.apiKey && /^\/(index\.html)?$|^\/(aleman|notes|com)\//.test(location.pathname);
 
   function req(r) {
     return new Promise((resolve, reject) => {

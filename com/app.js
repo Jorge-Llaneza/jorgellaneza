@@ -173,7 +173,7 @@ function home(){
       <li><b>Flashcards</b> for definitions, laws and rules.</li>
       <li><b>Mock exam</b>: 11 single- or multi-answer questions, with a timer and penalties.</li>
     </ol>
-    <p class="small muted">Progress is saved in this browser (and in the backup on the home page). Shortcuts: <span class="kbd">1</span>–<span class="kbd">5</span> pick an option, <span class="kbd">Q</span> <span class="kbd">W</span> <span class="kbd">E</span> set how sure you are, <span class="kbd">Enter</span> moves on and <span class="kbd">Space</span> flips a flashcard.</p>
+    <p class="small muted">Progress is saved in this browser and, if you sign in with Google, in your account, so it follows you to every device. Shortcuts: <span class="kbd">1</span>–<span class="kbd">5</span> pick an option, <span class="kbd">Q</span> <span class="kbd">W</span> <span class="kbd">E</span> set how sure you are, <span class="kbd">Enter</span> moves on and <span class="kbd">Space</span> flips a flashcard.</p>
     <button class="btn ghost sm" id="resetBtn">Delete all progress</button></div>`;
   $("#nsBtn").onclick=ns.a; $("#goExam").onclick=()=>go("exam");
   $("#exDate").onchange=e=>{ S.settings.examDate=e.target.value; save(); home(); };
@@ -529,6 +529,37 @@ document.addEventListener("keydown",e=>{
     else if(k==="arrowleft"&&EX.i>0){ EX.i--; renderEx(); }
   }
 });
+/* ============================ SIGN-IN NOTICE ============================
+   Progress only reaches other devices when the user is signed in with Google (kv.js syncs
+   this app's key). While signed out, a bar under the nav says so; it can be hidden for a week. */
+const syncbar=document.getElementById("syncbar");
+let syncMsg="";
+function renderSyncBar(){
+  const a=KV.account, st=a.state;
+  if(syncMsg){ syncbar.className="syncbar ok"; syncbar.innerHTML=`<div class="in"><p>${syncMsg}</p><button class="x" id="sbX" aria-label="Close">×</button></div>`; syncbar.hidden=false; $("#sbX").onclick=()=>{ syncMsg=""; renderSyncBar(); }; return; }
+  const snoozed=Date.now()<(S.syncHide||0);
+  if(st==="signedout"&&!snoozed){
+    syncbar.className="syncbar";
+    syncbar.innerHTML=`<div class="in"><p><b>Your progress is only saved in this browser.</b> Sign in with Google to keep it on your phone and your computer, and to not lose it if the browser clears its data.</p><button class="btn sm" id="sbIn">Sign in with Google</button><button class="x" id="sbX" title="Hide for a week" aria-label="Hide for a week">×</button></div>`;
+    syncbar.hidden=false;
+    $("#sbIn").onclick=e=>{ const b=e.target.closest("button"); b.disabled=true;
+      KV.account.signIn().then(()=>{
+        if(KV.account.state==="denied") syncMsg="<b>Signed in, but the server refused this account.</b> Your progress stays in this browser.";
+        else syncMsg=`<b>Signed in as ${esc(KV.account.email||"your Google account")}.</b> Your progress now follows you to every device you sign in on.`;
+        renderSyncBar(); setTimeout(()=>{ syncMsg=""; renderSyncBar(); },8000);
+      }).catch(err=>{ const code=err&&err.code||""; b.disabled=false;
+        if(code==="auth/popup-closed-by-user"||code==="auth/cancelled-popup-request") return;
+        alertBar(code==="auth/popup-blocked"?"The browser blocked the sign-in window. Allow popups for jorgellaneza.es and try again.":"Could not sign in: "+(err&&err.message?err.message:"unknown error")+"."); });
+    };
+    $("#sbX").onclick=()=>{ S.syncHide=Date.now()+7*DAY; save(); renderSyncBar(); };
+    return;
+  }
+  syncbar.hidden=true;
+}
+function alertBar(msg){ const p=syncbar.querySelector("p"); if(p) p.innerHTML=`<b>${esc(msg)}</b>`; }
+window.addEventListener("kv-account",renderSyncBar);
+renderSyncBar(); KV.account.prepare();
+
 function applyTheme(){ if(S.theme) document.documentElement.setAttribute("data-theme",S.theme); else document.documentElement.removeAttribute("data-theme"); }
 document.getElementById("themeBtn").onclick=()=>{ const dark=S.theme?S.theme==="dark":matchMedia("(prefers-color-scheme: dark)").matches; S.theme=dark?"light":"dark"; save(); applyTheme(); };
 applyTheme(); renderStreak(); go("home");

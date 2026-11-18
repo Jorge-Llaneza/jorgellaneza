@@ -165,6 +165,15 @@ ul.tight{margin:.3em 0;padding-left:1.2em} ul.tight li{margin:.15em 0}
 .hero blockquote p{font-family:var(--serif);font-size:1.28rem;font-style:italic;line-height:1.4;margin:0 0 .45em}
 .hero blockquote footer{font-size:.85rem;color:var(--muted)}
 .hero .seal{position:absolute;right:18px;top:50%;transform:translateY(-50%);font-size:5.5rem;line-height:1;color:var(--accent);opacity:.13;pointer-events:none;user-select:none}
+.syncbar{background:var(--warn-soft);border-bottom:1px solid var(--border)}
+.syncbar[hidden]{display:none}
+.syncbar .in{max-width:980px;margin:0 auto;padding:10px 16px;display:flex;align-items:center;gap:10px 14px;flex-wrap:wrap}
+.syncbar p{margin:0;flex:1 1 320px;font-size:.92rem}
+.syncbar p b{color:var(--warn)}
+.syncbar .x{all:unset;cursor:pointer;color:var(--muted);padding:4px 8px;font-size:1.1rem;line-height:1}
+.syncbar .x:hover{color:var(--text)}
+.syncbar.ok{background:var(--ok-soft)}
+.syncbar.ok p b{color:var(--ok)}
 @media (max-width:600px){ .kpi{font-size:1.9rem} h1{font-size:1.6rem} .card{padding:14px} .ndl{grid-template-columns:2em 1fr;} .ndl .j{grid-column:2} .hero{padding:16px} .hero blockquote p{font-size:1.1rem} } @media (max-width:760px){ .hero .seal{display:none} }
 </style>
 </head>
@@ -187,6 +196,7 @@ ul.tight{margin:.3em 0;padding-left:1.2em} ul.tight li{margin:.15em 0}
     <button data-v="strategy">Strategy</button>
   </nav>
 </header>
+<div class="syncbar" id="syncbar" role="region" aria-label="Sync your progress" hidden></div>
 <main id="app"><p class="muted">Loading your progress…</p></main>
 
 <!-- ===================== SUMMARIES ===================== -->
