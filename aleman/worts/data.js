@@ -278,4 +278,13 @@ const WORTS = [
     ok: ["vergonzoso", "embarazoso", "que da vergüenza", "bochornoso", "incómodo", "violento"],
     near: { schüchtern: "schüchtern es vergonzoso de tímido. Aquí se busca lo que da vergüenza." },
     note: "Das ist mir peinlich = me da vergüenza; Wie peinlich! = ¡Qué vergüenza! Peinlich genau = meticuloso. Sich schämen für + Akk. = avergonzarse; fremdschämen = sentir vergüenza ajena. Ojo: embarazada es schwanger." },
+  { de: "schade", es: "qué pena, (es una) lástima", hint: "Wie schade!",
+    ok: ["qué pena", "lástima", "es una lástima", "qué lástima", "pena", "es una pena"],
+    near: { leider: "leider es por desgracia, desgraciadamente. Aquí se busca qué pena: schade." },
+    note: "Solo predicativo, no se declina: Schade! / Wie schade! / Das ist schade. Schade, dass du nicht kommst (verbo al final). Schade um + Akk. = qué pena por (Schade um das Geld!); zu schade für = demasiado bueno para. Der Schaden = el daño; schaden + Dat. = perjudicar; die Schadenfreude = alegrarse del mal ajeno." },
+  { de: "böse", es: "malo, malvado; enfadado", hint: "ein böser Mensch / böse auf + Akk.",
+    alt: ["böser", "böses", "bösen", "bösem"],
+    ok: ["malo", "mala", "malvado", "malvada", "enfadado", "enfadada", "enojado", "grave", "feo"],
+    near: { schlecht: "schlecht es malo de calidad (schlechtes Wetter). Aquí se busca malo de malvado o enfadado: böse.", sauer: "sauer es enfadado en coloquial (y ácido). Aquí se busca böse.", wütend: "wütend es furioso. Aquí se busca böse." },
+    note: "Ein böser Mensch; das Böse = el mal. Enfadado: Sie ist böse auf mich; Bist du mir böse? = ¿estás enfadado conmigo? Grave, feo: ein böser Unfall, eine böse Überraschung. Nicht böse gemeint = sin mala intención. Böser, am bösesten." },
 ];
