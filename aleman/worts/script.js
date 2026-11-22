@@ -134,6 +134,8 @@ KV.ready.then(() => {
   const MIN = 6e4, HOUR = 36e5, DAY = 864e5;
   const GAP = [0, 0, 10 * MIN, 20 * HOUR, 68 * HOUR, 21 * DAY]; // 20 h y 68 h: margen para jugar a otra hora
   const NEW_CAP = 4;         // cartas nuevas como mucho por ronda
+  const LEARN_LVL = 3;       // por debajo de este nivel la carta está en aprendizaje
+  const LEARN_SHARE = 0.5;   // las que están en aprendizaje ocupan como mucho esta parte de la ronda
   function getM(c) { const st = S.mastery[cardKey(c)]; return st ? st.m : 0; }
   function setM(c, m) { const now = Date.now(); S.mastery[cardKey(c)] = { m: Math.max(0, Math.min(MAX_M, m)), s: now, t: now }; }
   // Se ha visto sin acierto limpio: no cambia el nivel ni el plazo.
@@ -150,18 +152,20 @@ KV.ready.then(() => {
     seenM(c);
   }
 
-  // Elige n cartas: primero hasta newLeft nuevas, luego las que toca repasar (lo más flojo y lo
-  // más atrasado antes), luego el resto (lo que hace más que no ves) y, si aún faltan, más nuevas.
+  // Elige n cartas: primero hasta newLeft nuevas y las que toca practicar en aprendizaje (niveles
+  // 0-2), sin pasar entre todas de LEARN_SHARE de la ronda para que las palabras recién añadidas no
+  // la acaparen; luego los repasos que tocan (lo más flojo y lo más atrasado antes), luego el resto
+  // (lo que hace más que no ves) y, si aún faltan, más de aprendizaje y más nuevas.
   function pickCards(dirs, n, avoid = [], newLeft = NEW_CAP) {
     const now = Date.now();
-    const fresh = [], due = [], rest = [];
+    const fresh = [], learn = [], due = [], rest = [];
     WORTS.forEach((_, i) => dirs.forEach((dir) => {
       const c = { i, dir };
       const st = S.mastery[cardKey(c)];
       let list = rest, w;
       if (!st) { list = fresh; w = 1; }
       else if (isDue(st, now)) {
-        list = due;
+        list = st.m < LEARN_LVL ? learn : due;
         const late = GAP[st.m] ? Math.min(4, (now - (st.s ?? st.t)) / GAP[st.m]) : 4;
         w = (MAX_M + 1 - st.m) ** 2 * late;
       } else {
@@ -180,10 +184,14 @@ KV.ready.then(() => {
       }
     };
     const byK = (a, b) => b.k - a.k;
-    [fresh, due, rest].forEach((l) => l.sort(byK));
+    [fresh, learn, due, rest].forEach((l) => l.sort(byK));
+    // Con una sola carta (Blitz, Überleben) el tope se aplica como probabilidad.
+    const learnMax = n > 1 ? Math.round(n * LEARN_SHARE) : (Math.random() < LEARN_SHARE ? 1 : 0);
     take(fresh, Math.min(n, newLeft));
+    take(learn, learnMax);
     take(due, n);
     take(rest, n);
+    take(learn, n);
     take(fresh, n);
     for (let i = out.length - 1; i > 0; i--) { const j = (Math.random() * (i + 1)) | 0; [out[i], out[j]] = [out[j], out[i]]; }
     return out;
