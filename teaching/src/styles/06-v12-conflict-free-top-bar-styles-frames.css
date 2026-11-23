@@ -1,0 +1,31 @@
+/* ===== v12: conflict-free top bar styles, frames and reduced motion ===== */
+.chippv{display:inline-block;padding:6px 12px;border-radius:14px;border:1px solid var(--bd);background:var(--card);color:var(--fg);font-size:13px}
+html[data-chip] #chip,.chippv[data-chip]{background:var(--chip-img,linear-gradient(var(--card),var(--card)));background-size:var(--chip-size,100% 100%);color:var(--chip-fg,var(--fg))}
+#chip .flair,.chippv .flair{color:inherit}
+html:root[data-chip=glass] #chip,.chippv[data-chip=glass]{--chip-img:linear-gradient(135deg,#ffffff40,#ffffff12);backdrop-filter:blur(8px);border:1px solid #ffffff77}
+html:root[data-chip=pill] #chip,.chippv[data-chip=pill]{border:2px solid var(--acc);border-radius:999px;box-shadow:0 0 0 3px color-mix(in srgb,var(--acc),transparent 75%)}
+html:root[data-chip=neon] #chip,.chippv[data-chip=neon]{--chip-img:linear-gradient(var(--bg),var(--bg));border:2px solid var(--acc);box-shadow:0 0 8px var(--acc),inset 0 0 6px color-mix(in srgb,var(--acc),transparent 60%)}
+html:root[data-chip=pixel] #chip,.chippv[data-chip=pixel]{border:3px solid var(--fg);border-radius:0;box-shadow:3px 3px 0 var(--fg);font-family:monospace}
+html:root[data-chip=ticket] #chip,.chippv[data-chip=ticket]{border:2px dashed var(--acc);border-radius:6px}
+html:root[data-chip=holo] #chip,.chippv[data-chip=holo]{--chip-img:linear-gradient(120deg,#ffd1f0,#9ad7ff,#b8ffe6,#fff3a6,#ffd1f0);--chip-size:300% 100%;--chip-fg:#111;--fg:#111;--acc:#6a1fb0;border:1px solid #fff9;animation:nfxm 6s linear infinite}
+html:root[data-chip=gold] #chip,.chippv[data-chip=gold]{--chip-img:linear-gradient(120deg,#f6d77a,#c99a2e,#f6d77a);--chip-fg:#2a1d00;--fg:#2a1d00;--acc:#7a5a00;border:2px solid #7a5a00;font-weight:700}
+html:root[data-chip=minimal] #chip,.chippv[data-chip=minimal]{--chip-img:linear-gradient(transparent,transparent);border:0;border-bottom:2px solid var(--acc);border-radius:0}
+html:root[data-chip=pastel] #chip,.chippv[data-chip=pastel]{--chip-img:linear-gradient(#ffe3f1,#ffe3f1);--chip-fg:#4a1030;--fg:#4a1030;--acc:#b0245f;border:2px solid #ffb3d9;border-radius:16px}
+html:root[data-chip=terminalc] #chip,.chippv[data-chip=terminalc]{--chip-img:linear-gradient(#000,#000);--chip-fg:#39ff14;--fg:#39ff14;--acc:#39ff14;border:1px solid #39ff14;font-family:monospace;border-radius:0}
+html:root[data-chip=stitched] #chip,.chippv[data-chip=stitched]{border:2px dashed var(--fg);outline:2px solid var(--card);outline-offset:-5px;border-radius:10px}
+html:root[data-chip=rainbowc] #chip,.chippv[data-chip=rainbowc]{border:3px solid transparent;background:linear-gradient(var(--card),var(--card)) padding-box,linear-gradient(120deg,#ff5f6d,#ffc371,#47e891,#4aa8ff,#b36bff,#ff5f6d) border-box;background-size:100% 100%,300% 100%;animation:nfxm 6s linear infinite}
+html:root[data-chip=metal] #chip,.chippv[data-chip=metal]{--chip-img:linear-gradient(180deg,#e9ecf0,#b9c0c9 50%,#e2e6ea);--chip-fg:#111;--fg:#111;--acc:#1f4f8f;border:2px solid #6b7280;font-weight:600}
+html:root[data-chip=galaxyc] #chip,.chippv[data-chip=galaxyc]{--chip-img:radial-gradient(circle at 20% 30%,#4b2a9a,transparent 60%),linear-gradient(#0b0620,#0b0620);--chip-fg:#f4ecff;--fg:#f4ecff;--acc:#ffd54a;border:2px solid #9b6bff;box-shadow:0 0 10px #7c4dff88}
+html:root[data-chip=diamondc] #chip,.chippv[data-chip=diamondc]{--chip-img:linear-gradient(120deg,#eaf8ff,#ffffff,#bfe6ff,#ffffff);--chip-size:300% 100%;--chip-fg:#08243a;--fg:#08243a;--acc:#0b5fa5;border:2px solid #7cc8ff;font-weight:700;animation:nfxm 5s linear infinite}
+html:root[data-chip=statusbar] #chip,.chippv[data-chip=statusbar]{--chip-img:linear-gradient(#005a9e,#005a9e);--chip-fg:#fff;--fg:#fff;--acc:#ffd54a;border:0;border-radius:0}
+html:root[data-chip=editortab] #chip,.chippv[data-chip=editortab]{--chip-img:linear-gradient(#1e1e1e,#1e1e1e);--chip-fg:#d4d4d4;--fg:#d4d4d4;--acc:#569cd6;border:0;border-top:2px solid #569cd6;border-radius:0;font-family:Consolas,monospace}
+html:root[data-chip=bluejbox] #chip,.chippv[data-chip=bluejbox]{--chip-img:linear-gradient(#fff3d6,#fff3d6);--chip-fg:#222;--fg:#222;--acc:#1f5fbf;border:2px solid #1f5fbf;border-radius:2px;box-shadow:3px 3px 0 #1f5fbf55}
+html:root[data-chip=eclipsepane] #chip,.chippv[data-chip=eclipsepane]{--chip-img:linear-gradient(#1d1840,#1d1840);--chip-fg:#ece8ff;--fg:#ece8ff;--acc:#ff9f1c;border:2px solid #ff9f1c;border-radius:6px}
+/* gradient frames keep the top bar style inside them */
+html:root:root[data-frame=rainbow] #chip{background:var(--chip-img,linear-gradient(var(--card),var(--card))) padding-box,linear-gradient(120deg,#ff2bd6,#00f5d4,#ffe600,#ff2bd6) border-box!important;background-size:100% 100%,300% 100%!important}
+html:root:root[data-frame=sunset] #chip{background:var(--chip-img,linear-gradient(var(--card),var(--card))) padding-box,linear-gradient(120deg,#ff9a56,#ff4d6d,#7a5cff) border-box!important}
+html:root:root[data-frame=aurorab] #chip{background:var(--chip-img,linear-gradient(var(--card),var(--card))) padding-box,linear-gradient(120deg,#00f5d4,#7c4dff,#ff2bd6,#00f5d4) border-box!important;background-size:100% 100%,300% 100%!important}
+html:root:root[data-frame=diamondf] #chip{background:var(--chip-img,linear-gradient(var(--card),var(--card))) padding-box,linear-gradient(120deg,#d8f3ff,#ffffff,#7cc8ff,#ffffff,#d8f3ff) border-box!important;background-size:100% 100%,300% 100%!important}
+/* reduced motion always wins over any customisation */
+html:root:root:root[data-rm] .hero,html:root:root:root[data-rm] #chip,html:root:root:root[data-rm] .card,html:root:root:root[data-rm] .tile,html:root:root:root[data-rm] body,html:root:root:root[data-rm] #toast{animation:none!important}
+

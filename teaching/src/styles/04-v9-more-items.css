@@ -1,0 +1,56 @@
+/* ===== v9: more items ===== */
+/* frames */
+html:root:root[data-frame=line] .hero,html:root:root[data-frame=line] #chip{border:3px solid var(--acc)!important}
+html:root:root[data-frame=double] .hero,html:root:root[data-frame=double] #chip{border:5px double var(--acc)!important}
+html:root:root[data-frame=emerald] .hero,html:root:root[data-frame=emerald] #chip{border:3px solid #2ecc71!important;box-shadow:0 0 16px #2ecc7199!important}
+html:root:root[data-frame=sunset] .hero,html:root:root[data-frame=sunset] #chip{border:3px solid transparent!important;background:linear-gradient(var(--card),var(--card)) padding-box,linear-gradient(120deg,#ff9a56,#ff4d6d,#7a5cff) border-box!important}
+html:root:root[data-frame=violet] .hero,html:root:root[data-frame=violet] #chip{border:3px solid #9b6bff!important;box-shadow:0 0 18px #9b6bff99!important}
+html:root:root[data-frame=electric] .hero,html:root:root[data-frame=electric] #chip{border:3px solid #00e5ff!important;animation:frpulse 1.6s ease-in-out infinite!important}
+@keyframes frpulse{0%,100%{box-shadow:0 0 6px #00e5ff88}50%{box-shadow:0 0 22px #00e5ffcc,0 0 4px #fff}}
+html:root:root[data-frame=lavaf] .hero,html:root:root[data-frame=lavaf] #chip{border:3px solid #ff5a1f!important;box-shadow:0 0 14px #ff5a1f99,inset 0 0 10px #ffb02055!important}
+html:root:root[data-frame=aurorab] .hero,html:root:root[data-frame=aurorab] #chip{border:3px solid transparent!important;background:linear-gradient(var(--card),var(--card)) padding-box,linear-gradient(120deg,#00f5d4,#7c4dff,#ff2bd6,#00f5d4) border-box!important;background-size:100% 100%,300% 100%!important;animation:nfxm 6s linear infinite!important}
+html:root:root[data-frame=diamondf] .hero,html:root:root[data-frame=diamondf] #chip{border:3px solid transparent!important;background:linear-gradient(var(--card),var(--card)) padding-box,linear-gradient(120deg,#d8f3ff,#ffffff,#7cc8ff,#ffffff,#d8f3ff) border-box!important;background-size:100% 100%,300% 100%!important;animation:nfxm 4s linear infinite!important;box-shadow:0 0 18px #7cc8ff88!important}
+html[data-rm][data-frame] .hero,html[data-rm][data-frame] #chip{animation:none!important}
+/* cards */
+html:root[data-card=rounded] .card,html:root[data-card=rounded] .tile,html:root[data-card=rounded] details.card{border-radius:22px!important}
+html:root[data-card=thick] .card,html:root[data-card=thick] .tile,html:root[data-card=thick] details.card{border-width:3px!important}
+html:root[data-card=paper] .card,html:root[data-card=paper] .tile,html:root[data-card=paper] details.card{border-color:transparent!important;box-shadow:0 1px 2px #0003,0 8px 14px -8px #0004!important}
+html:root[data-card=retro] .card,html:root[data-card=retro] .tile,html:root[data-card=retro] details.card{border:2px solid var(--fg)!important;box-shadow:4px 4px 0 var(--fg)!important;border-radius:4px!important}
+html:root[data-card=glowc] .card,html:root[data-card=glowc] .tile,html:root[data-card=glowc] details.card{border-color:var(--acc)!important;box-shadow:0 0 14px color-mix(in srgb,var(--acc),transparent 55%)!important}
+html:root[data-card=stamp] .card,html:root[data-card=stamp] .tile,html:root[data-card=stamp] details.card{border:3px double var(--fg)!important;border-radius:2px!important}
+html:root[data-card=holoc] .card,html:root[data-card=holoc] .tile,html:root[data-card=holoc] details.card{border:2px solid transparent!important;background:linear-gradient(var(--card),var(--card)) padding-box,linear-gradient(120deg,#ff9ad5,#9ad7ff,#b8ffe6,#fff3a6,#ff9ad5) border-box!important;background-size:100% 100%,300% 100%!important;animation:nfxm 7s linear infinite!important}
+html:root[data-card=goldc] .card,html:root[data-card=goldc] .tile,html:root[data-card=goldc] details.card{border:2px solid #d9a82b!important;box-shadow:0 0 0 2px var(--card),0 0 0 3px #d9a82b,0 4px 14px #d9a82b44!important}
+html[data-rm][data-card=holoc] .card,html[data-rm][data-card=holoc] .tile{animation:none!important}
+/* backgrounds (kept faint so text stays easy to read) */
+html:root[data-bg=plaid] body{background-image:repeating-linear-gradient(0deg,#8882 0 12px,transparent 12px 24px),repeating-linear-gradient(90deg,#8882 0 12px,transparent 12px 24px)!important}
+html:root[data-bg=squares] body{background-image:linear-gradient(45deg,#8881 25%,transparent 25% 75%,#8881 75%),linear-gradient(45deg,#8881 25%,transparent 25% 75%,#8881 75%)!important;background-size:40px 40px!important;background-position:0 0,20px 20px!important}
+html:root[data-bg=zigzag] body{background-image:linear-gradient(135deg,#8882 25%,transparent 25%),linear-gradient(225deg,#8882 25%,transparent 25%)!important;background-size:30px 30px!important}
+html:root[data-bg=sunburst] body{background-image:repeating-conic-gradient(from 0deg at 50% 0%,#ffd54a22 0 6deg,transparent 6deg 12deg)!important;background-attachment:fixed!important}
+html:root[data-bg=hex] body{background-image:radial-gradient(circle at 50% 0,#8883 0 6px,transparent 7px),radial-gradient(circle at 0 50%,#8883 0 6px,transparent 7px),radial-gradient(circle at 100% 50%,#8883 0 6px,transparent 7px)!important;background-size:34px 30px!important}
+html:root[data-bg=gradflow] body{background-image:linear-gradient(120deg,#ff2bd622,#00f5d422,#7a5cff22,#ff2bd622)!important;background-size:300% 300%!important;animation:bgflow 14s ease-in-out infinite!important}
+@keyframes bgflow{0%,100%{background-position:0 50%}50%{background-position:100% 50%}}
+html:root[data-bg=starfield] body{background-image:radial-gradient(1.2px 1.2px at 20% 30%,#fff9,transparent),radial-gradient(1.4px 1.4px at 70% 60%,#fffb,transparent),radial-gradient(1px 1px at 40% 80%,#fff8,transparent),radial-gradient(1.2px 1.2px at 85% 15%,#fff9,transparent)!important;background-size:240px 240px!important;animation:bgstar 60s linear infinite!important}
+@keyframes bgstar{to{background-position:0 240px}}
+html:root[data-bg=galaxyb] body{background-image:radial-gradient(ellipse at 30% 30%,#7c4dff33,transparent 55%),radial-gradient(ellipse at 75% 70%,#ff2bd633,transparent 55%),radial-gradient(1.2px 1.2px at 20% 40%,#fff9,transparent)!important;background-size:200% 200%,200% 200%,260px 260px!important;animation:bggal 40s ease-in-out infinite!important}
+@keyframes bggal{0%,100%{background-position:0 0,100% 100%,0 0}50%{background-position:100% 100%,0 0,0 260px}}
+html:root[data-bg=goldrays] body{background-image:repeating-conic-gradient(from 0deg at 50% -10%,#f2c14e26 0 5deg,transparent 5deg 10deg)!important;background-size:140% 140%!important;animation:bggal 30s ease-in-out infinite!important}
+html[data-rm][data-bg] body{animation:none!important}
+/* name effects */
+.nfx-softglow{text-shadow:0 0 5px color-mix(in srgb,var(--acc),transparent 40%)}
+.nfx-uline{text-decoration:underline;text-decoration-color:var(--acc);text-decoration-thickness:2px;text-underline-offset:3px}
+.nfx-italicfx{font-style:italic}
+.nfx-bounce{display:inline-block;animation:nfxb 1.4s ease-in-out infinite}@keyframes nfxb{0%,100%{transform:translateY(0)}40%{transform:translateY(-4px)}60%{transform:translateY(0) scaleY(.92)}}
+.nfx-shimmer{background:linear-gradient(100deg,var(--fg) 40%,var(--acc) 50%,var(--fg) 60%);background-size:250% 100%;-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;animation:nfxm 3.2s linear infinite}
+.nfx-pulsefx{animation:nfxpf 1.8s ease-in-out infinite}@keyframes nfxpf{50%{opacity:.55;letter-spacing:.04em}}
+.nfx-aurorafx{background:linear-gradient(90deg,#0aa88f,#6a3fd1,#d11a9a,#0aa88f);background-size:300% 100%;-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;animation:nfxm 5s linear infinite;filter:drop-shadow(0 0 3px #7c4dff88)}
+.nfx-inferno{background:linear-gradient(0deg,#c21500,#ff7a18,#c58a00);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;filter:drop-shadow(0 0 4px #ff7a18);animation:flick 2.2s infinite}
+/* top bar styles */
+/* notification styles */
+html:root[data-toast=sticky] #toast,.toastpv[data-toast=sticky]{background:#fff3a6;color:#3a2f00;border:1px solid #d6c34a;border-radius:2px;box-shadow:3px 4px 6px #0004;rotate:1deg}
+html:root[data-toast=minimalt] #toast,.toastpv[data-toast=minimalt]{background:var(--bg);color:var(--fg);border:0;border-left:4px solid var(--acc);border-radius:2px}
+html:root[data-toast=ribbon] #toast,.toastpv[data-toast=ribbon]{background:var(--acc);color:var(--on);border:0;border-radius:4px;clip-path:polygon(0 0,100% 0,96% 50%,100% 100%,0 100%,4% 50%);padding-left:26px;padding-right:26px}
+html:root[data-toast=comic] #toast,.toastpv[data-toast=comic]{background:#ffe600;color:#111;border:3px solid #111;border-radius:6px;box-shadow:4px 4px 0 #111;font-weight:800}
+html:root[data-toast=glowring] #toast,.toastpv[data-toast=glowring]{background:var(--card);color:var(--fg);border:2px solid var(--acc);border-radius:999px;box-shadow:0 0 0 4px color-mix(in srgb,var(--acc),transparent 70%),0 0 18px var(--acc)}
+html:root[data-toast=gradient] #toast,.toastpv[data-toast=gradient]{background:linear-gradient(120deg,#2a0a4a,#7a2bd6);color:#fff;border:0;border-radius:12px}
+html:root[data-toast=goldplate] #toast,.toastpv[data-toast=goldplate]{background:linear-gradient(120deg,#f6d77a,#c99a2e,#f6d77a);color:#2a1d00;border:2px solid #7a5a00;font-weight:700;border-radius:8px}
+html:root[data-toast=auroratoast] #toast,.toastpv[data-toast=auroratoast]{background:linear-gradient(120deg,#073b4c,#4b2a9a,#7a1a68,#073b4c);background-size:300% 100%;animation:nfxm 6s linear infinite;color:#fff;border:1px solid #9b6bff;border-radius:12px}

@@ -1,0 +1,27 @@
+/* ===== v3: transitions, favourites, builds ===== */
+.tabs button,#bnav button{transition:background-color .25s,color .25s,border-color .25s,transform .15s}
+.tabs button:active,#bnav button:active{transform:scale(.95)}
+#hxload{position:fixed;left:0;top:var(--bar,56px);height:3px;width:0;z-index:95;background:linear-gradient(90deg,#ff7a1a,#e8506a,#7a5cff,#2ee6d6);opacity:0;pointer-events:none;border-radius:0 3px 3px 0}
+#hxload.on{opacity:1;width:78%;transition:width 1.6s cubic-bezier(.1,.7,.2,1)}
+#hxload.done{opacity:0;width:100%;transition:width .2s,opacity .4s .2s}
+#views iframe{transition:opacity .4s ease}
+#views iframe.hxwait{opacity:0}
+@keyframes hxIn{from{opacity:0;transform:translateY(14px) scale(.992);filter:blur(3px)}to{opacity:1;transform:none;filter:blur(0)}}
+@keyframes hxLab{from{opacity:0;transform:scale(.987)}to{opacity:1;transform:none}}
+@keyframes hxUp{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:none}}
+@keyframes hxPop{0%{transform:scale(.7)}60%{transform:scale(1.18)}100%{transform:scale(1)}}
+@media(prefers-reduced-motion:no-preference){
+#home.hxin{animation:hxIn .38s cubic-bezier(.2,.75,.2,1) both}
+#home.hxin .wrap>*{animation:hxUp .55s cubic-bezier(.2,.75,.2,1) both}
+#home.hxin .wrap>*:nth-child(2){animation-delay:.04s}#home.hxin .wrap>*:nth-child(3){animation-delay:.08s}#home.hxin .wrap>*:nth-child(4){animation-delay:.12s}#home.hxin .wrap>*:nth-child(5){animation-delay:.16s}#home.hxin .wrap>*:nth-child(6){animation-delay:.2s}#home.hxin .wrap>*:nth-child(7){animation-delay:.24s}#home.hxin .wrap>*:nth-child(n+8){animation-delay:.28s}
+#views iframe.on.hxin{animation:hxLab .42s cubic-bezier(.2,.75,.2,1)}
+#bnav button.sel i{animation:hxPop .35s}
+}
+html[data-rm] #home.hxin,html[data-rm] #home.hxin .wrap>*,html[data-rm] #views iframe.on.hxin,html[data-rm] #bnav button.sel i{animation:none!important}
+.card.th{position:relative}
+.hxstar{position:absolute;top:6px;right:6px;width:30px;height:30px;padding:0;border-radius:50%;font-size:17px;line-height:1;background:var(--card);border:1px solid var(--bd);color:var(--mut);z-index:2}
+.hxstar.on{color:#f2b01e;border-color:#f2b01e}
+.hxinp{font:inherit;padding:6px 9px;border:1px solid var(--bd);border-radius:8px;background:var(--bg);color:var(--fg);min-width:0;flex:1 1 160px}
+.hxbuild .hxbname{flex:1 1 160px;font-weight:700}
+.hxlim{display:inline-block;background:#e8506a;color:#fff;font-size:10px;font-weight:800;padding:1px 6px;border-radius:8px}
+
