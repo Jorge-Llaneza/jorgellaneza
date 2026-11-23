@@ -1,0 +1,15 @@
+const SITE='file://'+require('path').resolve(process.env.SITE||__dirname+'/../dist/MP_PRODUCTIONS_TEACHING_6.html');
+const {chromium}=require('playwright');
+(async()=>{const b=await chromium.launch();const p=await b.newPage({viewport:{width:1100,height:850}});const e=[];p.on('console',m=>{if(m.type()==='error')e.push('CE '+m.text())});p.on('pageerror',x=>e.push('PE '+x.message));
+await p.addInitScript(()=>localStorage.setItem('mp-welcomed','2'));
+await p.goto(SITE);await p.waitForTimeout(3000);
+await p.evaluate(()=>{document.querySelectorAll('#wgov,#rcov').forEach(x=>x.remove());M.admin=1;CATALOG.forEach(c=>M.inv.own[c.id]=1)});
+const dock=()=>p.evaluate(()=>document.getElementById('sfdock').innerText.replace(/\n+/g,' | ').slice(0,260));
+const clk=async(s)=>{await p.click('#sfdock '+s,{force:true});await p.waitForTimeout(200)};
+await p.evaluate(()=>shopEquip('nightcity',true));await p.waitForTimeout(1500);
+await clk('[data-sf=take][data-k="0"]');await p.evaluate(()=>addSP(14,'t'));await p.waitForTimeout(800);console.log('NC',await dock());
+await p.screenshot({path:'s_nc.png'});
+await p.evaluate(()=>shopEquip('heistday',true));await p.waitForTimeout(1500);
+await clk('[data-sf=style][data-k=loud]');await clk('[data-sf=go][data-k="0"]');console.log('H',await p.evaluate(()=>JSON.stringify(M.fx.heistday.heist)));await p.evaluate(()=>addSP(13,'t'));await p.waitForTimeout(800);await p.waitForTimeout(2500);console.log('HD',await dock());console.log(await p.evaluate(()=>JSON.stringify([M.fx.nightcity.done,M.fx.nightcity.ed,M.fx.heistday.bank,M.fx.heistday.done])).catch(e=>'x'+e.message));
+await p.screenshot({path:'s_hd.png'});
+console.log('ERR',e);await b.close()})();
