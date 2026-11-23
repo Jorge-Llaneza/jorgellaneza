@@ -357,4 +357,8 @@ const VERBOS = [
     ok: ["justificar", "argumentar", "razonar", "fundamentar", "dar razones", "fundar"],
     near: { "gründen": "gründen es fundar (una empresa, un club). Aquí se busca justificar: begründen." },
     note: "Inseparable (be-): participio sin ge-. Begründen Sie Ihre Meinung! = justifique su opinión; etwas mit + Dat. begründen = justificar algo con. También fundar, iniciar (eine Tradition begründen). Die Begründung = la justificación (mit der Begründung, dass …); unbegründet = infundado; der Grund = la razón." },
+  { de: "kämpfen", aux: "hat", pp: "gekämpft", es: "luchar, pelear", hint: "für / gegen + Akk.",
+    ok: ["luchar", "pelear", "combatir", "batallar"],
+    near: { "streiten": "sich streiten es pelearse discutiendo. Aquí se busca luchar: kämpfen." },
+    note: "Regular: du kämpfst, er kämpft, hat gekämpft. Für seine Rechte / gegen den Krebs kämpfen (Akk.); um + Akk. = por conseguir algo (um den Sieg kämpfen); mit + Dat. = con, contra (mit Problemen kämpfen). Der Kampf = la lucha; der Kämpfer = el luchador." },
 ];

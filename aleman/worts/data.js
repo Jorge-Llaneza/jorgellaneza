@@ -287,4 +287,13 @@ const WORTS = [
     ok: ["malo", "mala", "malvado", "malvada", "enfadado", "enfadada", "enojado", "grave", "feo"],
     near: { schlecht: "schlecht es malo de calidad (schlechtes Wetter). Aquí se busca malo de malvado o enfadado: böse.", sauer: "sauer es enfadado en coloquial (y ácido). Aquí se busca böse.", wütend: "wütend es furioso. Aquí se busca böse." },
     note: "Ein böser Mensch; das Böse = el mal. Enfadado: Sie ist böse auf mich; Bist du mir böse? = ¿estás enfadado conmigo? Grave, feo: ein böser Unfall, eine böse Überraschung. Nicht böse gemeint = sin mala intención. Böser, am bösesten." },
+  { de: "kritisch", es: "crítico", hint: "Er ist sehr kritisch.",
+    alt: ["kritische", "kritischer", "kritisches", "kritischen", "kritischem"],
+    ok: ["crítico", "crítica", "grave"],
+    note: "Acento en KRI-. Kritisch gegenüber + Dat. = crítico con; etwas kritisch sehen = ver algo con reservas. También grave: eine kritische Situation. Die Kritik = la crítica; kritisieren = criticar; der Kritiker = el crítico (persona)." },
+  { de: "emotional", es: "emocional, emotivo", hint: "Der Text ist emotional.",
+    alt: ["emotionale", "emotionaler", "emotionales", "emotionalen", "emotionalem"],
+    ok: ["emocional", "emotivo", "emotiva", "sentimental"],
+    near: { gefühlvoll: "gefühlvoll es con sentimiento, sentimental. Aquí se busca emocional: emotional." },
+    note: "Acento en -NAL. Der Text ist emotional; emotional reagieren = reaccionar con emoción. Die Emotion = la emoción ≈ das Gefühl. Lo contrario: sachlich = objetivo." },
 ];
