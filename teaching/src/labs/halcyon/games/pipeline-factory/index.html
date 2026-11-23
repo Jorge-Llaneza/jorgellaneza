@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Pipeline Factory</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>{{include parts/01-style.css}}</style>
+</head>
+<body>
+  <header class="dash">
+    <div class="brand">
+      <h1>Pipeline Factory</h1>
+      <p>Keep five stages busy. Every bubble costs throughput.</p>
+    </div>
+    <div class="stats" aria-label="Dashboard">
+      <div class="stat"><span class="k">Score</span><b id="score">0</b></div>
+      <div class="stat"><span class="k">IPC (goal <span id="goal"></span>)</span><b id="ipc">0.00</b></div>
+      <div class="stat"><span class="k">CPI</span><b id="cpi">–</b></div>
+      <div class="stat"><span class="k">Time left</span><b id="time">90</b></div>
+      <div class="stat"><span class="k">Credits</span><b id="credits">0</b></div>
+      <div class="stat"><span class="k">Line health</span><span id="health" class="pips" role="img" aria-label="Health"></span></div>
+      <div class="stat wide"><span class="k">Queue <span id="qtext"></span></span><div class="bar"><i id="qfill"></i></div></div>
+      <div class="stat wide"><span class="k">Heat</span><div class="bar"><i id="heat"></i></div></div>
+    </div>
+  </header>
+
+  <main class="layout">
+    <section class="floor" aria-label="Pipeline floor">
+      <div class="stage-wrap">
+        <div class="scroller"><canvas id="floor" width="1040" height="440" aria-label="Five-stage pipeline: IF, ID, EX, MEM, WB"></canvas></div>
+        <div id="overlay" class="overlay"></div>
+        <div id="banner" class="banner" hidden></div>
+              <section id="manifest" class="manifest" hidden aria-label="Shipment reorder">
+        <div class="mhead">
+          <button class="itool" data-ti="move" aria-pressed="true" aria-label="Move crates" title="Move crates"><svg viewBox="0 0 32 32" fill="none" stroke="#e6edf5" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M16 4v24M4 16h24M16 4l-4 4M16 4l4 4M16 28l-4-4M16 28l4-4M4 16l4-4M4 16l4 4M28 16l-4-4M28 16l-4 4"/></svg></button>
+          <button class="itool" data-ti="scan" aria-pressed="false" aria-label="Dependency scanner" title="Dependency scanner"><svg viewBox="0 0 32 32" fill="none" stroke="#e6edf5" stroke-width="3" stroke-linecap="round"><circle cx="13" cy="13" r="8"/><path d="M19 19l9 9"/></svg></button>
+          <span id="scans" class="scans" aria-label="Scans left"></span>
+          <button id="undo" class="itool" aria-label="Undo last move" title="Undo last move (−1.5 s)"><svg viewBox="0 0 32 32" fill="none" stroke="#e6edf5" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M8 13h12a6 6 0 010 12h-6M8 13l5-5M8 13l5 5"/></svg></button>
+          <span id="costs" class="costs"></span>
+          <div class="pbar" aria-hidden="true"><i id="pfill"></i></div><span id="psec" class="psec"></span>
+        </div>
+        <div class="rackwrap"><canvas id="rack" width="1040" height="280" aria-label="Shipment crates"></canvas></div>
+      </section>
+        <div id="vtoggle" class="vtoggle seg" hidden><button data-view="crates" aria-pressed="true">Crates</button><button data-view="line" aria-pressed="false">Line</button></div>
+        <div id="replay" class="replaybar" hidden><button id="rp">Pause</button><input id="rs" type="range" min="0" max="0" value="0" aria-label="Replay timeline"><span id="rl"></span><button id="rx">Close</button></div>
+        <div id="tip" class="tip" hidden></div>
+      </div>
+      <div id="coach" class="coach" hidden><p id="coach-text"></p><div><button id="coach-next" class="primary">Next</button> <button id="coach-skip">Skip training</button></div></div>
+      <p class="swipe">Swipe the floor sideways, or turn your phone to landscape to see the whole line.</p>
+      <div class="controls">
+        <button id="run" class="primary">Start shift</button>
+        <button id="step" title="Advance exactly one clock cycle">Step one cycle</button>
+        <div class="seg" role="group" aria-label="Speed">
+          <button data-speed="1" aria-pressed="true">1×</button>
+          <button data-speed="2" aria-pressed="false">2×</button>
+          <button data-speed="4" aria-pressed="false">4×</button>
+        </div>
+        <button id="reset">Reset</button>
+        <button id="mute" aria-pressed="false">Sound on</button> <button id="opt">Options</button>
+        <button id="sbback" hidden>Step back</button> <button id="sbedit" hidden>Edit program</button> <button id="sbexit" hidden>Exit sandbox</button>
+        <span class="keys">Keys: Space start/pause, S step, V view, Z undo</span>
+        <div class="counters">
+          <span>Cycle <b id="cyc">0</b></span>
+          <span>Stalls <b id="stalls">0</b></span>
+          <span>Forwarded <b id="fwds">0</b></span>
+          <span>Corrupted <b id="corr">0</b></span>
+          <span>Streak <b id="streak">×1</b></span>
+          <span>Shift <b id="shiftno">1</b></span>
+          <span>Flushes <b id="flush">0</b></span>
+        </div>
+      </div>
+    </section>
+
+    <aside class="side">
+      <section class="toolbar" aria-label="Toolbox">
+        <h2>Toolbox</h2>
+        <p class="hint">Drag a part onto the floor, or select it and click a slot.</p>
+        <button class="tool" data-tool="forward" draggable="true" aria-pressed="false">
+          <strong>Forwarding wire</strong><span>Bypass a result straight to EX. Build it on a blue slot below the stages. Each wire adds 25 ms to the cycle.</span><em>120 cr</em>
+        </button>
+        <button class="tool" data-tool="stall" draggable="true" aria-pressed="false">
+          <strong>Stall unit</strong><span>Detects hazards in ID and holds the line with a bubble. Slot above ID.</span><em>80 cr</em>
+        </button>
+        <button class="tool" data-tool="nop" draggable="true" aria-pressed="false">
+          <strong>NOP injector</strong><span>Drop on a queued instruction to insert a nop before it (software scheduling).</span><em>20 cr each</em>
+        </button>
+        <button class="tool" data-tool="eraser" draggable="true" aria-pressed="false">
+          <strong>Salvage</strong><span>Remove a built part and recover half its cost.</span><em>+50%</em>
+        </button>
+      </section>
+
+      <section class="logbox" aria-label="Hazard log">
+        <h2>Hazard log</h2>
+        <ul id="log" role="log" aria-live="off"></ul>
+      </section>
+
+      <section class="guide" aria-label="Field guide">
+        <h2>Field guide</h2>
+        <details open>
+          <summary>RAW: read after write</summary>
+          <p>A later instruction reads a register an earlier one has not written back yet. This is the hazard the line simulates. Forwarding sends the result from a pipeline latch straight to EX.</p>
+        </details>
+        <details>
+          <summary>Load-use</summary>
+          <p>A <code>lw</code> only has its value after MEM. A dependent instruction right behind it needs one stall even with forwarding.</p>
+        </details>
+        <details>
+          <summary>WAR and WAW</summary>
+          <p>They cannot happen here: this in-order line always writes registers in WB, in program order. They appear with out-of-order execution and are solved by register renaming.</p>
+        </details>
+        <details>
+          <summary>Why IPC matters</summary>
+          <p>T<sub>CPU</sub> = instructions × CPI × T. Stalls raise CPI, and IPC = 1 / CPI. An ideal pipeline reaches CPI 1.</p>
+        </details>
+      </section>
+    </aside>
+  </main>
+
+  <dialog id="opts" class="opts"><h2>Options</h2>
+    <label><input type="checkbox" id="o_music"> Music and factory ambience</label>
+    <label><input type="checkbox" id="o_cb"> Colour-blind friendly colours and line styles</label>
+    <label><input type="checkbox" id="o_big"> Bigger text</label>
+    <button id="o_close" class="primary">Close</button></dialog>
+  <script>{{include parts/02-script.js}}</script>
+</body>
+</html>

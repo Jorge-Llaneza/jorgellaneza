@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Halcyon Relay 7 – Circuit Defusal</title>
+<style>{{include parts/01-style.css}}</style>
+</head>
+<body>
+<div id="stage">
+<header class="hud">
+  <h1>Halcyon Relay 7<small id="lvName">Colony ship power bus</small></h1>
+  <div class="g"><span>Time to dawn shift</span><b id="timer">01:30</b></div>
+  <div class="g w"><span>Hull integrity</span><div class="bar"><i id="stabFill"></i></div></div>
+  <div class="g mob"><span>Power / band</span><b id="hP" style="font-size:1rem">–</b></div>
+  <div class="g"><span>Crew decks lit</span><div class="decks"><i></i><i></i><i></i></div></div>
+  <div class="g" style="min-width:205px"><span>Status</span><b><i class="led" id="led"></i><em id="status">STANDBY</em></b></div>
+  <button id="menuBtn">Missions</button><button id="tutBtn">Tutorial</button><button id="setBtn">Settings</button><button id="mute" aria-pressed="false">Sound on</button>
+  <button id="engage" class="big">Engage power</button>
+</header>
+<div id="sbBar" class="sbbar" hidden><b style="color:var(--cu)">Sandbox</b><select id="sbSel" aria-label="Circuit"></select>
+  <label>Supply <output id="sbVo">12 V</output><input type="range" id="sbV" min="3" max="24" step="0.5" value="12"></label>
+  <button id="sbS">Surge</button><button id="sbG">Sag</button><button id="sbN">Nominal</button>
+  <label><input type="checkbox" id="sbBlow"> Fuse can blow</label></div>
+<section id="view" aria-label="Ship exterior">
+<svg viewBox="0 0 800 110" role="img" aria-label="Halcyon seen from outside, waiting for dawn">
+<defs><radialGradient id="neb1"><stop offset="0" stop-color="#6a3fb5" stop-opacity=".28"/><stop offset="1" stop-color="#6a3fb5" stop-opacity="0"/></radialGradient><radialGradient id="neb2"><stop offset="0" stop-color="#1fb5a8" stop-opacity=".22"/><stop offset="1" stop-color="#1fb5a8" stop-opacity="0"/></radialGradient>
+<radialGradient id="sunG"><stop offset="0" stop-color="#fff4c8"/><stop offset=".4" stop-color="#ffb347" stop-opacity=".8"/><stop offset="1" stop-color="#ff7a1a" stop-opacity="0"/></radialGradient>
+<radialGradient id="pl" cx=".7" cy=".3"><stop offset="0" stop-color="#3b6f86"/><stop offset="1" stop-color="#0b1a24"/></radialGradient></defs>
+<rect width="800" height="110" fill="#03070a"/><ellipse cx="260" cy="26" rx="270" ry="46" fill="url(#neb1)"/><ellipse cx="640" cy="92" rx="230" ry="38" fill="url(#neb2)"/><g id="stars"></g>
+<circle id="sun" cx="330" cy="120" r="46" fill="url(#sunG)"/>
+<circle cx="120" cy="170" r="120" fill="none" stroke="#6fd3e8" stroke-opacity=".12" stroke-width="12"/><circle cx="120" cy="170" r="110" fill="url(#pl)" stroke="#6fd3e8" stroke-opacity=".5" stroke-width="2"/>
+<path d="M486 60L560 36H760Q792 36 792 59Q792 82 760 82H560Z" fill="#1c2b30" stroke="#3b565c" stroke-width="2"/>
+<polygon id="flame" class="flame" points="486,53 436,60 486,67" fill="#3fe0d0" opacity="0"/><circle class="blink" cx="790" cy="59" r="2" fill="#ff4b2b"/><circle id="eng" cx="484" cy="60" r="7" fill="#3fe0d0" style="filter:drop-shadow(0 0 8px #3fe0d0)" opacity=".2"/>
+<rect id="wd1" class="wd on" x="596" y="50" width="30" height="18" rx="3"/><rect id="wd2" class="wd on" x="646" y="50" width="30" height="18" rx="3"/><rect id="wd3" class="wd on" x="696" y="50" width="30" height="18" rx="3"/>
+<text x="611" y="98" class="lbl" text-anchor="middle" font-size="9">Hydro</text><text x="661" y="98" class="lbl" text-anchor="middle" font-size="9">Medbay</text><text x="711" y="98" class="lbl" text-anchor="middle" font-size="9">Bridge</text>
+</svg></section>
+<div id="pa" aria-live="polite">Ship PA: Relay 7 is on emergency power.</div>
+<main class="deck">
+  <section class="board" aria-label="Relay schematic">
+    <div id="tabs" class="tabs" hidden></div>
+    <svg id="sch" viewBox="0 0 700 330" data-mode="parallel" role="img" aria-label="Circuit schematic">
+      <defs>
+        <filter id="glow" filterUnits="userSpaceOnUse" x="0" y="0" width="700" height="330"><feGaussianBlur stdDeviation="3" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+        <radialGradient id="bulbs" cx=".35" cy=".3" r=".7"><stop offset="0" stop-color="#fff" stop-opacity=".35"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></radialGradient>
+        <linearGradient id="cyl" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#000" stop-opacity=".5"/><stop offset=".28" stop-color="#fff" stop-opacity=".2"/><stop offset=".55" stop-color="#000" stop-opacity="0"/><stop offset="1" stop-color="#000" stop-opacity=".55"/></linearGradient>
+        <linearGradient id="glass" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#cfe9ee" stop-opacity=".35"/><stop offset=".5" stop-color="#6b8a92" stop-opacity=".12"/><stop offset="1" stop-color="#000" stop-opacity=".35"/></linearGradient>
+        <linearGradient id="brass" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#8a6a2a"/><stop offset=".4" stop-color="#e8c36a"/><stop offset="1" stop-color="#7a5a1f"/></linearGradient>
+        <linearGradient id="metal" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#243a40"/><stop offset="1" stop-color="#0d171a"/></linearGradient>
+      </defs>
+      <g class="pcb" opacity=".6" fill="none" stroke="#1d4540" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M8 38H66L88 16H190"/><path d="M692 36H626L604 56H566"/><path d="M8 304H58L80 322H176"/><path d="M692 302H640L620 322H560"/><path d="M236 322H330"/><path d="M8 62V120"/><path d="M692 232V280"/>
+          <circle cx="190" cy="16" r="4" fill="#0b1417"/><circle cx="566" cy="56" r="4" fill="#0b1417"/><circle cx="176" cy="322" r="4" fill="#0b1417"/><circle cx="560" cy="322" r="4" fill="#0b1417"/><circle cx="8" cy="120" r="4" fill="#0b1417"/><circle cx="692" cy="280" r="4" fill="#0b1417"/></g>
+      <text x="690" y="326" text-anchor="end" fill="#2a5a55" style="font:700 8px ui-monospace,Consolas,monospace">HALCYON RELAY 7 · REV C</text>
+      <text id="cktName" x="110" y="20" class="lbl" text-anchor="start">Circuit: Parallel bank</text>
+      <g id="wires"></g><g id="dots"></g>
+      <g class="t-led"><circle id="led1" cx="290" cy="236" r="12" class="part"/><circle id="led2" cx="400" cy="236" r="12" class="part"/><circle id="led3" cx="510" cy="236" r="12" class="part"/><text x="332" y="240" class="lbl">LED</text><ellipse cx="286" cy="231" rx="3.5" ry="2.2" fill="#fff" opacity=".55"/><ellipse cx="396" cy="231" rx="3.5" ry="2.2" fill="#fff" opacity=".55"/><ellipse cx="506" cy="231" rx="3.5" ry="2.2" fill="#fff" opacity=".55"/></g>
+      <g class="t-zen"><rect id="zsym" x="446" y="160" width="18" height="32" rx="6" fill="#0003" stroke="#9aa" stroke-width="2"/><rect x="446" y="160" width="18" height="7" rx="3" fill="#111"/><path d="M450 180h10M450 184l10 -8" stroke="#8aa" stroke-width="1.5" fill="none"/><text x="455" y="206" class="rt" text-anchor="middle" style="font-size:9px">Zener</text></g>
+      <g class="t-scope"><rect x="462" y="6" width="188" height="52" rx="4" class="part"/><polyline id="scI" fill="none" stroke="#7f9a98" stroke-width="1.5"/><polyline id="scV" fill="none" stroke="#3fe0d0" stroke-width="2"/><text x="468" y="17" class="lbl" style="font-size:9px">scope: vC (cyan), vin</text></g>
+      <g class="t-tr"><rect x="382" y="210" width="36" height="9" rx="1" fill="#aab4b8" stroke="#667"/><circle cx="400" cy="214" r="2.2" fill="#2b3d42"/><rect x="366" y="234" width="7" height="4" fill="#aab4b8"/><rect id="trBox" x="372" y="219" width="56" height="35" rx="3" fill="#10161a" stroke="#4d6a70" stroke-width="2"/><text id="trNm" x="400" y="231" class="lbl" text-anchor="middle" style="font-size:10px">MOSFET</text><text id="trSt" x="400" y="246" class="val" text-anchor="middle" style="font-size:10px">OFF</text></g>
+      <g id="mf"><rect x="600" y="98" width="60" height="118" rx="6" class="part"/><rect x="604" y="102" width="52" height="110" rx="4" fill="#070d0f" stroke="#243a40"/><g class="fan"><circle cx="617" cy="232" r="10" fill="#0b1417" stroke="#4d6a70"/><ellipse cx="617" cy="226.5" rx="2.4" ry="5" fill="#7f9a98" transform="rotate(0 617 232)"/><ellipse cx="617" cy="226.5" rx="2.4" ry="5" fill="#7f9a98" transform="rotate(120 617 232)"/><ellipse cx="617" cy="226.5" rx="2.4" ry="5" fill="#7f9a98" transform="rotate(240 617 232)"/><circle cx="617" cy="232" r="2" fill="#2b3d42"/></g><g class="fan"><circle cx="643" cy="232" r="10" fill="#0b1417" stroke="#4d6a70"/><ellipse cx="643" cy="226.5" rx="2.4" ry="5" fill="#7f9a98" transform="rotate(0 643 232)"/><ellipse cx="643" cy="226.5" rx="2.4" ry="5" fill="#7f9a98" transform="rotate(120 643 232)"/><ellipse cx="643" cy="226.5" rx="2.4" ry="5" fill="#7f9a98" transform="rotate(240 643 232)"/><circle cx="643" cy="232" r="2" fill="#2b3d42"/></g><text x="630" y="94" class="lbl" text-anchor="middle">Mainframe</text><g id="mfBars"></g></g>
+      <g id="modeSw"><text x="173" y="208" class="lbl" text-anchor="middle">Bus switch</text><rect x="130" y="215" width="86" height="30" rx="15" class="part"/><circle id="modeKn" cx="148" cy="230" r="10" fill="#3fe0d0" style="filter:drop-shadow(0 0 5px #3fe0d0)"/><text id="modeTx" x="187" y="234" class="val" text-anchor="middle" style="font-size:11px">PARALLEL</text></g>
+      <g id="src"><g class="batt"><rect x="46" y="104" width="28" height="10" rx="2" fill="url(#brass)"/><rect x="30" y="112" width="60" height="96" rx="6" class="part"/><text class="lbl pm" x="37" y="126" style="font-size:12px">+</text><text class="lbl pm" x="76" y="205" style="font-size:12px">−</text><circle id="core" class="core" cx="60" cy="140" r="12"/>
+        </g><g class="t-ac"><path d="M40 143q10 -20 20 0t20 0" fill="none" stroke="#3fe0d0" stroke-width="3" stroke-linecap="round"/></g><text id="cellLbl" x="60" y="176" class="lbl" text-anchor="middle">Cell</text><text id="tVs" x="60" y="196" class="val" text-anchor="middle">0.0 V</text></g>
+      <rect id="fuse" x="124" y="58" width="42" height="24" rx="10" fill="url(#glass)" stroke="#6b8a92" stroke-width="2"/><rect x="116" y="60" width="12" height="20" rx="3" fill="url(#brass)"/><rect x="162" y="60" width="12" height="20" rx="3" fill="url(#brass)"/>
+      <line id="fil" x1="134" y1="70" x2="156" y2="70" stroke="#665" stroke-width="3" stroke-linecap="round"/>
+      <rect x="125" y="88" width="40" height="5" fill="#000"/><rect id="fheat" x="125" y="88" width="0" height="5" fill="#ff6a1a"/>
+      <text id="tFuse" x="145" y="108" class="val" text-anchor="middle">5 A</text><text x="145" y="46" class="lbl" text-anchor="middle">Fuse</text>
+      <circle cx="245" cy="70" r="17" fill="#0b1417" stroke="#5b7a82" stroke-width="3"/><path d="M233 77A14 14 0 0 1 257 77" fill="none" stroke="#2b4a50" stroke-width="2"/><line id="amN" x1="245" y1="72" x2="245" y2="58" stroke="#ff6a1a" stroke-width="2" stroke-linecap="round" transform="rotate(-55 245 72)"/><circle cx="245" cy="72" r="2.5" fill="#9aa"/><text x="245" y="83" class="lbl" text-anchor="middle" style="font-size:7px">A</text>
+      <text id="tI" x="245" y="106" class="val" text-anchor="middle">0.00 A</text>
+      <g id="g1"><rect class="fr" x="257" y="104" width="66" height="112" rx="14" fill="#0000" stroke="none" pointer-events="all"/>
+        <g class="sk sk-res"><rect x="287" y="106" width="6" height="14" fill="#a9b4b7"/><rect x="287" y="200" width="6" height="14" fill="#a9b4b7"/><rect id="r1" x="260" y="118" width="60" height="84" rx="14" fill="#4a3322" stroke="#8a6a4a" stroke-width="2"/><rect x="260" y="118" width="60" height="84" rx="14" fill="url(#cyl)" pointer-events="none"/><rect x="261" y="130" width="58" height="4" fill="#1a0f08" opacity=".55"/><rect x="261" y="186" width="58" height="4" fill="#1a0f08" opacity=".55"/></g>
+        <g class="sk sk-lamp"><line x1="290" y1="106" x2="290" y2="122" stroke="#a9b4b7" stroke-width="5"/><line x1="290" y1="198" x2="290" y2="214" stroke="#a9b4b7" stroke-width="5"/><circle id="lb1" cx="290" cy="150" r="31" fill="#262620" stroke="#7f9aa0" stroke-width="2.5"/><circle cx="290" cy="150" r="31" fill="url(#bulbs)" pointer-events="none"/><path id="lf1" d="M276 158 l5 -16 l5 16 l5 -16 l5 16 l5 -16 l4 16" fill="none" stroke="#6a5a3a" stroke-width="2" stroke-linejoin="round"/><rect x="276" y="178" width="28" height="22" rx="3" fill="url(#brass)"/><path d="M276 184H304M276 190H304M276 196H304" stroke="#5a4416" stroke-width="1.5"/></g>
+        <g class="sk sk-cap"><rect x="287" y="106" width="6" height="14" fill="#a9b4b7"/><rect x="287" y="200" width="6" height="14" fill="#a9b4b7"/><rect id="cb1" x="263" y="120" width="54" height="80" rx="8" fill="#1d3a52" stroke="#4d7a99" stroke-width="2"/><rect id="cf1" x="265" y="198" width="50" height="0" fill="#3fe0d0" opacity=".4"/><rect x="263" y="120" width="54" height="80" rx="8" fill="url(#cyl)" pointer-events="none"/><rect x="263" y="124" width="11" height="72" fill="#e8eef0" opacity=".85"/><text x="268.5" y="138" class="lbl" text-anchor="middle" style="font-size:10px;fill:#123">−</text><text x="268.5" y="156" class="lbl" text-anchor="middle" style="font-size:10px;fill:#123">−</text><text x="268.5" y="174" class="lbl" text-anchor="middle" style="font-size:10px;fill:#123">−</text><path d="M300 124l8 5m0 -5l-8 5" stroke="#4d7a99" stroke-width="1.5"/></g>
+        <g class="sk sk-diode"><line x1="290" y1="106" x2="290" y2="130" stroke="#a9b4b7" stroke-width="5"/><line x1="290" y1="190" x2="290" y2="214" stroke="#a9b4b7" stroke-width="5"/><rect id="dd1" x="266" y="128" width="48" height="64" rx="12" fill="#8a6224" stroke="#d9a84c" stroke-width="2"/><rect x="266" y="128" width="48" height="64" rx="12" fill="url(#cyl)" pointer-events="none"/><rect x="266" y="172" width="48" height="12" fill="#111"/><path d="M282 134h16l-8 -6z" fill="#e8c36a" opacity=".5"/></g>
+        <g class="sk sk-drv"><line x1="290" y1="106" x2="290" y2="120" stroke="#a9b4b7" stroke-width="5"/><line x1="290" y1="200" x2="290" y2="214" stroke="#a9b4b7" stroke-width="5"/><rect x="261" y="120" width="58" height="80" rx="8" fill="#0d1d22" stroke="#3fe0d0" stroke-width="2"/><polyline points="268,128 268,123 280,123 280,128 292,128 292,123 304,123 304,128 312,128" fill="none" stroke="#3fe0d0" stroke-width="1.5"/><circle cx="309" cy="190" r="7" fill="#22343a" stroke="#7f9aa0"/><line id="kn1" x1="309" y1="190" x2="309" y2="184" stroke="#ff6a1a" stroke-width="2" stroke-linecap="round"/></g>
+        <text id="nm1" x="290" y="139" class="rt" text-anchor="middle">R1</text><text id="tR1" x="290" y="160" class="rt" text-anchor="middle">10 Ω</text><text id="tP1" x="290" y="182" class="rt" text-anchor="middle" style="font-size:11px">0.0 W</text></g>
+      <g id="g2"><rect class="fr" x="367" y="104" width="66" height="112" rx="14" fill="#0000" stroke="none" pointer-events="all"/>
+        <g class="sk sk-res"><rect x="397" y="106" width="6" height="14" fill="#a9b4b7"/><rect x="397" y="200" width="6" height="14" fill="#a9b4b7"/><rect id="r2" x="370" y="118" width="60" height="84" rx="14" fill="#4a3322" stroke="#8a6a4a" stroke-width="2"/><rect x="370" y="118" width="60" height="84" rx="14" fill="url(#cyl)" pointer-events="none"/><rect x="371" y="130" width="58" height="4" fill="#1a0f08" opacity=".55"/><rect x="371" y="186" width="58" height="4" fill="#1a0f08" opacity=".55"/></g>
+        <g class="sk sk-lamp"><line x1="400" y1="106" x2="400" y2="122" stroke="#a9b4b7" stroke-width="5"/><line x1="400" y1="198" x2="400" y2="214" stroke="#a9b4b7" stroke-width="5"/><circle id="lb2" cx="400" cy="150" r="31" fill="#262620" stroke="#7f9aa0" stroke-width="2.5"/><circle cx="400" cy="150" r="31" fill="url(#bulbs)" pointer-events="none"/><path id="lf2" d="M386 158 l5 -16 l5 16 l5 -16 l5 16 l5 -16 l4 16" fill="none" stroke="#6a5a3a" stroke-width="2" stroke-linejoin="round"/><rect x="386" y="178" width="28" height="22" rx="3" fill="url(#brass)"/><path d="M386 184H414M386 190H414M386 196H414" stroke="#5a4416" stroke-width="1.5"/></g>
+        <g class="sk sk-cap"><rect x="397" y="106" width="6" height="14" fill="#a9b4b7"/><rect x="397" y="200" width="6" height="14" fill="#a9b4b7"/><rect id="cb2" x="373" y="120" width="54" height="80" rx="8" fill="#1d3a52" stroke="#4d7a99" stroke-width="2"/><rect id="cf2" x="375" y="198" width="50" height="0" fill="#3fe0d0" opacity=".4"/><rect x="373" y="120" width="54" height="80" rx="8" fill="url(#cyl)" pointer-events="none"/><rect x="373" y="124" width="11" height="72" fill="#e8eef0" opacity=".85"/><text x="378.5" y="138" class="lbl" text-anchor="middle" style="font-size:10px;fill:#123">−</text><text x="378.5" y="156" class="lbl" text-anchor="middle" style="font-size:10px;fill:#123">−</text><text x="378.5" y="174" class="lbl" text-anchor="middle" style="font-size:10px;fill:#123">−</text><path d="M410 124l8 5m0 -5l-8 5" stroke="#4d7a99" stroke-width="1.5"/></g>
+        <g class="sk sk-diode"><line x1="400" y1="106" x2="400" y2="130" stroke="#a9b4b7" stroke-width="5"/><line x1="400" y1="190" x2="400" y2="214" stroke="#a9b4b7" stroke-width="5"/><rect id="dd2" x="376" y="128" width="48" height="64" rx="12" fill="#8a6224" stroke="#d9a84c" stroke-width="2"/><rect x="376" y="128" width="48" height="64" rx="12" fill="url(#cyl)" pointer-events="none"/><rect x="376" y="172" width="48" height="12" fill="#111"/><path d="M392 134h16l-8 -6z" fill="#e8c36a" opacity=".5"/></g>
+        <g class="sk sk-drv"><line x1="400" y1="106" x2="400" y2="120" stroke="#a9b4b7" stroke-width="5"/><line x1="400" y1="200" x2="400" y2="214" stroke="#a9b4b7" stroke-width="5"/><rect x="371" y="120" width="58" height="80" rx="8" fill="#0d1d22" stroke="#3fe0d0" stroke-width="2"/><polyline points="378,128 378,123 390,123 390,128 402,128 402,123 414,123 414,128 422,128" fill="none" stroke="#3fe0d0" stroke-width="1.5"/><circle cx="419" cy="190" r="7" fill="#22343a" stroke="#7f9aa0"/><line id="kn2" x1="419" y1="190" x2="419" y2="184" stroke="#ff6a1a" stroke-width="2" stroke-linecap="round"/></g>
+        <text id="nm2" x="400" y="139" class="rt" text-anchor="middle">R2</text><text id="tR2" x="400" y="160" class="rt" text-anchor="middle">10 Ω</text><text id="tP2" x="400" y="182" class="rt" text-anchor="middle" style="font-size:11px">0.0 W</text></g>
+      <g id="g3"><rect class="fr" x="477" y="104" width="66" height="112" rx="14" fill="#0000" stroke="none" pointer-events="all"/>
+        <g class="sk sk-res"><rect x="507" y="106" width="6" height="14" fill="#a9b4b7"/><rect x="507" y="200" width="6" height="14" fill="#a9b4b7"/><rect id="r3" x="480" y="118" width="60" height="84" rx="14" fill="#4a3322" stroke="#8a6a4a" stroke-width="2"/><rect x="480" y="118" width="60" height="84" rx="14" fill="url(#cyl)" pointer-events="none"/><rect x="481" y="130" width="58" height="4" fill="#1a0f08" opacity=".55"/><rect x="481" y="186" width="58" height="4" fill="#1a0f08" opacity=".55"/></g>
+        <g class="sk sk-lamp"><line x1="510" y1="106" x2="510" y2="122" stroke="#a9b4b7" stroke-width="5"/><line x1="510" y1="198" x2="510" y2="214" stroke="#a9b4b7" stroke-width="5"/><circle id="lb3" cx="510" cy="150" r="31" fill="#262620" stroke="#7f9aa0" stroke-width="2.5"/><circle cx="510" cy="150" r="31" fill="url(#bulbs)" pointer-events="none"/><path id="lf3" d="M496 158 l5 -16 l5 16 l5 -16 l5 16 l5 -16 l4 16" fill="none" stroke="#6a5a3a" stroke-width="2" stroke-linejoin="round"/><rect x="496" y="178" width="28" height="22" rx="3" fill="url(#brass)"/><path d="M496 184H524M496 190H524M496 196H524" stroke="#5a4416" stroke-width="1.5"/></g>
+        <g class="sk sk-cap"><rect x="507" y="106" width="6" height="14" fill="#a9b4b7"/><rect x="507" y="200" width="6" height="14" fill="#a9b4b7"/><rect id="cb3" x="483" y="120" width="54" height="80" rx="8" fill="#1d3a52" stroke="#4d7a99" stroke-width="2"/><rect id="cf3" x="485" y="198" width="50" height="0" fill="#3fe0d0" opacity=".4"/><rect x="483" y="120" width="54" height="80" rx="8" fill="url(#cyl)" pointer-events="none"/><rect x="483" y="124" width="11" height="72" fill="#e8eef0" opacity=".85"/><text x="488.5" y="138" class="lbl" text-anchor="middle" style="font-size:10px;fill:#123">−</text><text x="488.5" y="156" class="lbl" text-anchor="middle" style="font-size:10px;fill:#123">−</text><text x="488.5" y="174" class="lbl" text-anchor="middle" style="font-size:10px;fill:#123">−</text><path d="M520 124l8 5m0 -5l-8 5" stroke="#4d7a99" stroke-width="1.5"/></g>
+        <g class="sk sk-diode"><line x1="510" y1="106" x2="510" y2="130" stroke="#a9b4b7" stroke-width="5"/><line x1="510" y1="190" x2="510" y2="214" stroke="#a9b4b7" stroke-width="5"/><rect id="dd3" x="486" y="128" width="48" height="64" rx="12" fill="#8a6224" stroke="#d9a84c" stroke-width="2"/><rect x="486" y="128" width="48" height="64" rx="12" fill="url(#cyl)" pointer-events="none"/><rect x="486" y="172" width="48" height="12" fill="#111"/><path d="M502 134h16l-8 -6z" fill="#e8c36a" opacity=".5"/></g>
+        <g class="sk sk-drv"><line x1="510" y1="106" x2="510" y2="120" stroke="#a9b4b7" stroke-width="5"/><line x1="510" y1="200" x2="510" y2="214" stroke="#a9b4b7" stroke-width="5"/><rect x="481" y="120" width="58" height="80" rx="8" fill="#0d1d22" stroke="#3fe0d0" stroke-width="2"/><polyline points="488,128 488,123 500,123 500,128 512,128 512,123 524,123 524,128 532,128" fill="none" stroke="#3fe0d0" stroke-width="1.5"/><circle cx="529" cy="190" r="7" fill="#22343a" stroke="#7f9aa0"/><line id="kn3" x1="529" y1="190" x2="529" y2="184" stroke="#ff6a1a" stroke-width="2" stroke-linecap="round"/></g>
+        <text id="nm3" x="510" y="139" class="rt" text-anchor="middle">R3</text><text id="tR3" x="510" y="160" class="rt" text-anchor="middle">10 Ω</text><text id="tP3" x="510" y="182" class="rt" text-anchor="middle" style="font-size:11px">0.0 W</text></g>
+      <rect x="440" y="298" width="170" height="26" rx="5" class="part"/><text id="tV" x="525" y="316" class="val" text-anchor="middle">V load: 0.00 V</text>
+      <text x="60" y="318" class="lbl" text-anchor="middle">Ground</text>
+    </svg>
+    <div class="ohm" id="ohm" aria-live="polite"></div>
+    <p class="hint">On the board: drag or scroll a resistor to change it, double-click it to switch it off, click the fuse to replace it, flip the bus switch to rewire.</p>
+  </section>
+  <aside class="panel" aria-label="Controls">
+    <h2>Mainframe power</h2>
+    <svg id="dial" viewBox="0 0 180 110" role="img" aria-label="Power dial">
+      <path d="M20 90A70 70 0 0 1 160 90" fill="none" stroke="#050a0b" stroke-width="14" stroke-linecap="butt"/>
+      <path id="tarc" d="M20 90A70 70 0 0 1 160 90" pathLength="60" fill="none" stroke="#3fe0d0" stroke-width="14" stroke-dasharray="0 15 15 60" opacity=".85"/>
+      <line x1="10.0" y1="90.0" x2="4.0" y2="90.0" stroke="#7f9a98" stroke-width="2"/><line x1="13.9" y1="65.3" x2="10.1" y2="64.0" stroke="#7f9a98" stroke-width="1"/><line x1="25.3" y1="43.0" x2="22.0" y2="40.6" stroke="#7f9a98" stroke-width="1"/><line x1="43.0" y1="25.3" x2="40.6" y2="22.0" stroke="#7f9a98" stroke-width="1"/><line x1="65.3" y1="13.9" x2="64.0" y2="10.1" stroke="#7f9a98" stroke-width="1"/><line x1="90.0" y1="10.0" x2="90.0" y2="4.0" stroke="#7f9a98" stroke-width="2"/><line x1="114.7" y1="13.9" x2="116.0" y2="10.1" stroke="#7f9a98" stroke-width="1"/><line x1="137.0" y1="25.3" x2="139.4" y2="22.0" stroke="#7f9a98" stroke-width="1"/><line x1="154.7" y1="43.0" x2="158.0" y2="40.6" stroke="#7f9a98" stroke-width="1"/><line x1="166.1" y1="65.3" x2="169.9" y2="64.0" stroke="#7f9a98" stroke-width="1"/><line x1="170.0" y1="90.0" x2="176.0" y2="90.0" stroke="#7f9a98" stroke-width="2"/><path d="M20 90A70 70 0 0 1 160 90" pathLength="60" fill="none" stroke="#ff4b2b" stroke-width="14" stroke-dasharray="0 52 8 60" opacity=".3"/><path d="M26 78A66 66 0 0 1 92 24" fill="none" stroke="#fff" stroke-opacity=".08" stroke-width="5" stroke-linecap="round"/>
+      <g id="needle"><line x1="90" y1="90" x2="90" y2="30" stroke="#ff6a1a" stroke-width="3" stroke-linecap="round"/></g>
+      <circle cx="90" cy="90" r="7" fill="#22343a" stroke="#4d6a70"/>
+      <text id="pNow" x="90" y="108" class="val" text-anchor="middle" style="font-size:15px">0.0 W</text>
+    </svg>
+    <p class="hint" style="text-align:center">Keep the needle in the cyan band: <b id="tgt">15–30 W</b></p>
+    <p id="streak" class="hint" style="text-align:center">Streak: 0 s</p>
+    <h2>Wiring</h2>
+    <div class="seg" role="group" aria-label="Bus mode"><button id="mPar" class="on" aria-pressed="true">Parallel</button><button id="mSer" aria-pressed="false">Series</button></div>
+    <h2>Deck modules</h2>
+    <label class="row"><input type="checkbox" id="s1" checked> <span id="n1">Module 1</span></label>
+    <label class="slide"><span id="l1">R1</span> <output id="o1">10 Ω</output><input type="range" id="r1s" min="2" max="50" value="10"></label>
+    <label class="row"><input type="checkbox" id="s2" checked> <span id="n2">Module 2</span></label>
+    <label class="slide"><span id="l2">R2</span> <output id="o2">10 Ω</output><input type="range" id="r2s" min="2" max="50" value="10"></label>
+    <label class="row"><input type="checkbox" id="s3"> <span id="n3">Module 3</span></label>
+    <label class="slide"><span id="l3">R3</span> <output id="o3">10 Ω</output><input type="range" id="r3s" min="2" max="50" value="10"></label>
+    <h2>Protection</h2>
+    <div class="row"><select id="fuseSel" aria-label="Fuse rating"><option value="3">3 A</option><option value="5" selected>5 A</option><option value="8">8 A</option></select>
+      <button id="swap">Replace fuse (<span id="spares">3</span>)</button></div>
+    <p class="hint">Resistors burn above 16 W. Wire resistance: 1 Ω.</p>
+    <details id="note" class="hint"><summary>Field notes</summary><p id="noteTx" style="margin:6px 0 0"></p></details>
+    <ul id="log" class="log" aria-live="polite"></ul>
+  </aside>
+</main>
+<section id="logic" class="logic" hidden aria-label="Logic bay"><h2 id="lgT" style="font-size:1.1rem;color:var(--cy)"></h2><p id="lgD" class="hint"></p><div id="lgCards" class="cards"></div></section>
+</div>
+<canvas id="fx"></canvas><div id="vig"></div><div id="dim"></div><div id="flash"></div><div id="shock"></div><div id="banner" role="status"></div>
+<div id="beacon"><i></i></div>
+<div id="coach" hidden role="dialog" aria-label="Training"><b id="cTitle"></b><p id="cText"></p><div class="row"><button id="cNext" class="big">Next</button><button id="cSkip">Leave training</button></div></div>
+<div id="toasts" aria-live="polite"></div>
+<div id="settings" class="overlay" hidden role="dialog" aria-label="Settings"><div class="card" style="text-align:left;max-width:460px"><h2 style="font-size:1.2rem;color:inherit;margin:0 0 8px">Settings</h2>
+ <label class="slide">Master volume <output id="stV">80%</output><input type="range" id="setVol" min="0" max="1" step="0.05" value="0.8"></label>
+ <label class="row"><input type="checkbox" id="setMus" checked> Music</label>
+ <label class="slide">Music volume <output id="stM">50%</output><input type="range" id="setMv" min="0" max="1" step="0.05" value="0.5"></label>
+ <label class="row"><input type="checkbox" id="setCalm"> Calm mode (no shake, flicker or wobble)</label>
+ <label class="row"><input type="checkbox" id="setCb"> Colour-blind palette</label>
+ <label class="row"><input type="checkbox" id="setBig"> Large text</label>
+ <div class="row"><b>Difficulty</b><button class="dg" data-d="cadet">Cadet</button><button class="dg" data-d="engineer">Engineer</button><button class="dg" data-d="chief">Chief</button></div>
+ <p class="hint">Keyboard: Tab to a resistor, arrow keys change it, Enter switches it on or off. The fuse and bus switch are focusable too (Enter). Keys 1, 2, 3 switch grids.</p>
+ <div class="row"><button id="setReset">Reset saved progress</button><button id="setClose" class="big">Close</button></div></div></div>
+<div id="overlay" class="overlay">
+  <div class="card"><h2 id="oTitle" style="font-size:1.4rem;color:inherit"></h2><p id="oText"></p><div id="lvls" class="lvls" hidden></div><div id="oDeb" class="hint" style="text-align:left;margin:8px 0"></div><div class="row" style="justify-content:center"><button id="oTut">Training run</button><button id="oMenu">Mission select</button><button id="oSand">Sandbox</button><button id="oDaily">Daily</button><button id="oBtn" class="big">Take the console</button></div></div>
+</div>
+<script>{{include parts/02-script.js}}</script>
+</body>
+</html>

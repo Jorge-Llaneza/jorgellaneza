@@ -1,0 +1,366 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Code Translator &amp; Logic Engine</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Familjen+Grotesk:wght@400;500;600;700&family=Limelight&family=Spline+Sans+Mono:wght@400;500;700&display=swap">
+<style>{{include parts/01-style.css}}</style>
+
+  <!-- Hand-drawn symbols used across the page (suits, star, flame, chip, icons) -->
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+    <defs>
+      <symbol id="s-spade" viewBox="0 0 64 64"><path fill="currentColor" d="M32 6C24 20 8 28 8 42c0 9 7 14 15 12 4-1 7-3 8-6 0 6-2 10-6 12h14c-4-2-6-6-6-12 1 3 4 5 8 6 8 2 15-3 15-12 0-14-16-22-24-36z"/></symbol>
+      <symbol id="s-heart" viewBox="0 0 64 64"><path fill="currentColor" d="M32 56C8 38 6 16 20 12c6-2 11 1 12 6 1-5 6-8 12-6 14 4 12 26-12 44z"/></symbol>
+      <symbol id="s-diamond" viewBox="0 0 64 64"><path fill="currentColor" d="M32 5l21 27-21 27-21-27z"/></symbol>
+      <symbol id="s-club" viewBox="0 0 64 64"><g fill="currentColor"><circle cx="32" cy="19" r="12"/><circle cx="18" cy="39" r="12"/><circle cx="46" cy="39" r="12"/><circle cx="32" cy="34" r="9"/><path d="M32 30c1 14-1 22-6 30h12c-5-8-7-16-6-30z"/></g></symbol>
+      <symbol id="i-star" viewBox="0 0 24 24"><path fill="currentColor" d="M12 2.5l2.9 6.3 6.9.8-5.1 4.7 1.4 6.8-6.1-3.4-6.1 3.4 1.4-6.8-5.1-4.7 6.9-.8z"/></symbol>
+      <symbol id="i-flame" viewBox="0 0 24 24"><path fill="currentColor" d="M12.5 2c1 4.5 6 7 6 12.5 0 4.1-2.9 7.5-6.5 7.5s-6.5-3.200-6.500-7c0-3 1.500-4.700 2.800-6.200.4 1.800 1.300 2.800 2.300 3-.4-3.800 0-7.200 1.900-9.800z"/></symbol>
+      <symbol id="i-chip" viewBox="0 0 24 24"><circle cx="12" cy="12" r="11" fill="currentColor"/><circle cx="12" cy="12" r="8.600" fill="none" stroke="#06130e" stroke-opacity=".55" stroke-width="1.600" stroke-dasharray="3.400 2.600"/><circle cx="12" cy="12" r="5" fill="none" stroke="#06130e" stroke-opacity=".6" stroke-width="1.400"/></symbol>
+      <symbol id="i-sound-on" viewBox="0 0 24 24"><path fill="currentColor" d="M3 9h4l5-4v14l-5-4H3z"/><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" d="M15.500 8.500c1.600 1.800 1.600 5.200 0 7M18.500 5.500c3.400 3.600 3.400 9.400 0 13"/></symbol>
+      <symbol id="i-sound-off" viewBox="0 0 24 24"><path fill="currentColor" d="M3 9h4l5-4v14l-5-4H3z"/><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" d="M16 9.500l5.500 5M21.500 9.500l-5.500 5"/></symbol>
+      <symbol id="i-back" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="2.600" stroke-linecap="round" stroke-linejoin="round" d="M15 5l-7 7 7 7"/></symbol>
+      <symbol id="i-bulb" viewBox="0 0 24 24"><path fill="currentColor" d="M12 2a7 7 0 0 0-4 12.700V17h8v-2.300A7 7 0 0 0 12 2zM9 19h6v1.500a1.500 1.500 0 0 1-1.500 1.500h-3A1.500 1.500 0 0 1 9 20.500z"/></symbol>
+      <symbol id="i-play" viewBox="0 0 24 24"><path fill="currentColor" d="M7 4l13 8-13 8z"/></symbol>
+    </defs>
+  </svg>
+
+  <a class="skip-link" href="#main">Skip to the game</a>
+
+  <!-- ============ MARQUEE SIGN + SCOREBOARD ============ -->
+  <header class="marquee" role="banner">
+    <div class="wrap">
+      <div class="sign">
+        <svg class="logo emb" viewBox="0 0 56 56" aria-hidden="true" focusable="false">
+          <path class="st" d="M20 4v8M28 4v8M36 4v8M20 44v8M28 44v8M36 44v8M4 20h8M4 28h8M4 36h8M44 20h8M44 28h8M44 36h8"/>
+          <rect class="br" x="12" y="12" width="32" height="32" rx="6"/>
+          <rect class="fd" x="17" y="17" width="22" height="22" rx="3.500"/>
+          <use href="#s-spade" class="cb" x="21" y="21" width="14" height="14"/>
+        </svg>
+        <div>
+          <p class="sign-title">Logic Engine</p>
+          <p class="sign-sub">Turn game rules into code</p>
+        </div>
+      </div>
+
+      <div class="hud" role="group" aria-label="Scoreboard">
+        <div class="read score">
+          <svg class="ico" aria-hidden="true" focusable="false"><use href="#i-chip"/></svg>
+          <div><small>Chips</small><b id="stat-score">0</b></div>
+        </div>
+        <div class="read streak">
+          <svg class="ico flame" id="flame" aria-hidden="true" focusable="false"><use href="#i-flame"/></svg>
+          <div><small>Streak</small><b id="stat-streak">0</b><span class="pips" id="streak-pips" aria-hidden="true"></span></div>
+        </div>
+        <div class="read rank">
+          <span id="rank-badge" aria-hidden="true"></span>
+          <div><small>Rank</small><b id="stat-rank">Rookie</b><span class="next" id="rank-next"></span><span class="xp"><i id="rank-fill"></i></span></div>
+        </div>
+        <div class="read tick">
+          <div><small>Clock tick</small><b id="stat-step">0 / 0</b></div>
+        </div>
+        <div class="hud-btns">
+          <div class="langs" role="radiogroup" aria-label="Programming language"><span class="lang-label">I want to learn:</span>
+            <button type="button" class="lang" role="radio" data-lang="js" aria-checked="true" title="Learn with JavaScript">JavaScript</button>
+            <button type="button" class="lang" role="radio" data-lang="py" aria-checked="false" title="Learn with Python">Python</button>
+            <button type="button" class="lang" role="radio" data-lang="java" aria-checked="false" title="Learn with Java">Java</button>
+          </div>
+          <button type="button" id="btn-sound" class="icon-btn" aria-pressed="true" aria-label="Sound on" title="Sound on or off">
+            <svg class="ico" aria-hidden="true" focusable="false"><use id="sound-use" href="#i-sound-on"/></svg>
+          </button>
+          <button type="button" id="btn-lobby" class="btn small" hidden>
+            <svg class="ico" aria-hidden="true" focusable="false"><use href="#i-back"/></svg> All games
+          </button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main id="main">
+
+    <!-- ============ LOBBY ============ -->
+    <section id="lobby" class="lobby wrap" aria-labelledby="lobby-title">
+      <div class="lobby-head">
+        <div>
+          <p class="eyebrow">Let's play</p>
+          <h1 id="lobby-title" class="display">Pick a game</h1>
+          <p class="lead" id="lobby-lead"></p>
+        </div>
+        <div class="lobby-stats" id="lobby-stats"></div>
+      </div>
+      <div class="filters" id="lobby-filters" role="region" aria-label="Filter the tables"></div>
+      <div class="floor" id="lobby-grid"></div>
+    </section>
+
+    <!-- ============ ONE TABLE ============ -->
+    <div id="table-view" class="table-view" hidden>
+      <div class="wrap">
+        <section id="simple" class="simple" aria-label="Lesson">
+          <ol class="steps" id="steps" aria-label="Steps"></ol>
+          <h1 id="s-title" class="display"></h1>
+
+          <div class="pane" id="pane-meet" role="tabpanel">
+            <div class="meet-top"><div class="meet-art" id="meet-art" aria-hidden="true"></div><p class="big" id="meet-goal"></p></div>
+            <h3>The rules</h3>
+            <ol id="meet-rules" class="plain-list"></ol>
+            <h3>See what it does</h3>
+            <ul id="und-examples" class="und-list"></ul>
+            <div class="row"><button type="button" id="btn-meet-next" class="btn primary big">I get it. Next</button></div>
+          </div>
+
+          <div class="pane" id="pane-understand" role="tabpanel" hidden>
+            <p class="big">Your turn. What do you think comes out? Type it in and press Check.</p>
+            <ul id="und-quiz" class="und-list"></ul>
+            <p class="muted" id="und-status" aria-live="polite"></p>
+            <div class="row"><button type="button" id="btn-und-next" class="btn primary big" disabled>Next: make a recipe</button></div>
+          </div>
+
+          <div class="pane" id="pane-plan" role="tabpanel" hidden>
+            <p class="big">A recipe is a list of steps. Tap the steps in the right order. Some steps do not belong.</p>
+            <div class="plan-cols">
+              <div><h3>Steps</h3><ul id="plan-pool" class="plan-pool"></ul></div>
+              <div><h3>Your recipe</h3><ol id="plan-list" class="plan-listing" aria-label="Your recipe"></ol></div>
+            </div>
+            <div class="row"><button type="button" id="btn-plan-check" class="btn primary big" disabled>Check my recipe</button><button type="button" id="btn-plan-next" class="btn primary big" hidden>Now write the code</button></div>
+            <div id="plan-fb" class="feedback" hidden aria-live="polite"></div>
+          </div>
+
+          <div class="pane" id="pane-code" role="tabpanel" hidden>
+            <p class="big">Turn your recipe into code. Type it in the box and press Check my code.</p>
+            <p id="code-task" hidden></p>
+            <div id="code-given-box" hidden><p class="muted small">Already written for you. You do not need to type this:</p><pre class="given" id="code-given"></pre></div>
+            <details class="plan-box" id="code-plan-box" open><summary>Your recipe</summary><div id="code-plan-list"></div></details>
+            <details class="plan-box" id="cheat-box"><summary>Code words (how to say it)</summary><div id="cheat-list"></div></details>
+            <div class="editor-wrap">
+              <textarea id="code-editor" class="editor" spellcheck="false" autocomplete="off" autocapitalize="off" wrap="off" rows="12" aria-describedby="code-keys"></textarea>
+              <p class="muted small" id="code-keys">Tip: the Tab key makes a space at the start of a line.</p>
+            </div>
+            <p class="muted" id="code-tests-note" hidden></p>
+            <div class="row">
+              <button type="button" id="btn-code-run" class="btn primary big">Check my code</button>
+              <button type="button" id="btn-code-scratch" class="btn">Give me a start</button>
+              <button type="button" id="btn-code-trace" class="btn" hidden>Step through my code</button>
+              <button type="button" id="btn-code-reset" class="btn ghost" hidden>Load the buggy code</button>
+            </div>
+            <p class="muted" id="code-status" aria-live="polite"></p>
+            <ul id="code-results" class="test-results" aria-live="polite"></ul>
+            <div class="reveal-box">
+              <p class="muted" id="code-reveal-note"></p>
+              <button type="button" id="btn-code-reveal" class="btn" disabled>Show me the answer</button>
+              <div id="code-reveal" hidden>
+                <pre class="given ref" id="code-ref"></pre>
+              </div>
+            </div>
+          </div>
+
+          <div class="pane" id="pane-done" role="tabpanel" hidden>
+            <div id="done-card" class="done-card"></div>
+            <div class="row">
+              <button type="button" id="btn-done-play" class="btn primary big">Play the real game</button>
+              <button type="button" id="btn-done-next" class="btn big">Next game</button>
+              <button type="button" id="btn-done-lobby" class="btn ghost">All games</button>
+              <button type="button" id="btn-done-watch" class="btn ghost">Watch my code run</button>
+            </div>
+          </div>
+
+          <ul id="hint-box" class="hint-box" aria-live="polite"></ul>
+          <div class="row simple-nav">
+            <button type="button" id="s-hint" class="btn">I need a hint</button>
+            <button type="button" id="btn-advanced" class="link-btn">Show the computer's view (advanced)</button>
+          </div>
+        </section>
+        <div id="advanced" hidden>
+          <button type="button" id="btn-simple" class="btn small">Back to the simple view</button>
+        <section class="mission" aria-label="Mission">
+          <div class="mission-main">
+            <p class="eyebrow" id="level-concept"></p>
+            <h1 id="level-title" class="display">Loading…</h1>
+            <p id="level-objective" class="lead"></p>
+          </div>
+          <div class="target-slip"><small>Target output</small><code id="target-output"></code></div>
+        </section>
+
+        <div class="controls-bar">
+          <div class="controls" role="group" aria-label="Execution controls">
+            <button type="button" id="btn-step" class="btn primary">Step Forward <kbd>→</kbd></button>
+            <button type="button" id="btn-run" class="btn">Run Code</button>
+            <button type="button" id="btn-reset" class="btn ghost">Reset</button>
+            <label class="toggle" title="When on, you must call each step before the CPU runs it">
+              <input type="checkbox" id="toggle-predict" checked>
+              <span>Predict mode</span>
+            </label>
+          </div>
+          <ul class="objectives" id="objectives" aria-label="Objectives">
+            <li data-obj="trace">Trace</li>
+            <li data-obj="diagnose">Diagnose</li>
+            <li data-obj="fix">Fix</li>
+          </ul>
+          <div class="progress" role="progressbar" aria-label="Campaign progress" aria-valuemin="0" aria-valuemax="100" id="progress"><div id="progress-fill"></div></div>
+          <nav class="level-nav" id="level-nav" aria-label="Tables"></nav>
+        </div>
+
+        <div class="workspace">
+
+          <!-- Game table -->
+          <section class="panel stage-panel" id="stage-panel" aria-labelledby="stage-title">
+            <header class="panel-head">
+              <h2 id="stage-title"><i class="led"></i>Game Table</h2>
+              <span class="chip" id="stage-game"></span>
+            </header>
+            <div class="stage-body">
+              <aside class="plaque">
+                <h3>House rules</h3>
+                <ol id="rules-list"></ol>
+              </aside>
+              <div class="rail">
+                <div class="felt">
+                  <div id="stage-board" class="stage-board"></div>
+                  <p id="stage-say" class="stage-say" aria-live="polite"></p>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <!-- Code inspector -->
+          <section class="panel code-panel" aria-labelledby="code-title">
+            <header class="panel-head">
+              <h2 id="code-title"><i class="led"></i>Code Inspector</h2>
+              <span class="legend"><i class="dot active-dot"></i> next to run <i class="dot visited-dot"></i> already run <i class="dot bug-dot"></i> bug · click a line to run to it</span>
+            </header>
+            <div id="code-banner" class="code-banner" hidden>
+              Viewing <strong id="code-banner-what">your fixed</strong> program.
+              <button type="button" id="btn-original" class="link-btn">Show original</button>
+            </div>
+            <ol id="code-view" class="code-view" aria-label="Program source"></ol>
+            <div id="narration" class="narration" aria-live="polite"></div>
+          </section>
+
+          <!-- Memory -->
+          <section class="panel ram-panel" aria-labelledby="ram-title">
+            <header class="panel-head"><h2 id="ram-title"><i class="led"></i>RAM Inspector</h2></header>
+            <div class="table-wrap">
+              <table class="ram-table">
+                <thead>
+                  <tr><th scope="col">Scope</th><th scope="col">Name</th><th scope="col">Type</th><th scope="col">Value</th><th scope="col">Addr</th></tr>
+                </thead>
+                <tbody id="ram-body"></tbody>
+              </table>
+              <p id="ram-empty" class="empty">Memory is empty. No variables exist yet.</p>
+            </div>
+            <div class="split">
+              <div>
+                <h3>Call stack</h3>
+                <ol id="stack-list" class="stack-list" reversed></ol>
+                <p id="last-return" class="last-return" hidden></p>
+              </div>
+              <div>
+                <h3>Console</h3>
+                <pre id="console-out" class="console" aria-live="polite"></pre>
+              </div>
+            </div>
+          </section>
+
+          <!-- Challenge -->
+          <section class="panel challenge-panel" id="challenge" aria-labelledby="challenge-title">
+            <header class="panel-head">
+              <h2 id="challenge-title"><i class="led"></i>Challenge</h2>
+              <button type="button" id="btn-hint" class="btn small ghost">Hint (−5)</button>
+            </header>
+            <div class="modes" role="group" aria-label="Way to play">
+              <button type="button" id="mode-build" class="mode" aria-pressed="true">Watch my code</button>
+              <button type="button" id="mode-debug" class="mode" aria-pressed="false">Debug lab</button>
+            </div>
+
+            <div class="tabs" role="tablist" aria-label="Challenge phases" data-mode="build">
+              <button type="button" role="tab" class="tab" id="tab-trace" data-tab="predict" data-mode="build" aria-selected="false">4 · Trace</button>
+              <button type="button" role="tab" class="tab" id="tab-predict" data-tab="predict" data-mode="debug" aria-selected="false" hidden>1 · Call it</button>
+              <button type="button" role="tab" class="tab" id="tab-diagnose" data-tab="diagnose" data-mode="debug" aria-selected="false" hidden>2 · Spot the bug</button>
+              <button type="button" role="tab" class="tab" id="tab-fix" data-tab="fix" data-mode="debug" aria-selected="false" hidden>3 · Rebuild</button>
+            </div>
+
+            
+
+            <div class="pane" id="pane-predict" role="tabpanel" aria-labelledby="tab-predict" hidden>
+              <p class="nudge" id="trace-note" hidden></p>
+              <div id="pred-card" class="pred-card"></div>
+            </div>
+
+            <div class="pane" id="pane-diagnose" role="tabpanel" aria-labelledby="tab-diagnose" hidden>
+              <p id="diag-question" class="question"></p>
+              <div id="diag-options" class="options"></div>
+              <div id="diag-feedback" class="feedback" hidden></div>
+            </div>
+
+            <div class="pane" id="pane-fix" role="tabpanel" aria-labelledby="tab-fix" hidden>
+              <p class="question">Rebuild the broken part of the program. Drag blocks (or click them) into your program, and use ▲▼ to reorder. Some blocks are decoys.</p>
+              <p class="muted" id="fix-note" hidden></p>
+              <p class="nudge">Feeling confident? Skip the blocks: tab 4 lets you type the fix yourself, and pays a coder's bonus.</p>
+              <div class="given-wrap" id="fix-given-wrap" hidden>
+                <h3>Already in place (locked)</h3>
+                <pre class="given" id="fix-given"></pre>
+              </div>
+              <p class="muted">Tests must produce: <span id="fix-expected"></span></p>
+              <div class="builder">
+                <div>
+                  <h3>Parts bin</h3>
+                  <ul id="bin-list" class="blocks bin" aria-label="Parts bin"></ul>
+                </div>
+                <div>
+                  <h3>Your program</h3>
+                  <ol id="asm-list" class="blocks asm" aria-label="Your program"></ol>
+                </div>
+              </div>
+              <div class="row">
+                <button type="button" id="btn-tests" class="btn primary">Run Tests</button>
+                <button type="button" id="btn-clear" class="btn ghost">Clear</button>
+              </div>
+              <ul id="test-results" class="test-results" aria-live="polite"></ul>
+
+              <div class="play-box" id="play-box" hidden>
+                <h3>Your fix works. Now play it yourself</h3>
+                <p class="muted">Choose your own inputs and trace the fixed game on the table.</p>
+                <form id="play-form" class="play-form" autocomplete="off"></form>
+                <p id="play-error" role="alert"></p>
+              </div>
+            </div>
+
+            </section>
+        </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Payout slip -->
+  <section id="arcade" class="wrap arcade" aria-labelledby="arcade-title" hidden>
+    <p class="eyebrow">Play time · you earned it</p>
+    <h1 id="arcade-title" class="display"></h1>
+    <p class="lead" id="arcade-intro"></p>
+    <div id="arcade-stage" class="arc-stage"></div>
+    <p id="arcade-msg" class="arc-msg" aria-live="polite"></p>
+    <div class="row"><button type="button" id="arcade-again" class="btn primary" hidden>Play again</button><button type="button" id="arcade-table" class="btn">Back to the lesson</button><button type="button" id="arcade-back" class="btn ghost">Lobby</button></div>
+    <div class="arc-code">
+      <h2>What your function did</h2>
+      <ol id="arcade-log" class="arc-log" aria-live="off"></ol>
+      <details><summary>Show the function you wrote</summary><pre id="arcade-code" class="given"></pre></details>
+    </div>
+  </section>
+
+  <div id="modal" class="modal" role="dialog" aria-modal="true" aria-labelledby="modal-title" hidden>
+    <div class="modal-card">
+      <h2 id="modal-title">Table cleared</h2>
+      <div id="modal-body"></div>
+      <div class="row">
+        <button type="button" id="modal-next" class="btn primary">Next table</button>
+        <button type="button" id="modal-play" class="btn">Play the real game</button>
+        <button type="button" id="modal-lobby" class="btn">Lobby</button>
+        <button type="button" id="modal-close" class="btn ghost">Stay here</button>
+      </div>
+    </div>
+  </div>
+
+  <canvas id="confetti" class="confetti" aria-hidden="true"></canvas>
+  <div id="toast-region" class="toast-region" aria-live="polite"></div>
+  
+
+  
+<script>{{include parts/02-script/}}</script>
+
+</body></html>

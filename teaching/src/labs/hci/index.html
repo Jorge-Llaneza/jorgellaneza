@@ -1,0 +1,11 @@
+<!doctype html>
+<html data-theme="light" lang="en"><head><meta charset="utf-8"><title>HCI &amp; Java GUI Lab</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<style>{{include parts/01-style.css}}</style><style id='mp-theme'>{{include parts/02-mp-theme.css}}</style></head><body>
+<header><h1>🎓 HCI &amp; Java GUI Lab</h1><nav id="nav"></nav></header><main id="app"></main>
+<script>{{include parts/03-script.js}}</script><script>(function(){var nv=document.querySelector('nav#nav');if(!nv)return;var btn=document.createElement('button');btn.className='mpsec';nv.parentNode.insertBefore(btn,nv);
+function cur(){var a=nv.querySelector('[aria-selected=true],.on,.sel');return a?a.textContent.trim():'Menu'}
+function paint(){btn.innerHTML='☰ Sections · <b>'+cur()+'</b> ▾'}
+btn.onclick=function(){nv.classList.toggle('mpopen')};
+nv.addEventListener('click',function(e){if(e.target.closest('button'))setTimeout(function(){nv.classList.remove('mpopen');paint()},0)});
+new MutationObserver(paint).observe(nv,{subtree:true,childList:true,attributes:true});paint()})();</script></body></html>
