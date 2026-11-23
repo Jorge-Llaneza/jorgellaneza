@@ -1,0 +1,31 @@
+/* ===== v11: IDE references (BlueJ, Eclipse, VS Code and friends) ===== */
+[['🖥️','common'],['⌨️','common'],['🐞','common'],['🧑‍💻','rare'],['🧩','rare'],['🔧','rare'],['🌘','epic'],['🔌','epic'],['🧬','legendary']].forEach(([e,r])=>addU('avatar','av_'+e,'Avatar '+e,r,{av:e}));
+Object.entries({common:['Compile Without Errors','Ctrl+S Addict'],rare:['BlueJ Veteran','Works On My Machine','Extension Collector'],epic:['Eclipse Plugin Wrangler','Debugger Whisperer','Refactor Master'],legendary:['IDE Hopper','Null Pointer Survivor']}).forEach(([r,l])=>l.forEach(t=>addU('title','t_'+t,t,r,{title:t})));
+[['{ }','common'],['</>','rare'],['⌥','rare'],['λ','epic'],['⌘⌥','legendary']].forEach(([f,r])=>addU('flair','fl_'+f,'Flair '+f,r,{flair:f}));
+Object.assign(CFSETS,{ide:['{ }','</>',';','🐞','☕']});
+addU('confetti','cf_ide','Code storm','epic',{cf:'ide',i:'{ }</>;'});
+Object.assign(FONTS,{consolas:{n:'Consolas',r:'rare',s:'Consolas,"Cascadia Mono","Courier New",monospace'},firacode:{n:'Fira Code',r:'epic',s:'"Fira Code","Cascadia Code",Consolas,monospace'},jetbrains:{n:'JetBrains Mono',r:'epic',s:'"JetBrains Mono","Fira Code",Consolas,monospace'},cascadia:{n:'Cascadia Code',r:'legendary',s:'"Cascadia Code","Cascadia Mono",Consolas,monospace'}});
+['consolas','firacode','jetbrains','cascadia'].forEach(k=>addU('font','f_'+k,FONTS[k].n,FONTS[k].r,{font:k}));
+[['comment','Comment headings','Headings written as code comments.','rare','// Comment'],['tag','Tag headings','Headings wrapped in angle brackets.','epic','<Tag>'],['func','Function headings','Headings as function names.','legendary','my_function()']].forEach(([k,n,d,r,i])=>addU('skin','sk_'+k,n,r,{skin:k,d,i}));
+[['keyclack','Keyboard clack','common'],['buildok','Build passed','rare'],['buzz','Error buzz','epic']].forEach(([k,n,r])=>addU('sound','snd_'+k,n,r,{key:k,i:'🔊'}));
+[['ibeam','Text caret','common','⌶'],['bug','Bug','rare','🐛'],['plug','Plug','epic','🔌']].forEach(([k,n,r,e])=>addU('cursor','cur_'+k,n,r,{key:k,i:e}));
+BNDEF.push(['idedark','IDE dark','rare','linear-gradient(180deg,#1e1e1e 70%,#007acc 70%)'],['bluejgrid','BlueJ grid','rare','repeating-linear-gradient(90deg,#1f5fbf 0 2px,transparent 2px 36px),repeating-linear-gradient(#1f5fbf 0 2px,#eef3fb 2px 36px)'],['eclipsecorona','Eclipse corona','epic','radial-gradient(circle at 50% 50%,#0a0618 0 28%,#ff9f1c 30%,#7a2bd6 55%,#0a0618 80%)'],['terminalb','Terminal','epic','repeating-linear-gradient(0deg,#031a08 0 3px,#052b0d 3px 6px)'],['syntaxb','Syntax colours','legendary','linear-gradient(120deg,#569cd6,#4ec9b0,#ce9178,#dcdcaa,#c586c0,#569cd6)',1]);
+BNDEF.slice(-5).forEach(b=>addU('banner','bn_'+b[0],b[1]+' banner',b[2],{key:b[0],css:b[3],anim:b[4]}));
+NFDEF.push(['squiggle','Squiggle','common'],['highlight','Selection highlight','common'],['brackets','Brackets','rare']);
+NFDEF.slice(-3).forEach(b=>addU('nfx','nf_'+b[0],b[1]+' name effect',b[2],{key:b[0]}));
+Object.assign(PETS,{duck:['🦆','Rubber Duck','rare','bob'],bug:['🐞','Friendly Bug','common','hop'],coffee:['☕','Coffee Cup','common','bob'],robotide:['🤖','Code Bot','epic','float']});
+['duck','bug','coffee','robotide'].forEach(k=>addU('pet','pet_'+k,PETS[k][1],PETS[k][2],{key:k,i:PETS[k][0],beh:PETS[k][3]}));
+Object.assign(TRAILS,{braces:['{ }','Curly braces','rare'],tags:['</>','Code tags','epic'],bits:['01','Binary','common']});
+['braces','tags','bits'].forEach(k=>addU('trail','trl_'+k,TRAILS[k][1],TRAILS[k][2],{key:k,i:TRAILS[k][0]}));
+Object.assign(CLICKS,{bugsquash:['🐞','Bug squash','common'],semicolon:[';','Semicolons','rare'],curly:['{ }','Curly burst','epic']});
+['bugsquash','semicolon','curly'].forEach(k=>addU('clickfx','clk_'+k,CLICKS[k][1],CLICKS[k][2],{key:k,i:CLICKS[k][0]}));
+Object.assign(CHIPS,{statusbar:['Status bar','rare'],editortab:['Editor tab','rare'],bluejbox:['BlueJ class box','epic'],eclipsepane:['Eclipse pane','epic']});
+['statusbar','editortab','bluejbox','eclipsepane'].forEach(k=>addU('chip','chp_'+k,CHIPS[k][0]+' top bar',CHIPS[k][1],{key:k,i:'🏷'}));
+Object.assign(TOASTS,{console:['Console','rare'],buildok:['Build passed','rare'],compilerr:['Compile error','epic']});
+['console','buildok','compilerr'].forEach(k=>addU('toast','tst_'+k,TOASTS[k][0]+' notifications',TOASTS[k][1],{key:k,i:'💬'}));
+Object.assign(CRATESK,{floppy:{i:'💾',n:'Floppy disk',r:'common',c:'#4aa8ff'},server:{i:'🖥️',n:'Server',r:'rare',c:'#00f5d4'},plugin:{i:'🔌',n:'Plugin',r:'epic',c:'#ff9f1c'},pkg:{i:'🧰',n:'Dev toolkit',r:'legendary',c:'#569cd6'}});
+['floppy','server','plugin','pkg'].forEach(k=>addU('crate','crt_'+k,CRATESK[k].n+' crate skin',CRATESK[k].r,{key:k,i:CRATESK[k].i}));
+Object.assign(LVFX,{coderain:['{ }','Code rain','rare','{ }'],bugs:['🐞','Bug swarm','common','🐞'],passed:['✅','Build passed','epic','✅']});
+['coderain','bugs','passed'].forEach(k=>addU('lvfx','lvf_'+k,LVFX[k][1]+' level-up',LVFX[k][2],{key:k,i:LVFX[k][0]}));
+const IDE_IDS=['bluej','codedark','eclipsenight','t_Compile Without Errors','t_Ctrl+S Addict','t_BlueJ Veteran','t_Works On My Machine','t_Extension Collector','t_Eclipse Plugin Wrangler','t_Debugger Whisperer','t_Refactor Master','t_IDE Hopper','t_Null Pointer Survivor','pet_duck','pet_bug','pet_coffee','pet_robotide','bn_idedark','bn_bluejgrid','bn_eclipsecorona','bn_terminalb','bn_syntaxb','cf_ide','f_consolas','f_firacode','f_jetbrains','f_cascadia','sk_comment','sk_tag','sk_func','snd_keyclack','snd_buildok','snd_buzz','chp_statusbar','chp_editortab','chp_bluejbox','chp_eclipsepane','tst_console','tst_buildok','tst_compilerr','nf_squiggle','nf_highlight','nf_brackets','clk_bugsquash','clk_semicolon','clk_curly','trl_braces','trl_tags','trl_bits','crt_floppy','crt_server','crt_plugin','crt_pkg','lvf_coderain','lvf_bugs','lvf_passed','cur_ibeam','cur_bug','cur_plug'];
+
