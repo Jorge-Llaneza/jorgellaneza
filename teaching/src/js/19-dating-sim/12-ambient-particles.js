@@ -1,0 +1,5 @@
+ /* ---------- ambient animation: each personality has its own drifting particles ---------- */
+ const AMB={sweet:['🌸','🌸','💗'],tsun:['✨','💢','⚡'],yan:['🖤','🩸','👁️'],dan:['🎀','💫','✨'],kuu:['❄️','❄️','✦'],moon:['🌙','⭐','✨'],ace:['♠️','✨','🃏'],ink:['🖋️','✦','💧']};
+ const redM=()=>{try{return matchMedia('(prefers-reduced-motion: reduce)').matches}catch(e){return false}};
+ const ambient=(x,m)=>{if(redM())return;const root=document.getElementById('fdview');if(!root)return;const n=root.querySelectorAll('.amp').length;if(n>=9)return;if(Math.random()>.07+Math.min(.07,x.c.lv*.015))return;
+  const e=document.createElement('span'),L=AMB[x.a]||['✨'],eye=x.a==='yan'&&Math.random()<.22;e.className='amp '+(eye?'eye':x.a==='sweet'||x.a==='kuu'?'fall':'rise');e.textContent=eye?'👁️':pick(L);e.style.left=(4+Math.random()*92)+'%';e.style.fontSize=(13+Math.random()*13)+'px';if(eye){e.style.top=(10+Math.random()*60)+'%'}e.style.animationDuration=(eye?3.2:6+Math.random()*6)+'s';root.appendChild(e);setTimeout(()=>e.remove(),eye?3300:12500)};
