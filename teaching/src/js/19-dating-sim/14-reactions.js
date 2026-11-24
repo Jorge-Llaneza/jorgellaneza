@@ -1,0 +1,6 @@
+ /* ---------- reactions: the portrait answers what you do ---------- */
+ const burst=(em,n)=>{const pt=document.querySelector('#fdview .pt');if(!pt||redM())return;const ai=pt.parentNode;for(let i=0;i<n;i++){const s=document.createElement('span'),a=Math.PI*2*i/n+Math.random()*.5,d=50+Math.random()*50;s.className='abu';s.textContent=Array.isArray(em)?pick(em):em;s.style.cssText=`left:${50+Math.random()*60}px;bottom:${70+Math.random()*60}px;--dx:${Math.cos(a)*d}px;--dy:${Math.sin(a)*d-30}px`;ai.appendChild(s);setTimeout(()=>s.remove(),1300)}};
+ const react=k=>{const pt=document.querySelector('#fdview .pt');if(!pt)return;['pat','gift','talk','date','lv'].forEach(z=>pt.classList.remove('r-'+z));void pt.offsetWidth;pt.classList.add('r-'+k);setTimeout(()=>pt.classList.remove('r-'+k),k==='lv'?2400:900);
+  if(k==='pat')burst(['💗','💞','✨'],7);else if(k==='gift')burst(['🎁','✨','💖'],8);else if(k==='date')burst(['📚','✨','⭐'],6);else if(k==='lv')burst(['💞','⭐','✨','💗'],14);else if(k==='talk')burst(['💬','✨'],2)};
+ {const oa=PAN[id].act;PAN[id].act=(a,t)=>{try{if(a==='pat'||a==='talk'||a==='gift'||a==='date')react(a)}catch(e){}return oa(a,t)}}
+ {const og=SM.aiGive;SM.aiGive=t=>{const b=ctx().c.gifts;og(t);try{if(ctx().c.gifts>b)react('gift')}catch(e){}}}

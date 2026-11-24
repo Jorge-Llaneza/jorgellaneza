@@ -1,0 +1,64 @@
+/* ===================== catalog: everything you can collect from crates ===================== */
+const RAR={common:{n:'Common',c:'#9aa3b0'},rare:{n:'Rare',c:'#4aa8ff'},epic:{n:'Epic',c:'#b36bff'},legendary:{n:'Legendary',c:'#ffb020'},mythic:{n:'Mythic',c:'#ff4fd8'},secret:{n:'Secret',c:'#ff4d6d'}};
+const REFUND={common:8,rare:20,epic:50,legendary:120,mythic:300,secret:0};
+const hwSeason=hwIn;const xmasSeason=()=>{const d=new Date(),m=d.getMonth(),n=d.getDate();return m===11||(m===0&&n<=6)};
+const BOX={
+ hw:{n:'Halloween Crate',i:'🎃',p:100,pack:'hw',season:1,odds:{common:.50,rare:.30,epic:.15,legendary:.05},d:'⏳ Limited time: only available from Oct 15 to Nov 5. Spooky items only.'},
+ eg:{n:"Pharaoh's Chest",i:'🏺',p:110,pack:'eg',odds:{common:.55,rare:.30,epic:.12,legendary:.03},d:'Ancient Egypt items only.'},
+ type:{n:'Typography Crate',i:'🔤',p:70,cats:['font','skin'],odds:{common:.60,rare:.28,epic:.10,legendary:.02},d:'Fonts and text skins only.'},
+ style:{n:'Style Crate',i:'🎨',p:90,cats:['theme','bg','card','frame'],odds:{common:.60,rare:.28,epic:.10,legendary:.02},d:'Themes, backgrounds, frames and card styles.'},
+ fun:{n:'Fun Crate',i:'🎉',p:70,cats:['avatar','flair','confetti','cursor','sound','title'],odds:{common:.60,rare:.28,epic:.10,legendary:.02},d:'Avatars, titles, flairs, confetti, cursors and click sounds.'},
+ crate:{n:'Study Crate',i:'📦',p:60,odds:{common:.60,rare:.28,epic:.10,legendary:.02},d:'The everyday crate.'},
+ gold:{n:'Golden Crate',i:'🎁',p:160,odds:{common:.20,rare:.46,epic:.27,legendary:.07},d:'Better odds for rare things.'},
+ holo:{n:'Holocron Crate',i:'🔮',p:120,sw:1,pack:'sw',odds:{common:.55,rare:.30,epic:.12,legendary:.03},d:'Galactic items only.'}};
+const CATALOG=[];
+const addC=(c,id,n,r,x)=>CATALOG.push(Object.assign({c,id,n,r},x||{}));
+Object.entries(FONTS).forEach(([k,f])=>{if(f.r==='free')return;addC('font','f_'+k,f.n,f.r,{font:k,pack:k==='jedi'?'sw':'',noDrop:k==='jedi'})});
+Object.entries(XT).filter(([k,v])=>v.box).forEach(([k,v])=>addC('theme',k,v.n,v.r,{d:v.d,sw:v.sw,pack:v.pack||'',noDrop:k==='starwars'}));
+[['🦊','common'],['🐙','common'],['🐱','common'],['🐶','common'],['🐸','common'],['🐧','common'],['🐢','common'],['🦆','common'],['🍕','common'],['🍩','common'],['🌮','common'],['☕','common'],['🎧','common'],
+ ['🦉','rare'],['🤖','rare'],['🚀','rare'],['🦄','rare'],['🦖','rare'],['🦈','rare'],['🐝','rare'],['🛸','rare'],['👽','rare'],['🪐','rare'],['🏺','rare'],['🐈‍⬛','rare'],['🥷','rare'],['🧛','rare'],
+ ['🧙','epic'],['👾','epic'],['🧠','epic'],['💎','epic'],['🔮','epic'],['🦅','epic'],['🐺','epic'],['𓂀','epic'],
+ ['🐉','legendary'],['👑','legendary'],['🧿','legendary'],['🌈','legendary']].forEach(([e,r])=>addC('avatar','av_'+e,'Avatar '+e,r,{av:e}));
+[['🌑','common'],['⚔️','common'],['🛰️','rare'],['☄️','rare'],['🌌','epic'],['🧙‍♂️','epic'],['🌠','legendary']].forEach(([e,r])=>addC('avatar','av_'+e,'Avatar '+e,r,{av:e,pack:'sw'}));
+const TT={common:['Hello, World','Coffee-Driven Developer','Professional Rubber Duck','Off By One','Sleep Is For The Weak','Ctrl+Z Enthusiast'],
+ rare:['It Works On My Machine','Stack Overflow Survivor','Forwarding Fanatic','Stall Slayer','Bug Whisperer','Night-Shift Scholar','Resistance Is Futile','Ohm My Gosh','Probably A Tautology'],
+ epic:['Cache Me If You Can','Segmentation Fault (core dumped)','Branch Predictor (50% Accurate)','Halt And Catch Fire','Contradiction Enjoyer','Dijkstra\u2019s Bestie','Binary Tree Hugger','Kernel Panic'],
+ legendary:['The Whole Real Line','Pipeline Overlord','Turing Complete (Barely)','Lord Of The Registers']};
+Object.entries(TT).forEach(([r,l])=>l.forEach(t=>addC('title','t_'+t,t,r,{title:t})));
+Object.entries({common:['Youngling Of The Pipeline','Padawan Of Graphs'],rare:['Jedi Of The Cache','These Are Not The Bugs You Are Looking For'],epic:['Do Or Do Not, There Is No Try-Catch','I Have A Bad Feeling About This Exam'],legendary:['The Force Is Strong With This One']}).forEach(([r,l])=>l.forEach(t=>addC('title','t_'+t,t,r,{title:t,pack:'sw'})));
+addC('title','t_May The Force Be With You','May The Force Be With You','secret',{title:'May The Force Be With You',pack:'sw',noDrop:true});
+[['★','common'],['♥','common'],['⚡','common'],['☆','common'],['✿','common'],['♫','common'],['☠','rare'],['☯','rare'],['✦','rare'],['♠','rare'],['⌘','rare'],['♛','epic'],['☢','epic'],['λ','epic'],['∞','epic'],['π','legendary'],['Σ','legendary']].forEach(([f,r])=>addC('flair','fl_'+f,'Flair '+f,r,{flair:f}));
+[['⚔','common'],['☄','rare'],['✧','epic']].forEach(([f,r])=>addC('flair','fl_'+f,'Flair '+f,r,{flair:f,pack:'sw'}));
+const CFSETS={stars:['⭐','✨','🌟'],books:['📚','📖','✏️','🎓'],ghosts:['👻','🎃','🦇'],food:['🍕','🍩','🍪','🍔'],hearts:['💖','💜','💙','💚'],bubbles:['🫧','💧','🔵'],money:['💰','🪙','💸'],cats:['🐱','😸','🐾'],dino:['🦖','🦕','🌋'],space:['🚀','🌟','🪐'],flowers:['🌸','🌼','🌺'],skulls:['💀','☠️','👻'],rainbow:['🌈','🦄','☁️'],music:['🎵','🎶','🎸'],egypt:['🏺','🐫','☀️'],sw:['⚔️','✨','🛸','☄️']};
+[['stars','Starfall','common'],['books','Bookworm','common'],['food','Snack attack','common'],['hearts','Hearts','common'],['bubbles','Bubbles','common'],['flowers','Flowers','common'],['music','Mixtape','common'],
+ ['ghosts','Spooky','rare'],['money','Cash rain','rare'],['cats','Cat-astrophe','rare'],['dino','Dino party','rare'],['skulls','Skulls','rare'],['space','Space race','epic'],['rainbow','Rainbow','epic'],['egypt','Pharaoh','epic']].forEach(([k,n,r])=>addC('confetti','cf_'+k,n,r,{cf:k,i:CFSETS[k].join('')}));
+addC('confetti','cf_sw','Galactic','epic',{cf:'sw',i:CFSETS.sw.join(''),pack:'sw'});
+[['hiero','Hieroglyph headings','Your headings are written in Egyptian hieroglyphs. Needs a device font with hieroglyphs (most have one).','epic'],['leet','L33t headings','Headings in leetspeak.','rare'],['flip','Upside-down headings','Headings turned upside down.','rare']].forEach(([k,n,d,r])=>addC('skin','sk_'+k,n,r,{skin:k,d,i:{hiero:'𓂀𓋹',leet:'1337',flip:'ʇxǝʇ'}[k]}));
+const EX={"bg": [["dots", "Dotted", "common"], ["grid", "Grid paper", "common"], ["lined", "Lined notebook", "common"], ["stripes", "Diagonal stripes", "common"], ["checker", "Checkerboard", "rare"], ["waves", "Waves", "rare"], ["stars", "Starry", "rare"], ["noise", "Film grain", "rare"], ["confetti", "Confetti dots", "rare"], ["circuit", "Circuit board", "epic"], ["cobweb", "Cobweb", "rare"], ["fog", "Drifting fog", "epic"], ["aurora", "Aurora (moving)", "epic"]], "cursor": [["rocket", "Rocket", "rare", "\ud83d\ude80"], ["sword", "Sword", "rare", "\ud83d\udde1\ufe0f"], ["pencil", "Pencil", "common", "\u270f\ufe0f"], ["paw", "Paw", "common", "\ud83d\udc3e"], ["crystal", "Crystal ball", "epic", "\ud83d\udd2e"], ["star", "Star", "common", "\u2b50"], ["hammer", "Hammer", "common", "\ud83d\udd28"], ["wand", "Magic wand", "epic", "\ud83e\ude84"], ["target", "Target", "rare", "\ud83c\udfaf"], ["fish", "Fish", "common", "\ud83d\udc1f"], ["pizza", "Pizza", "common", "\ud83c\udf55"], ["ghost", "Ghost", "rare", "\ud83d\udc7b"], ["spider", "Spider", "rare", "\ud83d\udd77\ufe0f"], ["bat", "Bat", "common", "\ud83e\udd87"], ["ankh", "Ankh", "epic", "\u2625"]], "frame": [["pixel", "Pixel frame", "common"], ["gold", "Gold frame", "rare"], ["ice", "Ice frame", "rare"], ["neon", "Neon frame", "rare"], ["fire", "Fire frame", "epic"], ["royal", "Royal frame", "epic"], ["blood", "Dripping blood frame", "epic"], ["rainbow", "Rainbow frame (moving)", "legendary"]], "card": [["sharp", "Sharp corners", "common"], ["soft", "Soft shadow", "common"], ["sketch", "Sketchbook", "common"], ["glass", "Frosted glass", "rare"], ["comic", "Comic book", "rare"], ["ghost", "Ghostly", "epic"], ["neon", "Neon outline", "epic"]]};
+EX.bg.forEach(([k,n,r])=>addC('bg','bg_'+k,n,r,{key:k}));EX.cursor.forEach(([k,n,r,e])=>addC('cursor','cur_'+k,n,r,{key:k,i:e}));
+EX.frame.forEach(([k,n,r])=>addC('frame','frame_'+k,n,r,{key:k}));EX.card.forEach(([k,n,r])=>addC('card','card_'+k,n,r,{key:k}));
+[['pop','Soft pop','common'],['drum','Drum kit','common'],['type','Typewriter','rare'],['chip','8-bit blips','rare'],['glass','Glass chime','epic'],['laser','Laser','epic']].forEach(([k,n,r])=>addC('sound','snd_'+k,n,r,{key:k,i:'🔊'}));
+addC('sound','snd_saber','Lightsaber hum','rare',{key:'saber',i:'⚔️',pack:'sw'});
+[['🐼','common'],['🐵','common'],['🦋','common'],['🐬','common'],['🍀','common'],['⚽','common'],['🎲','common'],['🍄','common'],['🌵','common'],['🍎','common'],
+ ['🦁','rare'],['🐯','rare'],['🦜','rare'],['🦩','rare'],['🐳','rare'],['🦔','rare'],['🎮','rare'],['🕹️','rare'],['🎸','rare'],['🪁','rare'],
+ ['🛡️','epic'],['🏆','epic'],['🪄','epic'],['⚙️','epic'],['🔬','epic'],['🧬','epic'],['🦚','legendary'],['🔱','legendary'],['💫','legendary']].forEach(([e,r])=>addC('avatar','av_'+e,'Avatar '+e,r,{av:e}));
+Object.entries({common:['Wi-Fi Dependent','Part-Time Genius','Snack Enjoyer','Procrastination Pro','Tab Hoarder','Dark Mode Believer'],
+ rare:['Merge Conflict Survivor','Works In Production?','Rubber Duck Whisperer','Pipeline Plumber','Hazard Dodger','Truth Table Tamer','Graph Wanderer','Solder Wizard'],
+ epic:['Out-Of-Order Genius','Zero Stalls, Zero Regrets','Dangling Pointer','Recursion (See Recursion)','Big-O Believer','Shortest Path Enjoyer'],
+ legendary:['Infinite Loop Survivor','The Compiler Fears Me','Grand Architect Of Bits','Student Of The Century']}).forEach(([r,l])=>l.forEach(t=>addC('title','t_'+t,t,r,{title:t})));
+addC('title','t_Pipelines Strike Back','Pipelines Strike Back','epic',{title:'Pipelines Strike Back',pack:'sw'});addC('title','t_A New Hope (For The Exam)','A New Hope (For The Exam)','legendary',{title:'A New Hope (For The Exam)',pack:'sw'});
+[['♬','common'],['☀','common'],['☁','common'],['✈','common'],['☘','common'],['✂','rare'],['⚽','rare'],['♟','rare'],['☂','rare'],['⚓','rare'],['✪','epic'],['❖','epic'],['♚','epic'],['☣','legendary'],['⌬','legendary']].forEach(([f,r])=>addC('flair','fl_'+f,'Flair '+f,r,{flair:f}));
+Object.assign(CFSETS,{sparkles:['✨','💫','⭐'],fire:['🔥','💥','✨'],snow:['❄️','⛄','✨'],leaves:['🍃','🍂','🍁'],sports:['⚽','🏀','🏆'],fireworks:['🎆','🎇','✨'],coffee:['☕','🍪','🥐']});
+[['sparkles','Sparkles','common'],['leaves','Autumn','common'],['coffee','Coffee break','common'],['sports','Sports day','rare'],['snow','Snowfall','rare'],['fire','On fire','epic'],['fireworks','Fireworks','epic']].forEach(([k,n,r])=>addC('confetti','cf_'+k,n,r,{cf:k,i:CFSETS[k].join('')}));
+[['script','Script headings','Fancy script letters.','epic','𝓢𝓬𝓻𝓲𝓹𝓽'],['gothic','Gothic headings','Bold fraktur letters.','epic','𝕲𝖔𝖙𝖍'],['bubble','Bubble headings','Letters inside bubbles.','rare','ⓑⓤⓑⓑⓛⓔ'],['mono','Typewriter headings','Monospace math letters.','common','𝚃𝚈𝙿𝙴'],['wide','W I D E headings','Full-width letters.','rare','ＷＩＤＥ'],['caps','LOUD HEADINGS','ALL CAPS.','common','CAPS']].forEach(([k,n,d,r,i])=>addC('skin','sk_'+k,n,r,{skin:k,d,i}));
+[['🎃','common'],['👻','common'],['🦇','common'],['🕸️','common'],['🍬','common'],['🕷️','rare'],['🧟','rare'],['🧙‍♀️','rare'],['💀','epic'],['🪦','epic'],['🌕','epic'],['👹','legendary'],['🩸','legendary']].forEach(([e,r])=>addC('avatar','av_'+e,'Avatar '+e,r,{av:e,pack:'hw'}));
+Object.entries({common:['Trick Or Treat Yourself','Boo-lean Algebra'],rare:['Fear The Stall','Haunted By Memory Leaks','Ghost In The Pipeline'],epic:['Nightmare On Heap Street','Count Dracula (Of Counters)'],legendary:['The Headless Horseman Of The Stack']}).forEach(([r,l])=>l.forEach(t=>addC('title','t_'+t,t,r,{title:t,pack:'hw'})));
+[['🎃','common'],['🦇','rare'],['☽','rare'],['🕸️','epic']].forEach(([f,r])=>addC('flair','fl_'+f,'Flair '+f,r,{flair:f,pack:'hw'}));
+Object.assign(CFSETS,{hw:['🎃','👻','🦇','🕸️'],candy:['🍬','🍭','🍫']});addC('confetti','cf_hw','Haunted','rare',{cf:'hw',i:CFSETS.hw.join(''),pack:'hw'});addC('confetti','cf_candy','Candy storm','common',{cf:'candy',i:CFSETS.candy.join(''),pack:'hw'});
+addC('skin','sk_zalgo','Cursed headings','epic',{skin:'zalgo',d:'Glitchy, creepy headings.',i:'Z̴a̸l̷g̶o̷',pack:'hw'});
+addC('sound','snd_creak','Door creak','rare',{key:'creak',i:'🚪',pack:'hw'});addC('sound','snd_bell','Haunted bell','epic',{key:'bell',i:'🔔',pack:'hw'});
+[['🐍','common'],['🐫','common'],['🔺','rare'],['☀️','rare']].forEach(([e,r])=>addC('avatar','av_'+e,'Avatar '+e,r,{av:e,pack:'eg'}));
+Object.entries({common:['Keeper Of The Scrolls'],rare:['Mummy’s Curse (Deadline)'],epic:['Pharaoh Of Pointers','Sphinx Of Riddles'],legendary:['Eternal Scribe']}).forEach(([r,l])=>l.forEach(t=>addC('title','t_'+t,t,r,{title:t,pack:'eg'})));
+[['☥','rare'],['𓂀','epic']].forEach(([f,r])=>addC('flair','fl_'+f,'Flair '+f,r,{flair:f,pack:'eg'}));
+['f_papyrus','sk_hiero','cf_egypt','av_🏺','av_𓂀','av_🐈‍⬛','cur_ankh'].forEach(id=>{const it=CATALOG.find(x=>x.id===id);if(it)it.pack='eg'});
+['cur_spider','cur_bat','bg_cobweb','bg_fog','frame_blood','card_ghost','f_chiller'].forEach(id=>{const it=CATALOG.find(x=>x.id===id);if(it)it.pack='hw'});

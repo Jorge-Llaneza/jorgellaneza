@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Pathfinder’s Keep</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;800&family=Alegreya+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+<style>{{include parts/01-style.css}}</style>
+</head>
+<body>
+<div class="app">
+<header class="topbar">
+  <h1>Pathfinder’s Keep</h1>
+  <div class="res">
+    <div class="panel chip" title="CPU cycles"><i class="coin"></i><b id="gold">100</b></div>
+    <div class="panel chip" title="Keep integrity">
+      <svg viewBox="0 0 24 22" width="22" height="20"><path fill="#e8506a" stroke="#4a0f1d" stroke-width="1.5" d="M12 20S2 13.5 2 7.5A5 5 0 0 1 12 5a5 5 0 0 1 10 2.500C22 13.500 12 20 12 20z"/></svg>
+      <span class="meter"><span id="lifebar"></span></span><b id="lives">10</b>
+    </div>
+    <div class="panel chip" id="lvlChip">Lv <b id="lvlNum">1</b><span class="meter"><span id="xpbar"></span></span></div>
+    <div class="panel chip" title="Shards: spend them in the Armory"><i class="shard"></i><b id="shards">0</b></div>
+    <div class="panel chip wavebox">Wave <b id="wave">0/20</b><span id="pips" class="pips"><span></span><span></span><span></span><span></span><span></span><span></span></span></div>
+  </div>
+  <div class="controls">
+    <details class="menu" id="setup"><summary>Setup</summary>
+      <div class="menupanel panel">
+        <label>Mode <select id="mode"><option value="campaign">Campaign</option><option value="endless">Endless</option><option value="daily">Daily</option><option value="sandbox">Sandbox</option><option value="puzzle">Puzzles</option></select></label>
+        <label>Difficulty <select id="diff"><option value="relaxed">Relaxed</option><option value="easy">Easy</option><option value="normal" selected>Normal</option><option value="hard">Hard</option><option value="nightmare">Nightmare</option></select></label>
+        <label>Map <select id="map"></select></label>
+        <label>Mutator <select id="mut"></select></label>
+        <label>Router <select id="algo"><option value="dijkstra">Dijkstra</option><option value="astar">A* (Manhattan)</option></select></label>
+        <label>Volume <input id="vol" type="range" min="0" max="100" value="80" aria-label="Volume"></label>
+        <div class="toggles"><button id="quizToggle" aria-pressed="true" title="Predict the route before each wave">Quiz</button>
+          <button id="blind" aria-pressed="false" title="Hide the route on every wave">Blind</button></div>
+        <p id="setupHint" class="evt" hidden>These changes apply when you press Retry.</p>
+      </div>
+    </details>
+    <div class="speed" role="group" aria-label="Game speed">
+      <button data-speed="0" aria-pressed="false">Pause</button><button data-speed="1" aria-pressed="true">1×</button>
+      <button data-speed="2" aria-pressed="false">2×</button><button data-speed="4" aria-pressed="false">4×</button>
+    </div>
+    <button id="lens" aria-pressed="false" title="Show how the search explores the graph">Lens</button>
+    <button id="sound" aria-pressed="true" title="Sound on or off">Sound</button>
+    <button id="puzzlesBtn" title="Short challenges: mazes, sprints, lures, trees and more">Puzzles</button>
+    <button id="trialsBtn" title="Short puzzles on recursion, graphs, trees, heaps and hashing">Trials</button>
+    <button id="armoryBtn" title="Spend shards on permanent perks">Armory</button>
+    <button id="retry" title="Restart this map with the current mode and difficulty">Retry</button>
+    <button id="help" title="Replay tutorial" aria-label="Replay tutorial">?</button>
+    <button id="startWave" class="primary">Send wave 1</button>
+  </div>
+</header>
+
+<div class="stage">
+  <main class="board">
+    <canvas id="grid" tabindex="0" width="800" height="560" role="img" aria-label="Dungeon graph. Packets travel from the portal on the left to the keep on the right."></canvas>
+    <p id="msg" class="panel msg" aria-live="polite">Packets always take the cheapest route. Reshape the costs to steer them into traps.</p>
+    <nav class="panel hotbar" id="toolbar" aria-label="Toolbar"></nav>
+    <p id="toolDesc" class="tooldesc"></p>
+    <div id="abilities" class="panel abil" aria-label="Abilities">
+      <button id="blueprintBtn" class="abtn panel" aria-pressed="false" title="Sketch where you think packets will go (S)"><span><b>Blueprint</b><small>S · sketch the route</small></span></button>
+      <div id="sketchBar" class="sketchbar" hidden>
+        <button class="pen" data-pen="#7fd4ff" style="--c:#7fd4ff" aria-label="Blue pen"></button><button class="pen" data-pen="#ffe08a" style="--c:#ffe08a" aria-label="Gold pen"></button><button class="pen" data-pen="#ff9ab0" style="--c:#ff9ab0" aria-label="Rose pen"></button>
+        <button id="skErase" aria-pressed="false">Eraser</button><button id="skUndo">Undo</button><button id="skClear">Clear</button><button id="skCompare" class="primary">Compare</button>
+      </div>
+    </div>
+  </main>
+  <aside class="side">
+    <section id="quiz" class="panel tut" hidden aria-live="polite"><h2 id="quizTitle"></h2><p id="quizText"></p><div id="quizOpts" class="opts"></div><p id="quizFb"></p><button id="quizGo" class="primary" hidden>Start wave</button></section>
+    <section id="tut" class="panel tut" hidden aria-live="polite">
+      <h2 id="tutTitle"></h2><p id="tutText"></p>
+      <div class="tutnav"><span id="tutStep"></span><span><button id="tutBack">Back</button> <button id="tutSkip">Skip</button> <button id="tutNext" class="primary">Next</button></span></div>
+    </section>
+    <section class="panel" id="preview" aria-label="Wave preview"></section>
+    <section class="panel" aria-label="Router status">
+      <h2>Router status</h2>
+      <p id="verdict" class="verdict">Route unguarded</p>
+      <p id="sum" class="sum"></p>
+      <dl class="readout">
+        <div><dt>Route cost</dt><dd id="routeCost">–</dd></div><div><dt>Nodes explored</dt><dd id="explored">–</dd></div>
+        <div><dt>Traps on route</dt><dd id="trapsOn">0</dd></div><div><dt>Recalculations</dt><dd id="recalcs">0</dd></div><div><dt>Predictions</dt><dd id="qstat">0/0</dd></div><div><dt>Tools placed</dt><dd id="toolsUsed">0</dd></div>
+      </dl>
+    </section>
+    <section class="panel" id="heapPanel" hidden aria-label="Heap Cannon queue"><h2>Heap Cannon queue</h2><div id="heapSvg"></div></section>
+    <section class="panel" id="puzzlePanel" hidden aria-label="Puzzle"><h2 id="pzName"></h2><p id="pzGoal" class="evt"></p><p id="pzLimits" class="evt"></p><p id="pzStatus" class="verdict"></p><p id="pzHint" class="evt"></p>
+      <div class="btns left"><button id="pzSubmit" class="primary">Submit</button><button id="pzReset">Reset</button><button id="pzNext" hidden>Next puzzle</button><button id="pzMenu">All puzzles</button><button id="pzExit">Exit</button></div></section>
+    <section class="panel" id="sandbox" hidden aria-label="Sandbox tools"><h2>Sandbox <small>no limits, no score</small></h2>
+      <div class="sbrow"><label>Spawn <select id="sbType"></select></label><label>Count <select id="sbCount"><option>1</option><option>5</option><option>10</option><option>25</option></select></label><button id="sbSpawn">Spawn</button></div>
+      <div class="sbrow"><label>Theme <select id="sbTheme"></select></label></div>
+      <div class="sbrow"><label>Event <select id="sbEvent"><option value="rockfall">Rockfall</option><option value="mudslide">Mudslide</option><option value="warp">Warp storm</option></select></label><button id="sbEventGo">Trigger</button><button id="sbEventClear">Clear events</button></div>
+      <div class="sbrow"><label>Next wave <input id="sbWave" type="number" min="1" max="60" value="1"></label><button id="sbWaveGo">Set</button></div>
+      <div class="btns left"><button id="sbClearPk">Clear packets</button><button id="sbClearTools">Clear tools</button><button id="sbReset">Reset map</button></div>
+      <p class="evt">The palette gains Paint (P) to edit tile costs and Wall (W) to build or remove stone walls.</p></section>
+    <section class="panel" id="gridPanel" aria-label="Power grid"><h2>Power grid <small id="gridHead"></small></h2><div id="gridInfo" class="evt"></div>
+      <div class="btns left"><button id="gridAuto">Auto-wire (Prim)</button><button id="gridClear">Clear cables</button></div></section>
+    <section class="panel" id="fwPanel" hidden aria-label="Floyd-Warshall distances"><h2>All-pairs distances</h2><div id="fwTable"></div><p class="evt" id="fwNote"></p></section>
+    <section class="panel" id="ctree" aria-label="Command tree"><h2>Command tree <small id="ctInfo"></small></h2><div id="ctSvg"></div>
+      <div class="btns left"><button id="ctBst" aria-pressed="true">BST</button><button id="ctAvl" aria-pressed="false">AVL (60)</button><button id="ctBt" aria-pressed="false">B-tree (90)</button><button id="ctL">Rotate left (8)</button><button id="ctR">Rotate right (8)</button></div><p id="ctNote" class="evt"></p></section>
+    <section class="panel codex" aria-label="Codex"><h2>Codex <small id="codexCount"></small></h2><ul id="codex"></ul></section>
+    <section class="panel codex" aria-label="Achievements"><h2>Achievements</h2><ul id="ach"></ul></section>
+  </aside>
+</div>
+<footer class="foot"><details><summary>Keyboard shortcuts</summary>
+  <p>Tools: 1 to 9 and 0, U upgrade, R repair, C cable (P paint and W wall in Sandbox) · Abilities: Z extract-min, X rebalance, V flush, B weight spike · N send the next wave · S blueprint sketch · Esc cancel or close · On the map: arrow keys move, Enter places.</p></details>
+  <span>Pathfinder’s Keep v1.1</span></footer>
+</div>
+<div id="results" class="modal" hidden role="dialog" aria-modal="true" aria-labelledby="resTitle"><div class="panel card">
+  <h2 id="resTitle"></h2><div id="stars" class="stars"></div><ul id="resLines" class="lines"></ul>
+  <p class="total">Score <b id="resScore">0</b> <span id="resBest"></span></p>
+  <div class="rewards"><span><i class="shard"></i> +<b id="resShards">0</b> shards</span><span>+<b id="resXp">0</b> XP</span></div>
+  <p class="lvlrow">Lv <b id="resLvl"></b><span class="meter"><span id="resBar"></span></span></p>
+  <ul id="resNew" class="newlist"></ul><p id="resNext" class="evt"></p>
+  <div class="btns"><button id="resArmory">Armory</button><button id="resAgain" class="primary">Play again</button></div></div></div>
+<div id="puzzles" class="modal" hidden role="dialog" aria-modal="true" aria-labelledby="pzHead"><div class="panel card wide">
+  <h2 id="pzHead">Puzzles</h2><p>Each puzzle type has its own rule. Press <b>Submit</b> to lock in your stars, and <b>Test wave</b> to watch packets walk your design.</p><div id="pzList"></div>
+  <div class="btns"><button id="pzClose" class="primary">Close</button></div></div></div>
+<div id="armory" class="modal" hidden role="dialog" aria-modal="true" aria-labelledby="armTitle"><div class="panel card">
+  <h2 id="armTitle">Armory</h2><p>Shards: <b id="armShards">0</b>. Perks are permanent and apply to your next run.</p><ul id="perks" class="perks"></ul>
+  <div class="btns"><button id="armClose" class="primary">Close</button></div></div></div>
+<div id="trials" class="modal" hidden role="dialog" aria-modal="true" aria-labelledby="tHead"><div class="panel card wide">
+  <h2 id="tHead">Trials: practice the course units</h2>
+  <div id="tMenu"><p>Short puzzles from the data structures course. Earn shards, XP and Codex entries.</p><div id="tList" class="tlist"></div></div>
+  <div id="tPlay" hidden><h3 id="tTitle"></h3><div id="tPrompt"></div><div id="tOpts" class="opts"></div><p id="tFb"></p>
+    <div class="btns"><button id="tBack">Menu</button><button id="tAgain" class="primary" hidden>Again</button><button id="tNext" class="primary" hidden>Next</button></div></div>
+  <div class="btns"><button id="tClose">Close</button></div></div></div>
+<div id="toast" class="toast" role="status"></div>
+<script>{{include parts/02-script/}}</script>
+</body>
+</html>

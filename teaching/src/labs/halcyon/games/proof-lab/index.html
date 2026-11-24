@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="color-scheme" content="light">
+<title>The Aperture Proof Lab</title>
+<link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;700&family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>{{include parts/01-style.css}}</style></head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs><filter id="mossf" x="0" y="0" width="100%" height="100%" color-interpolation-filters="sRGB"><feTurbulence type="fractalNoise" baseFrequency=".028" numOctaves="4" seed="7"/><feColorMatrix type="matrix" values="0 0 0 0 .30  0 0 0 0 .46  0 0 0 0 .16  6 0 0 0 -2.9"/></filter><filter id="lichf" x="0" y="0" width="100%" height="100%" color-interpolation-filters="sRGB"><feTurbulence type="fractalNoise" baseFrequency=".5" numOctaves="2" seed="3"/><feColorMatrix type="matrix" values="0 0 0 0 .60  0 0 0 0 .78  0 0 0 0 .34  5 0 0 0 -2.7"/></filter><filter id="rustf" x="0" y="0" width="100%" height="100%" color-interpolation-filters="sRGB"><feTurbulence type="fractalNoise" baseFrequency=".2 .006" numOctaves="3" seed="11"/><feColorMatrix type="matrix" values="0 0 0 0 .52  0 0 0 0 .25  0 0 0 0 .09  5.5 0 0 0 -2.6"/></filter><filter id="grimef" x="0" y="0" width="100%" height="100%" color-interpolation-filters="sRGB"><feTurbulence type="fractalNoise" baseFrequency=".011 .02" numOctaves="3" seed="5"/><feColorMatrix type="matrix" values="0 0 0 0 .07  0 0 0 0 .06  0 0 0 0 .03  4 0 0 0 -1.7"/></filter></defs></svg>
+<div class="scene" id="scene">
+  <div class="wall"><div class="num" id="num">01</div></div>
+  <div class="ceil"></div>
+  <div class="floorwrap"><div class="floor"></div></div>
+  <div class="tapeband" aria-hidden="true"></div><div class="leds" aria-hidden="true"></div>
+  <div class="ruin" aria-hidden="true"><div class="gap" style="left:21%;top:25%;width:10%;height:21%;clip-path:polygon(0 8%,100% 0,92% 100%,10% 88%)"></div><div class="gap" style="left:58%;top:38%;width:8%;height:17%;clip-path:polygon(8% 0,100% 12%,90% 100%,0 86%)"></div><div class="fx fx-grime"></div><div class="fx fx-rust"></div><div class="fx fx-moss"></div><div class="hole" style="left:33%;width:16%"></div><div class="hole" style="left:63%;width:9%"></div><div class="shaft" style="left:33%;width:18%"></div><div class="shaft" style="left:59%;width:14%;animation-delay:-3s"></div><div class="fx-floor"></div></div>
+  <svg class="cam" viewBox="0 0 80 90" aria-hidden="true"><rect x="28" y="0" width="24" height="14" fill="#59606a"/><g class="swing"><rect x="34" y="12" width="12" height="26" fill="#7e8691"/><circle cx="40" cy="54" r="22" fill="#eceff3" stroke="#3b424c" stroke-width="3"/><circle cx="40" cy="54" r="11" fill="#14181d"/><circle class="lens" cx="40" cy="54" r="5" fill="#ff7a1a"/></g></svg>
+  <div class="door" id="door"><i class="lamp"></i><div class="dl"></div><div class="dr"></div><b>Exit sealed</b></div>
+  <div class="ruinf" aria-hidden="true"><div class="puddle"></div><i class="mote" style="left:8%;top:60%;animation-delay:-0s;animation-duration:11s"></i><i class="mote" style="left:15%;top:40%;animation-delay:-3s;animation-duration:13s"></i><i class="mote" style="left:27%;top:70%;animation-delay:-6s;animation-duration:10s"></i><i class="mote" style="left:36%;top:50%;animation-delay:-1s;animation-duration:14s"></i><i class="mote" style="left:41%;top:30%;animation-delay:-8s;animation-duration:12s"></i><div class="dfx dfx-rust"></div><div class="dfx dfx-moss"></div></div>
+</div>
+<header class="hud">
+  <h1>The Aperture Proof Lab</h1>
+  <div class="r"><nav id="pips" class="pips" aria-label="Chambers"></nav><div id="vit" class="vit" hidden><i></i><span id="vitTxt"></span></div><span class="mini" id="rank"></span><span class="mini"><span id="score">0</span> pts</span><button id="menuBtn" class="mini">☰ Menu</button><button id="actBtn" class="mini">Act II ▸</button><button id="helpBtn" class="mini">Briefing</button><button id="muteBtn" class="mini">Sound on</button></div>
+</header>
+<section class="console" aria-label="Test console">
+  <header><h2 id="chamberTitle"></h2><p id="objective"></p></header>
+  <div id="workspace" class="workspace"></div>
+  <div class="bar"><button id="testBtn" class="btn go">Run test</button><button id="hintBtn" class="btn">Hint −15</button><button id="resetBtn" class="btn">Reset</button><button id="solBtn" class="btn" hidden>Solution</button><button id="nextBtn" class="btn go" hidden>Walk to exit</button></div>
+</section>
+<aside class="hotbar"><div id="rules" class="chips"></div><div id="ops" class="chips"></div></aside>
+<footer class="sub">
+  <svg viewBox="0 0 40 40" aria-hidden="true"><circle cx="20" cy="20" r="17" fill="#10141a" stroke="#ff7a1a" stroke-width="3"/><circle cx="20" cy="20" r="7" fill="#ff7a1a"/><circle cx="17" cy="17" r="2" fill="#fff"/></svg>
+  <p id="feedback" role="status">Welcome, test subject.</p>
+</footer>
+<div id="cut" hidden aria-hidden="true">
+<div id="cutSvg"><div class="bobw"><div class="tunnel">
+<div class="pl floor"></div><div class="pl ceil3"></div><div class="pl wl"></div><div class="pl wr"></div>
+<div class="pl case3"><div class="glass"><div class="cake3"><i class="t1"></i><i class="t2"></i><i class="ic"></i><i class="cd"></i><i class="cf"></i></div></div><em>CAKE</em></div>
+<div class="pl furn3"><i class="hz3"></i><b>RECYCLING</b><div class="mouth"><div class="fire"></div></div></div>
+</div></div>
+<div class="alarm"></div><div class="heat"></div><div class="vig"></div><div class="hands hl"></div><div class="hands hr"></div>
+<div class="lid lt"></div><div class="lid lb"></div><div class="endc"><div><i></i><u></u></div></div></div>
+<div class="bar top">&#9679; REC &nbsp; SUBJECT OPTICS &nbsp; DISPOSAL BAY</div>
+<div class="bar bot"><svg viewBox="0 0 40 40" aria-hidden="true"><circle cx="20" cy="20" r="17" fill="#10141a" stroke="#ff3b2f" stroke-width="3"/><circle cx="20" cy="20" r="7" fill="#ff3b2f"/></svg><p id="cutSub"></p></div>
+<button id="skipBtn" class="btn">Skip</button>
+</div>
+<div id="dispose" hidden><article class="rep"><header><span>Disposal report</span><span id="dNo"></span></header><div class="stamp">Disposed</div><p id="dText"></p><dl id="dStats"></dl><footer><small>Subjects who survive longer may be considered for cake. Terms and conditions apply.</small><button id="reBtn" class="btn go" style="margin:0">Request another test</button></footer></article></div>
+<div id="fade"></div>
+<div id="menu" hidden><div class="mcard"><h2 id="mTitle"></h2><div id="mBody"></div></div></div>
+<div id="sbx" hidden><div class="mcard sbx"></div></div>
+<div id="toast" role="status"></div>
+<div id="story" hidden><div class="mcard"><h2 id="stT"></h2><p id="stB"></p><button class="btn go" id="stGo" style="margin:0">Continue</button></div></div>
+<aside id="brief" hidden aria-live="polite"><h3 id="bTitle"></h3><div id="bBody"></div>
+<div class="row"><span id="bStep"></span><button id="bBack" class="btn">Back</button><button id="bNext" class="btn go" style="margin:0">Next</button></div></aside>
+<div id="intro"><div>
+  <svg viewBox="0 0 100 100" aria-hidden="true"><g fill="none" stroke="#ff7a1a" stroke-width="5"><polygon points="50,6 88,28 88,72 50,94 12,72 12,28"/><polygon points="50,24 72,37 72,63 50,76 28,63 28,37" stroke="#38c8ff"/></g><circle cx="50" cy="50" r="8" fill="#ff7a1a"/></svg>
+  <h1>The Aperture Proof Lab</h1>
+  <p>Solve each logic chamber to unseal the exit. The facility is watching, and it is not impressed.</p>
+  <button id="beginBtn" class="btn go" style="margin:0 .4rem .4rem 0">Act I: Propositional Logic</button><button id="begin2Btn" class="btn go" style="margin:0 0 .4rem;background:#8fdc5a;border-color:#8fdc5a">Act II: Predicate Logic</button><button id="begin3Btn" class="btn go" style="margin:0 0 .4rem .4rem;background:#b58cff;border-color:#b58cff">Act III: Computation Models</button>
+</div></div>
+<script>{{include parts/02-script/}}</script>
+</body></html>

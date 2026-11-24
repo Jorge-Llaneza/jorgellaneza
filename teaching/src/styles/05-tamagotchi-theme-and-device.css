@@ -1,0 +1,37 @@
+/* ===== Tamagotchi theme and device ===== */
+html[data-xt=tamagotchi] body{font-family:"Courier New",ui-monospace,monospace}
+html[data-xt=tamagotchi] .card,html[data-xt=tamagotchi] .tile{border:3px solid var(--fg)!important;border-radius:8px;box-shadow:3px 3px 0 var(--bd)}
+html[data-xt=tamagotchi] button{border:2px solid var(--fg);border-radius:4px;box-shadow:2px 2px 0 var(--bd)}
+#tama{position:fixed;right:10px;bottom:14px;z-index:38;font-family:"Courier New",ui-monospace,monospace;color:#1a2a0a}
+@media(max-width:700px){#tama{bottom:78px}}
+.tm-fab{width:62px;height:62px;border-radius:50%;border:3px solid #1a2a0a;background:#b8cc84;font-size:30px;line-height:1;cursor:pointer;position:relative;box-shadow:3px 3px 0 #1a2a0a88;padding:0;color:#1a2a0a}
+.tm-fab .tm-mood{position:absolute;right:-6px;top:-6px;font-size:16px;background:#e3efc4;border:2px solid #1a2a0a;border-radius:50%;width:24px;height:24px;display:flex;align-items:center;justify-content:center}
+.tm-fab .tm-tok{position:absolute;left:-4px;bottom:-6px;font-size:11px;font-weight:700;background:#e3efc4;border:2px solid #1a2a0a;border-radius:10px;padding:0 5px;color:#1a2a0a}
+.tm-panel{width:min(300px,calc(100vw - 20px));background:#e3efc4;border:3px solid #1a2a0a;border-radius:20px 20px 10px 10px;box-shadow:4px 4px 0 #1a2a0a88;padding:10px;margin-bottom:8px;color:#1a2a0a}
+.tm-top{display:flex;justify-content:space-between;align-items:center;font-weight:700;margin-bottom:6px}
+.tm-top button{background:#b8cc84;color:#1a2a0a;border:2px solid #1a2a0a;border-radius:4px;cursor:pointer;font-size:14px;padding:0 8px;box-shadow:none}
+.tm-screen{background:#b8cc84;border:3px inset #4b6b2a;border-radius:8px;padding:8px;text-align:center;color:#1a2a0a}
+.tm-pet{font-size:64px;line-height:1.1;display:inline-block;filter:contrast(1.1)}
+.tm-pet.happy{animation:tmhappy 1.2s ease-in-out infinite}.tm-pet.hungry{animation:tmshake .5s infinite}.tm-pet.tired{animation:tmsleepy 3s ease-in-out infinite;opacity:.85}.tm-pet.sad{animation:tmsleepy 2.2s ease-in-out infinite}.tm-pet.fine{animation:petbob 2.6s ease-in-out infinite}.tm-pet.jump{animation:petjump .6s ease-out}
+@keyframes tmhappy{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px) scale(1.04)}}@keyframes tmshake{0%,100%{transform:translateX(0)}25%{transform:translateX(-3px)}75%{transform:translateX(3px)}}@keyframes tmsleepy{50%{transform:translateY(3px) scale(.97)}}
+html[data-rm] .tm-pet{animation:none!important}
+.tm-say{font-size:13px;font-weight:700;margin-top:2px;min-height:18px}
+.tm-st{display:grid;grid-template-columns:22px 1fr 34px;gap:6px;align-items:center;margin:5px 0;font-size:12px}
+.tm-bar{height:11px;background:#e3efc4;border:2px solid #1a2a0a;border-radius:3px;overflow:hidden}.tm-bar i{display:block;height:100%;background:#1a2a0a}.tm-bar.low i{background:#a3200f;animation:blink 1s steps(1) infinite}
+html[data-rm] .tm-bar.low i{animation:none}
+.tm-acts{display:grid;grid-template-columns:repeat(4,1fr);gap:5px;margin-top:8px}
+.tm-acts button{background:#b8cc84;color:#1a2a0a;border:2px solid #1a2a0a;border-radius:6px;padding:5px 2px;font-size:11px;cursor:pointer;line-height:1.2;box-shadow:2px 2px 0 #1a2a0a88}
+.tm-acts button b{display:block;font-size:18px}.tm-acts button:disabled{opacity:.6;cursor:not-allowed}
+.tm-tip{font-size:11px;margin-top:6px;text-align:center}
+.tm-eggs{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin:8px 0}.tm-eggs button{background:#b8cc84;color:#1a2a0a;border:2px solid #1a2a0a;border-radius:8px;padding:6px 0;cursor:pointer;font-size:11px}.tm-eggs button b{display:block;font-size:26px}.tm-eggs button.cur{outline:3px solid #1a2a0a;outline-offset:1px;background:#e3efc4}
+.tm-in{width:100%;padding:6px;border:2px solid #1a2a0a;border-radius:4px;background:#f4fadf;color:#1a2a0a;font:inherit}
+.tm-go{width:100%;margin-top:6px;padding:8px;background:#1a2a0a;color:#e3efc4;border:0;border-radius:6px;font-weight:700;cursor:pointer;font:inherit}
+
+/* ===== v11: IDE references ===== */
+.nfx-squiggle{text-decoration:underline wavy #e03e3e;text-underline-offset:4px}
+.nfx-highlight{background:color-mix(in srgb,var(--acc),transparent 70%);padding:0 .25em;border-radius:3px}
+.nfx-brackets::before{content:'{ ';color:var(--acc)}.nfx-brackets::after{content:' }';color:var(--acc)}
+html:root[data-toast=console] #toast,.toastpv[data-toast=console]{background:#1e1e1e;color:#cccccc;border:0;border-left:4px solid #007acc;border-radius:0;font-family:Consolas,monospace}
+html:root[data-toast=buildok] #toast,.toastpv[data-toast=buildok]{background:#0e3b1f;color:#d6ffe3;border:1px solid #2ecc71;border-radius:4px;font-family:Consolas,monospace}
+html:root[data-toast=compilerr] #toast,.toastpv[data-toast=compilerr]{background:#3a0f0f;color:#ffd6d6;border:1px solid #ff5c5c;border-radius:4px;font-family:Consolas,monospace}
+

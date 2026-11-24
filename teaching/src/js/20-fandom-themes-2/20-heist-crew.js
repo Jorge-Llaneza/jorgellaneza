@@ -1,0 +1,37 @@
+ /* =====================  PAYDAY 2 · HEIST CREW  ===================== */
+ {const id='heistday',S=()=>ST(id,{bank:0,heist:null,done:0,fail:0,stealth:0,pts:0,sk:{m:0,e:0,t:0,g:0},inf:0,style:'stealth'});
+  const HT=[['Corner Bank','🏦',15,20,2400],['Jewel Shop','💎',24,30,4200],['Armored Truck','🚚',36,40,7000],['Art Gallery','🖼️',50,55,11000]];
+  const SK={m:['Mastermind','🧠','+1 loot bag per level'],e:['Enforcer','🔨','+12% cash on loud heists per level'],t:['Technician','🔧','+2 min per level'],g:['Ghost','👻','+12% cash on stealth heists per level']};
+  const money=n=>'$'+Math.round(n).toLocaleString('en-US'),INF_AT=60000;
+  const need=(s,i,st)=>Math.ceil(HT[i][2]*(st==='loud'?.8:1)),mins=(s,i)=>HT[i][3]+2*s.sk.t;
+  const pay_=(s,h,st)=>Math.round(HT[h][4]*(st==='stealth'?1.5+.12*s.sk.g:1+.12*s.sk.e)*(1+.05*s.inf)+s.sk.m*400);
+  const bags=h=>Math.floor(h.got/5)+0;
+  onSP(id,d=>{const s=S(),h=s.heist;if(!h)return;h.got+=d;h.ls=now();if(h.got>=h.need){const cash=pay_(s,h.i,h.st),coins=Math.round(cash/200);s.bank+=cash;s.done++;if(h.st==='stealth')s.stealth++;s.pts+=h.st==='stealth'?2:1;pay(coins,'💰 '+HT[h.i][0]+' done: '+money(cash)+' · +'+coins+' 🪙');splash(h.st==='stealth'?'PERFECT STEALTH':'HEIST COMPLETE',money(cash)+' to your offshore account','#ffd23f','💰');s.heist=null}});
+  tick.push(()=>{if(!X.act(id))return;const s=S(),h=s.heist;document.documentElement.dataset.pdalarm=h&&h.alarm?'1':'';if(!h)return;
+   if(h.st==='stealth'&&now()-h.ls>6*60000){h.st='loud';h.alarm=1;h.need=Math.ceil(h.need*1.3);try{toast('🚨 ALARM! A guard noticed. It is going loud (need +30%)')}catch(e){}}
+   if(now()>h.start+h.min*60000){s.fail++;s.heist=null;try{toast('🚔 The cops arrived. Heist failed.')}catch(e){}}});
+  PAN[id]={ico:'💰',title:'Heist Planner',hud:()=>{const s=S();return `💰 ${money(s.bank)} · ${s.done} heists${s.inf?' · infamy '+s.inf:''}${s.heist?' · <b>'+(s.heist.alarm?'LOUD':'STEALTH')+' '+s.heist.got+'/'+s.heist.need+'</b>':''}`},mini:()=>{const s=S();return `💰 ${s.heist?s.heist.got+'/'+s.heist.need:money(s.bank)}`},
+   body:()=>{const s=S(),h=s.heist;let html=`<p class="sfp">Offshore account: <b>${money(s.bank)}</b> · ${s.done} heists (${s.stealth} stealth, ${s.fail} failed)${s.inf?' · <b>Infamy '+s.inf+'</b> (+'+s.inf*5+'% cash)':''} · skill points <b>${s.pts}</b></p>`;
+    if(h){const left=h.start+h.min*60000-now();html+=`<p class="sfp"><b>${HT[h.i][1]} ${HT[h.i][0]}</b> · ${h.alarm?'🚨 LOUD (alarm tripped)':h.st==='stealth'?'🤫 STEALTH':'🔨 LOUD'}</p>${bar(h.got,h.need)}<p class="sfp">${h.need-h.got} SP to go · ${Math.floor(h.got/5)+s.sk.m} bags in the van · time left <b>${mmss(left)}</b> · pays ${money(pay_(s,h.i,h.st))}</p>${h.st==='stealth'?'<p class="sfp"><small>Stealth: do not go 6 minutes without earning SP, or a guard sounds the alarm.</small></p>':''}`}
+    else html+=`<p class="sfp">Plan the job. Stealth pays more but trips the alarm if you stall. Loud is easier (−20% SP) but pays less.</p><div class="sfl"><button data-sf="style" data-k="stealth" class="${s.style==='stealth'?'on':''}">🤫 Stealth <small>×1.5 cash, 6-minute idle limit</small></button><button data-sf="style" data-k="loud" class="${s.style==='loud'?'on':''}">🔨 Loud <small>−20% SP needed, ×1 cash</small></button></div><div class="sfl">${HT.map((o,i)=>`<button data-sf="go" data-k="${i}">${o[1]} ${o[0]} <small>${need(s,i,s.style)} SP in ${mins(s,i)} min · ${money(pay_(s,i,s.style))}</small></button>`).join('')}</div>`;
+    html+=`<p class="sfp"><b>Crew skills</b> <small>(1 point per heist, 2 for a clean stealth)</small></p><div class="sfl">${Object.entries(SK).map(([k,o])=>`<button data-sf="skill" data-k="${k}" ${s.sk[k]>=5||s.pts<s.sk[k]+1?'disabled':''}>${o[1]} ${o[0]} ${s.sk[k]}/5 <small>${o[2]}${s.sk[k]<5?' · costs '+(s.sk[k]+1):''}</small></button>`).join('')}</div>`;
+    if(s.bank>=INF_AT&&!h)html+=`<div class="sfl"><button data-sf="inf">⭐ Go Infamous <small>reset the account, +5% cash forever, +3 skill points</small></button></div>`;else if(!h)html+=`<p class="sfp"><small>Bank ${money(INF_AT)} to unlock Infamy.</small></p>`;return html},
+   act:(a,t)=>{const s=S();if(a==='style'&&!s.heist)s.style=t.dataset.k;
+    else if(a==='go'&&!s.heist){const i=+t.dataset.k;if(HT[i])s.heist={i,st:s.style,need:need(s,i,s.style),got:0,start:now(),min:mins(s,i),ls:now(),alarm:0}}
+    else if(a==='skill'){const k=t.dataset.k;if(s.sk[k]<5&&s.pts>=s.sk[k]+1){s.pts-=s.sk[k]+1;s.sk[k]++}}
+    else if(a==='inf'&&s.bank>=INF_AT&&!s.heist){s.inf++;s.bank=0;s.pts+=3;splash('INFAMOUS','Level '+s.inf+' · +5% cash forever','#ffd23f','⭐')}}};
+  const V=window.FDVIEW;
+  V[id]={s:'#fdview .tp{position:absolute;left:0;right:0;bottom:0;height:16px;background:repeating-linear-gradient(-45deg,#ffd23f 0 18px,#14171a 18px 36px);opacity:.95}#fdview .tq{position:absolute;left:0;right:0;top:0;height:10px;background:repeating-linear-gradient(-45deg,#ffd23f 0 18px,#14171a 18px 36px);opacity:.9}#fdview .lt{position:absolute;right:16px;bottom:26px;font:900 13px Impact,Arial Narrow,sans-serif;color:#ffd23f;letter-spacing:.14em;text-shadow:0 2px 0 #000}#fdview .po{position:absolute;inset:0;opacity:0;transition:opacity .4s}html[data-pdalarm="1"] #fdview .po{opacity:1}#fdview .po:before,#fdview .po:after{content:"";position:absolute;top:0;bottom:0;width:30%}#fdview .po:before{left:0;background:linear-gradient(90deg,#ff2a2a55,transparent)}#fdview .po:after{right:0;background:linear-gradient(270deg,#2a6bff55,transparent)}',
+   a:'html[data-pdalarm="1"] #fdview .po{animation:pdp .7s steps(1) infinite}@keyframes pdp{50%{transform:scaleX(-1)}}',
+   h:'<i class="tq"></i><i class="tp"></i><i class="po"></i><div class="lt"></div>',
+   u:e=>{const t=e.querySelector('.lt');if(!t)return;const s=S(),txt=s.heist?'🎒 '+(Math.floor(s.heist.got/5)+s.sk.m)+' BAGS · '+(s.heist.alarm?'LOUD':'STEALTH'):'💰 '+money(s.bank);if(t.textContent!==txt)t.textContent=txt}};
+  wire(id,V[id],(c,I)=>{const s=S();c.fillStyle='#14171a';c.fillRect(0,0,900,500);c.strokeStyle='#ffffff10';c.lineWidth=1;for(let x=0;x<900;x+=30){c.beginPath();c.moveTo(x,0);c.lineTo(x,500);c.stroke()}for(let y=0;y<500;y+=30){c.beginPath();c.moveTo(0,y);c.lineTo(900,y);c.stroke()}
+   const tape=(y)=>{c.save();c.beginPath();c.rect(0,y,900,26);c.clip();c.fillStyle='#14171a';c.fillRect(0,y,900,26);c.fillStyle='#ffd23f';for(let x=-40;x<940;x+=44){c.beginPath();c.moveTo(x,y+26);c.lineTo(x+22,y+26);c.lineTo(x+48,y);c.lineTo(x+26,y);c.closePath();c.fill()}c.restore()};tape(0);tape(474);
+   c.fillStyle='#262d33';c.fillRect(40,56,820,396);c.strokeStyle='#ff6a1a';c.lineWidth=6;c.strokeRect(40,56,820,396);
+   c.textAlign='left';c.fillStyle='#ff6a1a';c.font='900 24px Impact,Arial Narrow,sans-serif';c.fillText('CREW DOSSIER',70,106);
+   c.fillStyle='#ffd23f';c.font='900 54px Impact,Arial Narrow,sans-serif';c.fillText(cut(c,String(I.title).toUpperCase(),760),70,176);
+   c.fillStyle='#eef0f2';c.font='700 26px ui-monospace,Consolas,monospace';c.fillText('LV '+I.lv+'   '+I.sp+' SP   '+I.streak+' DAY STREAK',70,232);
+   c.fillStyle='#98a2ab';c.font='700 24px ui-monospace,Consolas,monospace';c.fillText(s.done+' HEISTS  ·  '+s.stealth+' STEALTH  ·  INFAMY '+s.inf,70,282);
+   c.fillStyle='#6bd36b';c.font='900 40px Impact,Arial Narrow,sans-serif';c.fillText('OFFSHORE  '+money(s.bank),70,346);
+   c.fillStyle='#ffd23f';c.font='italic 700 22px ui-monospace,Consolas,monospace';c.fillText(cut(c,'"'+(I.tag||'Everyone has a plan until the alarm goes off.')+'"',760),70,412)})}
+

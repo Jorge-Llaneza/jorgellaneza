@@ -1,0 +1,125 @@
+/* ===== v14: mechanic themes, widgets and funny items ===== */
+.mxw{position:fixed;right:10px;bottom:14px;z-index:38;width:min(260px,calc(100vw - 20px));background:var(--card);color:var(--fg);border:3px solid var(--fg);border-radius:10px;box-shadow:4px 4px 0 var(--bd);padding:8px 10px;font-size:13px}
+@media(max-width:700px){.mxw{bottom:78px}}
+.qw,.orb{cursor:pointer}
+.mx-row{display:flex;gap:8px;align-items:center}.mx-row small{display:block;color:var(--mut);font-size:11px}.mx-hero{font-size:28px;line-height:1}.mx-vs{margin-left:auto}.mx-mon{font-size:30px;line-height:1}.mx-mon.boss{font-size:38px;animation:petbob 2s ease-in-out infinite}
+.mx-name{font-weight:700;margin:4px 0 2px;overflow-wrap:anywhere}.mx-bar{height:10px;border:2px solid var(--fg);border-radius:3px;background:var(--bg);overflow:hidden}.mx-bar i{display:block;height:100%;background:var(--acc);transition:width .3s}.mx-hp{font-size:11px;color:var(--mut);margin-top:3px}
+.mx-btn{width:100%;margin-top:6px;padding:7px;font:inherit;font-weight:700;border:2px solid var(--fg);background:var(--acc);color:var(--on,#000);border-radius:6px;cursor:pointer}
+.mxf{position:fixed;z-index:39;font-weight:800;pointer-events:none;animation:mxf 1s ease-out forwards;text-shadow:0 1px 2px #000}@keyframes mxf{to{transform:translateY(-34px);opacity:0}}
+html[data-rm] .mxf,html[data-rm] .mx-mon.boss{animation:none}
+.term{width:min(340px,calc(100vw - 20px));font-family:ui-monospace,Consolas,monospace}.mx-th{display:flex;justify-content:space-between;align-items:center}.mx-th button{background:var(--bg);color:var(--fg);border:2px solid var(--fg);border-radius:4px;cursor:pointer;padding:0 8px}
+.mx-log{margin:4px 0;font:12px/1.35 ui-monospace,Consolas,monospace;white-space:pre-wrap;max-height:140px;overflow:auto;background:#000;color:#39ff14;padding:6px;border-radius:4px;min-height:64px}
+.mx-cmd{display:flex;gap:6px;align-items:center}.mx-cmd input{flex:1;background:#000;color:#39ff14;border:1px solid #0c5a1d;border-radius:4px;padding:5px 6px;font:12px ui-monospace,Consolas,monospace}
+html[data-xt=pixelquest] body{font-family:"Courier New",ui-monospace,monospace}
+html[data-xt=pixelquest] .card,html[data-xt=pixelquest] .tile{border:3px solid var(--bd);border-radius:2px;box-shadow:3px 3px 0 #000}
+html[data-xt=orbit] .card,html[data-xt=orbit] .tile{box-shadow:0 0 14px #5cc8ff22}
+html[data-xt=tomato] .top{border-bottom:4px solid #2a7d3f}
+html[data-xt=hackterm] body{font-family:ui-monospace,Consolas,monospace;text-shadow:0 0 3px #39ff1433}
+html[data-xt=hackterm] body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:34;background:repeating-linear-gradient(#0000 0 2px,#00000030 2px 3px)}
+html[data-xt=hackterm] h1::before{content:'$ ';color:var(--acc)}
+/* frames */
+html:root:root[data-frame=tomatof] .hero,html:root:root[data-frame=tomatof] #chip{border:4px solid #c0392b!important;box-shadow:inset 0 0 0 3px #2a7d3f!important}
+html:root:root[data-frame=rpgdialog] .hero,html:root:root[data-frame=rpgdialog] #chip{border:4px double var(--fg)!important;box-shadow:4px 4px 0 #000!important;border-radius:2px!important}
+html:root:root[data-frame=termframe] .hero,html:root:root[data-frame=termframe] #chip{border:2px solid #39ff14!important;box-shadow:0 0 12px #39ff1466!important;border-radius:2px!important}
+html:root:root[data-frame=orbitring] .hero,html:root:root[data-frame=orbitring] #chip{border:3px solid transparent!important;background:linear-gradient(var(--card),var(--card)) padding-box,linear-gradient(120deg,#5cc8ff,#7c4dff,#ffffff,#5cc8ff) border-box!important;background-size:100% 100%,300% 100%!important;animation:nfxm 5s linear infinite!important;box-shadow:0 0 16px #5cc8ff55!important}
+html:root:root[data-frame=orbitring] #chip{background:var(--chip-img,linear-gradient(var(--card),var(--card))) padding-box,linear-gradient(120deg,#5cc8ff,#7c4dff,#ffffff,#5cc8ff) border-box!important;background-size:100% 100%,300% 100%!important}
+/* cards */
+html:root[data-card=stickyc] .card,html:root[data-card=stickyc] .tile,html:root[data-card=stickyc] details.card{--card:#fff3a6;--bg:#fff9cc;--fg:#3a2f00;--mut:#6b5a1a;--acc:#8a4b00;--bd:#d6c34a;background:#fff3a6!important;border-color:#d6c34a!important;box-shadow:3px 4px 6px #0004!important}
+html:root[data-card=rpgpanel] .card,html:root[data-card=rpgpanel] .tile,html:root[data-card=rpgpanel] details.card{--card:#10091f;--bg:#0b0616;--fg:#f3ecff;--mut:#b9a7e6;--acc:#ffd23f;--bd:#5b3fb0;background:#10091f!important;border:3px solid #f3ecff!important;border-radius:2px!important;box-shadow:4px 4px 0 #000!important}
+html:root[data-card=bsodcard] .card,html:root[data-card=bsodcard] .tile,html:root[data-card=bsodcard] details.card{--card:#0000aa;--bg:#000080;--fg:#ffffff;--mut:#c8c8ff;--acc:#ffff55;--bd:#ffffff;background:#0000aa!important;border:2px solid #fff!important;border-radius:0!important;font-family:ui-monospace,Consolas,monospace}
+html:root[data-card=glitchc] .card,html:root[data-card=glitchc] .tile,html:root[data-card=glitchc] details.card{box-shadow:2px 0 #ff2bd6,-2px 0 #00f5d4!important;animation:glitchc 3s steps(1) infinite!important}
+@keyframes glitchc{0%,90%,100%{transform:none}92%{transform:translate(2px,-1px)}94%{transform:translate(-2px,1px)}96%{transform:translate(1px,1px)}}
+/* backgrounds */
+html:root[data-bg=graphpaper] body{background-image:linear-gradient(#8883 1px,transparent 1px),linear-gradient(90deg,#8883 1px,transparent 1px)!important;background-size:24px 24px!important}
+html:root[data-bg=dungeon] body{background-image:repeating-linear-gradient(90deg,#8883 0 2px,transparent 2px 44px),repeating-linear-gradient(#8883 0 2px,transparent 2px 22px)!important}
+html:root[data-bg=launchpad] body{background-image:linear-gradient(transparent 55%,#ff7a4528),radial-gradient(1.2px 1.2px at 30% 20%,#fff9,transparent),radial-gradient(1.4px 1.4px at 75% 35%,#fffb,transparent)!important;background-size:100% 100%,240px 240px,300px 300px!important}
+html:root[data-bg=tomatofield] body{background-image:repeating-linear-gradient(100deg,#c0392b16 0 28px,#2a7d3f16 28px 56px)!important}
+html:root[data-bg=scanlinesbg] body{background-image:repeating-linear-gradient(#0000 0 2px,#0003 2px 3px)!important}
+/* name effects */
+.nfx-shake{display:inline-block;animation:nfxshk .4s linear infinite}@keyframes nfxshk{0%,100%{transform:translate(0)}25%{transform:translate(-1px,1px)}50%{transform:translate(1px,-1px)}75%{transform:translate(-1px,-1px)}}
+.nfx-tomatofx{color:#e74c3c;text-shadow:0 1px 0 #ffffff55}
+.nfx-prompt::before{content:'> ';color:var(--acc)}
+.nfx-floaty{display:inline-block;animation:nfxfl 3s ease-in-out infinite}@keyframes nfxfl{50%{transform:translateY(-4px) rotate(-1deg)}}
+.nfx-pixelated{font-family:ui-monospace,Consolas,monospace;letter-spacing:.1em;text-shadow:2px 2px 0 var(--acc)}
+.nfx-bsodfx{background:#0000aa;color:#fff;padding:0 .4em;font-family:ui-monospace,Consolas,monospace;-webkit-text-fill-color:#fff}
+html[data-rm] .nfx-shake,html[data-rm] .nfx-floaty{animation:none}
+/* top bar styles */
+html:root[data-chip=tomatochip] #chip,.chippv[data-chip=tomatochip]{--chip-img:linear-gradient(#c0392b,#c0392b);--chip-fg:#fff;--fg:#fff;--acc:#ffd23f;border:2px solid #8e2318;border-radius:999px}
+html:root[data-chip=hud] #chip,.chippv[data-chip=hud]{--chip-img:linear-gradient(#1a1033,#1a1033);--chip-fg:#f3ecff;--fg:#f3ecff;--acc:#ffd23f;border:3px solid #ffd23f;border-radius:2px;box-shadow:3px 3px 0 #000;font-family:ui-monospace,Consolas,monospace}
+html:root[data-chip=promptchip] #chip,.chippv[data-chip=promptchip]{--chip-img:linear-gradient(#000,#000);--chip-fg:#c8ffd4;--fg:#c8ffd4;--acc:#39ff14;border:1px solid #39ff14;border-radius:0;font-family:ui-monospace,Consolas,monospace}
+html:root[data-chip=mission] #chip,.chippv[data-chip=mission]{--chip-img:linear-gradient(#050b1f,#0b2a6b);--chip-fg:#e8f0ff;--fg:#e8f0ff;--acc:#5cc8ff;border:2px solid #5cc8ff;border-radius:8px}
+html:root[data-chip=bsodchip] #chip,.chippv[data-chip=bsodchip]{--chip-img:linear-gradient(#0000aa,#0000aa);--chip-fg:#fff;--fg:#fff;--acc:#ffff55;border:2px solid #fff;border-radius:0;font-family:ui-monospace,Consolas,monospace}
+/* notifications */
+html:root[data-toast=fortune] #toast,.toastpv[data-toast=fortune]{background:#ffe9b0;color:#4a2a00;border:1px solid #d8a85a;border-radius:40px 40px 6px 40px}
+html:root[data-toast=rpgbox] #toast,.toastpv[data-toast=rpgbox]{background:#10091f;color:#f3ecff;border:3px solid #f3ecff;border-radius:2px;box-shadow:4px 4px 0 #000;font-family:ui-monospace,Consolas,monospace}
+html:root[data-toast=missionc] #toast,.toastpv[data-toast=missionc]{background:#050b1f;color:#e8f0ff;border:0;border-left:4px solid #5cc8ff;border-radius:2px;font-family:ui-monospace,Consolas,monospace}
+html:root[data-toast=bsod] #toast,.toastpv[data-toast=bsod]{background:#0000aa;color:#fff;border:0;border-radius:0;font-family:ui-monospace,Consolas,monospace}
+
+html[data-xt=winter]:root:root{--bg:#0a1a2f;--fg:#eaf6ff;--mut:#9fc3e0;--card:#11294a;--bd:#3b6ea5;--ok:#9be7c4;--bad:#ff8a9b;--acc:#8fd3ff;color-scheme:dark}
+html[data-xt=arcadeth]:root:root{--bg:#0a0014;--fg:#f4ecff;--mut:#bfa9ee;--card:#160032;--bd:#7a2bd6;--ok:#39ff14;--bad:#ff5c8a;--acc:#ffe600;color-scheme:dark}
+html[data-xt=abyss]:root:root{--bg:#01121c;--fg:#d6f6ff;--mut:#86c9dd;--card:#03202f;--bd:#0f5f7a;--ok:#7dffb0;--bad:#ff8a80;--acc:#2ee6d6;color-scheme:dark}
+html[data-xt=tamagotchi]:root:root{--bg:#cfe0a6;--fg:#1d2b0e;--mut:#3f5a22;--card:#e3efc4;--bd:#4b6b2a;--ok:#1f6b2a;--bad:#a3200f;--acc:#2f5d1a;color-scheme:light}
+html[data-xt=uniovi]:root:root{--bg:#0b1b33;--fg:#eef3ff;--mut:#9db4d9;--card:#12294a;--bd:#2f5a99;--ok:#7be0a0;--bad:#ff8a8a;--acc:#f2c14e;color-scheme:dark}
+html[data-xt=bluej]:root:root{--bg:#eef3fb;--fg:#14213d;--mut:#4a5a78;--card:#ffffff;--bd:#b8c8e6;--ok:#1b7a3d;--bad:#b3261e;--acc:#1f5fbf;color-scheme:light}
+html[data-xt=codedark]:root:root{--bg:#1e1e1e;--fg:#d4d4d4;--mut:#9da1a6;--card:#252526;--bd:#3c3c3c;--ok:#6a9955;--bad:#f48771;--acc:#569cd6;color-scheme:dark}
+html[data-xt=eclipsenight]:root:root{--bg:#14102b;--fg:#ece8ff;--mut:#a79fd6;--card:#1d1840;--bd:#3b2f7a;--ok:#8be28b;--bad:#ff8f8f;--acc:#ff9f1c;color-scheme:dark}
+html[data-xt=tomato]:root:root{--bg:#fff4ee;--fg:#3a1410;--mut:#7a4a40;--card:#fffaf7;--bd:#f0b5a8;--ok:#2a7d3f;--bad:#b3261e;--acc:#c0392b;color-scheme:light}
+html[data-xt=hackterm]:root:root{--bg:#020a04;--fg:#c8ffd4;--mut:#7fcf93;--card:#06140a;--bd:#0c5a1d;--ok:#39ff14;--bad:#ff6b6b;--acc:#39ff14;color-scheme:dark}
+html[data-xt=orbit]:root:root{--bg:#050b1f;--fg:#e8f0ff;--mut:#8fa6d6;--card:#0b1633;--bd:#1f3a7a;--ok:#7be0a0;--bad:#ff8a8a;--acc:#5cc8ff;color-scheme:dark}
+html[data-xt=pixelquest]:root:root{--bg:#1a1033;--fg:#f3ecff;--mut:#b9a7e6;--card:#261a4a;--bd:#5b3fb0;--ok:#7be0a0;--bad:#ff8a8a;--acc:#ffd23f;color-scheme:dark}
+html[data-xt=sakura]:root:root{--bg:#fff1f5;--fg:#3b1d2a;--mut:#7d4560;--card:#fffafc;--bd:#f0b4c8;--ok:#2a7d52;--bad:#b3122f;--acc:#b0245f;color-scheme:light}
+html[data-xt=contrast]:root:root{--on:#000000}html[data-xt=contrast] button[class*=pri],html[data-xt=contrast] button.sel,html[data-xt=contrast] button.on{color:var(--on)!important}
+html[data-xt=sepia]:root:root{--mut:#776750;--on:#ffffff}html[data-xt=sepia] button[class*=pri],html[data-xt=sepia] button.sel,html[data-xt=sepia] button.on{color:var(--on)!important}
+html[data-xt=retro]:root:root{--on:#000000}html[data-xt=retro] button[class*=pri],html[data-xt=retro] button.sel,html[data-xt=retro] button.on{color:var(--on)!important}
+html[data-xt=blueprint]:root:root{--on:#000000}html[data-xt=blueprint] button[class*=pri],html[data-xt=blueprint] button.sel,html[data-xt=blueprint] button.on{color:var(--on)!important}
+html[data-xt=synthwave]:root:root{--on:#000000}html[data-xt=synthwave] button[class*=pri],html[data-xt=synthwave] button.sel,html[data-xt=synthwave] button.on{color:var(--on)!important}
+html[data-xt=ocean]:root:root{--acc:#0e7995;--on:#ffffff}html[data-xt=ocean] button[class*=pri],html[data-xt=ocean] button.sel,html[data-xt=ocean] button.on{color:var(--on)!important}
+html[data-xt=forest]:root:root{--on:#000000}html[data-xt=forest] button[class*=pri],html[data-xt=forest] button.sel,html[data-xt=forest] button.on{color:var(--on)!important}
+html[data-xt=sunset]:root:root{--on:#000000}html[data-xt=sunset] button[class*=pri],html[data-xt=sunset] button.sel,html[data-xt=sunset] button.on{color:var(--on)!important}
+html[data-xt=cherry]:root:root{--acc:#d31a5e;--on:#ffffff}html[data-xt=cherry] button[class*=pri],html[data-xt=cherry] button.sel,html[data-xt=cherry] button.on{color:var(--on)!important}
+html[data-xt=midnight]:root:root{--on:#000000}html[data-xt=midnight] button[class*=pri],html[data-xt=midnight] button.sel,html[data-xt=midnight] button.on{color:var(--on)!important}
+html[data-xt=gold]:root:root{--on:#000000}html[data-xt=gold] button[class*=pri],html[data-xt=gold] button.sel,html[data-xt=gold] button.on{color:var(--on)!important}
+html[data-xt=nile]:root:root{--mut:#776137;--acc:#1a69a4;--on:#ffffff}html[data-xt=nile] button[class*=pri],html[data-xt=nile] button.sel,html[data-xt=nile] button.on{color:var(--on)!important}
+html[data-xt=vapor]:root:root{--on:#000000}html[data-xt=vapor] button[class*=pri],html[data-xt=vapor] button.sel,html[data-xt=vapor] button.on{color:var(--on)!important}
+html[data-xt=bubble]:root:root{--mut:#94537b;--acc:#b93976;--on:#ffffff}html[data-xt=bubble] button[class*=pri],html[data-xt=bubble] button.sel,html[data-xt=bubble] button.on{color:var(--on)!important}
+html[data-xt=coffee]:root:root{--on:#000000}html[data-xt=coffee] button[class*=pri],html[data-xt=coffee] button.sel,html[data-xt=coffee] button.on{color:var(--on)!important}
+html[data-xt=dracula]:root:root{--on:#000000}html[data-xt=dracula] button[class*=pri],html[data-xt=dracula] button.sel,html[data-xt=dracula] button.on{color:var(--on)!important}
+html[data-xt=gameboy]:root:root{--card:#244a24;--mut:#9ab85f;--on:#000000}html[data-xt=gameboy] button[class*=pri],html[data-xt=gameboy] button.sel,html[data-xt=gameboy] button.on{color:var(--on)!important}
+html[data-xt=amber]:root:root{--on:#000000}html[data-xt=amber] button[class*=pri],html[data-xt=amber] button.sel,html[data-xt=amber] button.on{color:var(--on)!important}
+html[data-xt=mint]:root:root{--mut:#4b7968;--acc:#17805c;--ok:#1ea677;--on:#ffffff}html[data-xt=mint] button[class*=pri],html[data-xt=mint] button.sel,html[data-xt=mint] button.on{color:var(--on)!important}
+html[data-xt=win95]:root:root{--bg:#068383;--mut:#020202;--acc:#00001d;--on:#ffffff}html[data-xt=win95] button[class*=pri],html[data-xt=win95] button.sel,html[data-xt=win95] button.on{color:var(--on)!important}
+html[data-xt=lava]:root:root{--on:#000000}html[data-xt=lava] button[class*=pri],html[data-xt=lava] button.sel,html[data-xt=lava] button.on{color:var(--on)!important}
+html[data-xt=arctic]:root:root{--mut:#4c7197;--acc:#256dc5;--on:#ffffff}html[data-xt=arctic] button[class*=pri],html[data-xt=arctic] button.sel,html[data-xt=arctic] button.on{color:var(--on)!important}
+html[data-xt=starwars]:root:root{--on:#000000}html[data-xt=starwars] button[class*=pri],html[data-xt=starwars] button.sel,html[data-xt=starwars] button.on{color:var(--on)!important}
+html[data-xt=cyberpunk]:root:root{--on:#000000}html[data-xt=cyberpunk] button[class*=pri],html[data-xt=cyberpunk] button.sel,html[data-xt=cyberpunk] button.on{color:var(--on)!important}
+html[data-xt=steampunk]:root:root{--acc:#ca8530;--on:#000000}html[data-xt=steampunk] button[class*=pri],html[data-xt=steampunk] button.sel,html[data-xt=steampunk] button.on{color:var(--on)!important}
+html[data-xt=chalkboard]:root:root{--on:#000000}html[data-xt=chalkboard] button[class*=pri],html[data-xt=chalkboard] button.sel,html[data-xt=chalkboard] button.on{color:var(--on)!important}
+html[data-xt=newspaper]:root:root{--on:#ffffff}html[data-xt=newspaper] button[class*=pri],html[data-xt=newspaper] button.sel,html[data-xt=newspaper] button.on{color:var(--on)!important}
+html[data-xt=candy]:root:root{--mut:#986551;--acc:#b94e4e;--on:#ffffff}html[data-xt=candy] button[class*=pri],html[data-xt=candy] button.sel,html[data-xt=candy] button.on{color:var(--on)!important}
+html[data-xt=desert]:root:root{--mut:#806338;--acc:#b7410d;--on:#ffffff}html[data-xt=desert] button[class*=pri],html[data-xt=desert] button.sel,html[data-xt=desert] button.on{color:var(--on)!important}
+html[data-xt=matrix]:root:root{--on:#000000}html[data-xt=matrix] button[class*=pri],html[data-xt=matrix] button.sel,html[data-xt=matrix] button.on{color:var(--on)!important}
+html[data-xt=sunrise]:root:root{--mut:#86685e;--acc:#ac5700;--on:#ffffff}html[data-xt=sunrise] button[class*=pri],html[data-xt=sunrise] button.sel,html[data-xt=sunrise] button.on{color:var(--on)!important}
+html[data-xt=deepsea]:root:root{--on:#000000}html[data-xt=deepsea] button[class*=pri],html[data-xt=deepsea] button.sel,html[data-xt=deepsea] button.on{color:var(--on)!important}
+html[data-xt=slate]:root:root{--on:#000000}html[data-xt=slate] button[class*=pri],html[data-xt=slate] button.sel,html[data-xt=slate] button.on{color:var(--on)!important}
+html[data-xt=tokyo]:root:root{--on:#000000}html[data-xt=tokyo] button[class*=pri],html[data-xt=tokyo] button.sel,html[data-xt=tokyo] button.on{color:var(--on)!important}
+html[data-xt=royal]:root:root{--on:#000000}html[data-xt=royal] button[class*=pri],html[data-xt=royal] button.sel,html[data-xt=royal] button.on{color:var(--on)!important}
+html[data-xt=dopamine]:root:root{--on:#000000}html[data-xt=dopamine] button[class*=pri],html[data-xt=dopamine] button.sel,html[data-xt=dopamine] button.on{color:var(--on)!important}
+html[data-xt=pumpkin]:root:root{--on:#000000}html[data-xt=pumpkin] button[class*=pri],html[data-xt=pumpkin] button.sel,html[data-xt=pumpkin] button.on{color:var(--on)!important}
+html[data-xt=crypt]:root:root{--on:#000000}html[data-xt=crypt] button[class*=pri],html[data-xt=crypt] button.sel,html[data-xt=crypt] button.on{color:var(--on)!important}
+html[data-xt=witchy]:root:root{--acc:#a760e0;--on:#000000}html[data-xt=witchy] button[class*=pri],html[data-xt=witchy] button.sel,html[data-xt=witchy] button.on{color:var(--on)!important}
+html[data-xt=bloodmoon]:root:root{--acc:#e43a50;--on:#000000}html[data-xt=bloodmoon] button[class*=pri],html[data-xt=bloodmoon] button.sel,html[data-xt=bloodmoon] button.on{color:var(--on)!important}
+html[data-xt=lapis]:root:root{--on:#000000}html[data-xt=lapis] button[class*=pri],html[data-xt=lapis] button.sel,html[data-xt=lapis] button.on{color:var(--on)!important}
+html[data-xt=winter]:root:root{--on:#000000}html[data-xt=winter] button[class*=pri],html[data-xt=winter] button.sel,html[data-xt=winter] button.on{color:var(--on)!important}
+html[data-xt=arcadeth]:root:root{--on:#000000}html[data-xt=arcadeth] button[class*=pri],html[data-xt=arcadeth] button.sel,html[data-xt=arcadeth] button.on{color:var(--on)!important}
+html[data-xt=abyss]:root:root{--on:#000000}html[data-xt=abyss] button[class*=pri],html[data-xt=abyss] button.sel,html[data-xt=abyss] button.on{color:var(--on)!important}
+html[data-xt=tamagotchi]:root:root{--on:#ffffff}html[data-xt=tamagotchi] button[class*=pri],html[data-xt=tamagotchi] button.sel,html[data-xt=tamagotchi] button.on{color:var(--on)!important}
+html[data-xt=uniovi]:root:root{--on:#000000}html[data-xt=uniovi] button[class*=pri],html[data-xt=uniovi] button.sel,html[data-xt=uniovi] button.on{color:var(--on)!important}
+html[data-xt=bluej]:root:root{--on:#ffffff}html[data-xt=bluej] button[class*=pri],html[data-xt=bluej] button.sel,html[data-xt=bluej] button.on{color:var(--on)!important}
+html[data-xt=codedark]:root:root{--on:#000000}html[data-xt=codedark] button[class*=pri],html[data-xt=codedark] button.sel,html[data-xt=codedark] button.on{color:var(--on)!important}
+html[data-xt=eclipsenight]:root:root{--on:#000000}html[data-xt=eclipsenight] button[class*=pri],html[data-xt=eclipsenight] button.sel,html[data-xt=eclipsenight] button.on{color:var(--on)!important}
+html[data-xt=tomato]:root:root{--on:#ffffff}html[data-xt=tomato] button[class*=pri],html[data-xt=tomato] button.sel,html[data-xt=tomato] button.on{color:var(--on)!important}
+html[data-xt=hackterm]:root:root{--on:#000000}html[data-xt=hackterm] button[class*=pri],html[data-xt=hackterm] button.sel,html[data-xt=hackterm] button.on{color:var(--on)!important}
+html[data-xt=orbit]:root:root{--on:#000000}html[data-xt=orbit] button[class*=pri],html[data-xt=orbit] button.sel,html[data-xt=orbit] button.on{color:var(--on)!important}
+html[data-xt=pixelquest]:root:root{--on:#000000}html[data-xt=pixelquest] button[class*=pri],html[data-xt=pixelquest] button.sel,html[data-xt=pixelquest] button.on{color:var(--on)!important}
+html[data-xt=sakura]:root:root{--on:#ffffff}html[data-xt=sakura] button[class*=pri],html[data-xt=sakura] button.sel,html[data-xt=sakura] button.on{color:var(--on)!important}html[data-theme=dark]:not([data-xt]),html[data-hw]:not([data-xt]){--on:#000}
+

@@ -1,0 +1,205 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Port Halcyon</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@700;800&family=Caveat:wght@600&family=Hanken+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700&family=Lexend:wght@400;600&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Playfair+Display:wght@800;900&family=UnifrakturCook:wght@700&display=swap">
+<style>{{include parts/01-style.css}}</style>
+<a class="skip" href="#bench">Skip to the inspection desk</a>
+
+<svg class="vh" width="0" height="0" aria-hidden="true" focusable="false">
+  <defs>
+    <filter id="cvd-protan" color-interpolation-filters="sRGB"><feColorMatrix type="matrix" values="0.567 0.433 0 0 0  0.558 0.442 0 0 0  0 0.242 0.758 0 0  0 0 0 1 0"/></filter>
+    <filter id="cvd-deutan" color-interpolation-filters="sRGB"><feColorMatrix type="matrix" values="0.625 0.375 0 0 0  0.7 0.3 0 0 0  0 0.3 0.7 0 0  0 0 0 1 0"/></filter>
+    <filter id="cvd-tritan" color-interpolation-filters="sRGB"><feColorMatrix type="matrix" values="0.95 0.05 0 0 0  0 0.433 0.567 0 0  0 0.475 0.525 0 0  0 0 0 1 0"/></filter>
+    <filter id="ink" x="-10%" y="-10%" width="120%" height="120%">
+      <feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="2" seed="4" result="n"/>
+      <feDisplacementMap in="SourceGraphic" in2="n" scale="3.2"/>
+      <feComponentTransfer><feFuncA type="discrete" tableValues="0 .75 .9 1 1 1"/></feComponentTransfer>
+    </filter>
+  </defs>
+</svg>
+
+<div class="app">
+  <header class="topbar">
+    <div class="brand">
+      <span id="crest" aria-hidden="true"></span>
+      <div>
+        <h1>Port Halcyon</h1>
+        <p>Office of Interface Soundness · Berth Inspector</p>
+      </div>
+    </div>
+    <div class="topbtns">
+      <output id="hud-day">Day –</output>
+      <button id="btn-sound" class="mini" type="button" aria-pressed="true">Sound on</button>
+      <button id="btn-textsize" class="mini" type="button" aria-pressed="false">Larger text</button>
+      <button id="btn-calm" class="mini" type="button" aria-pressed="false">Calm motion</button>
+      <button id="btn-safe" class="mini" type="button" aria-pressed="false">Safe colours</button>
+    </div>
+  </header>
+
+  <section class="window" aria-label="Harbor view. Each ship waiting offshore is a design in your queue.">
+    <div id="scene"></div>
+    <div class="crawl" id="crawl" hidden aria-hidden="true"></div>
+    <div class="weather" id="weather" aria-hidden="true"></div>
+    <p class="shipplate" id="shipplate">Berth 1 · empty</p>
+    <p class="vh" id="queue-sr" role="status" aria-live="polite"></p>
+  </section>
+
+  <section class="board" aria-label="Harbor board">
+    <div class="dial" id="dial-funds"><h2>Purse</h2><output class="big" id="hud-funds">0 cr</output><span class="sub" id="hud-funds-sub">your savings</span></div>
+    <div class="dial" id="dial-trust"><h2>Public trust</h2><div id="g-trust"></div><output class="sub" id="hud-trust">60 / 100</output></div>
+    <div class="dial" id="dial-flow"><h2>Harbor flow</h2><div id="g-flow"></div><output class="sub" id="hud-flow">60 / 100</output></div>
+    <div class="dial" id="dial-warn"><h2>Warnings</h2><div class="lamps" id="hud-cites" role="img" aria-label="0 of 3 warnings"><i></i><i></i><i></i></div><span class="sub" id="hud-acc">accuracy –</span></div>
+    <div class="dial" id="dial-quota"><h2>Quota</h2><output class="big" id="hud-quota">0 / 0</output><progress class="bar" id="quota-bar" max="1" value="0" aria-label="Daily quota"></progress></div>
+    <div class="dial" id="dial-timer">
+      <h2>Shift clock</h2>
+      <div class="timer-dial">
+        <svg class="ring" viewBox="0 0 64 64" aria-hidden="true"><circle class="track" cx="32" cy="32" r="26"/><circle class="arc" id="timer-arc" cx="32" cy="32" r="26" stroke-dasharray="163.4" stroke-dashoffset="0"/></svg>
+        <output class="big" id="hud-timer">–</output>
+      </div>
+    </div>
+  </section>
+
+  <main class="bench" id="bench">
+    <!-- ======== paperwork ======== -->
+    <section class="col left" aria-label="Paperwork">
+      <div>
+        <div class="tabs" role="tablist" aria-label="Desk papers">
+          <button id="rb-tab-dos" role="tab" type="button" aria-selected="true" aria-controls="p-dos">Dossier</button>
+          <button id="rb-tab-heur" role="tab" type="button" aria-selected="false" aria-controls="p-heur" tabindex="-1">Rulebook</button>
+          <button id="rb-tab-cheat" role="tab" type="button" aria-selected="false" aria-controls="p-cheat" tabindex="-1">Numbers</button>
+          <button id="rb-tab-note" role="tab" type="button" aria-selected="false" aria-controls="p-note" tabindex="-1">Notes</button>
+        </div>
+        <div class="paper clip leftpaper">
+          <div id="p-dos" role="tabpanel" aria-labelledby="rb-tab-dos" tabindex="0"><div id="dossier"></div></div>
+          <div id="p-heur" role="tabpanel" aria-labelledby="rb-tab-heur" tabindex="0" hidden>
+            <h2>Warden’s rulebook</h2>
+            <p class="hint">Open a rule to read it. These are the faults you can cite.</p>
+            <div id="rulebook-list"></div>
+          </div>
+          <div id="p-note" role="tabpanel" aria-labelledby="rb-tab-note" tabindex="0" hidden>
+            <h2>Your notebook</h2>
+            <div id="notebook"></div>
+          </div>
+          <div id="p-cheat" role="tabpanel" aria-labelledby="rb-tab-cheat" tabindex="0" hidden>
+            <h2>Numbers worth knowing</h2>
+            <ul class="cheats">
+              <li><b>Contrast:</b> 4.5 : 1 for normal text, 3 : 1 for large text (24 px, or 18.7 px bold).</li>
+              <li><b>Text:</b> at least 11 px, proportional line spacing, plain fonts, no phrases in capitals.</li>
+              <li><b>Colour deficiency:</b> 8% of men, 1% of women. Avoid red-green, blue-yellow, green-blue and red-blue pairs.</li>
+              <li><b>Redundant codes:</b> colour plus shape, icon or text.</li>
+              <li><b>Fitts’ law:</b> T = 0.1 · log₂(D / A + 1) s. Bigger and closer is faster.</li>
+              <li><b>Hick’s law:</b> T = 0.15 · log₂(n + 1) s. Every option costs time.</li>
+              <li><b>Short-term memory:</b> 7 ± 2 items. Never make users retype or recall.</li>
+              <li><b>Proportional effort:</b> hard to undo means hard to do.</li>
+            </ul>
+            <h3>Instrument costs</h3>
+            <p class="hint">Probes spend seconds from your clock: contrast −2, ruler −2, tab order −3, vision filter −3. Citing is free.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ======== chart monitor ======== -->
+    <section class="col center" id="desk" aria-label="Inspection monitor" tabindex="-1">
+      <div class="monitor" id="monitor">
+        <i class="rivet" style="left:7px;top:7px"></i><i class="rivet" style="right:7px;top:7px"></i>
+        <i class="rivet" style="left:7px;bottom:7px"></i><i class="rivet" style="right:7px;bottom:7px"></i>
+        <div class="glass">
+          <div class="popups" id="popups"></div>
+          <figure class="mock-frame" style="margin:0">
+            <figcaption class="chrome">
+              <span class="dots" aria-hidden="true"><i></i><i></i><i></i></span>
+              <span id="mock-url">no ship at the quay</span>
+            </figcaption>
+            <div class="mock-wrap idle" id="mock-wrap">
+              <div class="mock" id="mock" aria-label="Submitted interface (inspection copy)"></div>
+              <div class="screen-idle" id="screen-idle"><div><b>Berth empty</b>Waiting for the next ship to tie up.</div></div>
+              <div id="stamp-mark" aria-hidden="true"></div>
+            </div>
+          </figure>
+        </div>
+      </div>
+      <div class="stamps" role="group" aria-label="Decision stamps">
+        <button id="btn-reject" class="stamp stamp-reject" type="button">
+          <svg viewBox="0 0 62 70" aria-hidden="true"><rect x="20" y="2" width="22" height="26" rx="10" fill="#6a4a22"/><rect x="26" y="26" width="10" height="16" fill="#8f6a2c"/><rect x="8" y="42" width="46" height="9" rx="2" fill="#c99a4b"/><rect x="10" y="51" width="42" height="9" rx="2" fill="#e5583e"/><rect x="4" y="62" width="54" height="5" rx="2" fill="#000" opacity=".5"/></svg>
+          <span><span class="w">Turn back</span><span class="k">key X · reject · cite at least one fault</span></span>
+        </button>
+        <button id="btn-approve" class="stamp stamp-approve" type="button">
+          <svg viewBox="0 0 62 70" aria-hidden="true"><rect x="20" y="2" width="22" height="26" rx="10" fill="#6a4a22"/><rect x="26" y="26" width="10" height="16" fill="#8f6a2c"/><rect x="8" y="42" width="46" height="9" rx="2" fill="#c99a4b"/><rect x="10" y="51" width="42" height="9" rx="2" fill="#43b087"/><rect x="4" y="62" width="54" height="5" rx="2" fill="#000" opacity=".5"/></svg>
+          <span><span class="w">Clear berth</span><span class="k">key A · approve · nothing wrong found</span></span>
+        </button>
+      </div>
+    </section>
+
+    <!-- ======== instruments ======== -->
+    <aside class="col right" aria-label="Instruments">
+      <div class="rail">
+        <h2>Instrument rail</h2>
+        <div class="tools" role="toolbar" aria-label="Audit tools">
+          <button id="tool-flag" class="tool" type="button" aria-pressed="true">
+            <svg viewBox="0 0 38 38" aria-hidden="true"><circle cx="19" cy="19" r="17" fill="#2a1f0c" stroke="#c99a4b" stroke-width="2"/><path d="M14 9v20" stroke="#ffe2a6" stroke-width="2.5" stroke-linecap="round"/><path d="M14 10 28 14.5 14 19Z" fill="#e5583e"/></svg>
+            <span><span class="t">Cite a fault</span><small>key 1 · free</small></span>
+          </button>
+          <button id="tool-contrast" class="tool" type="button" aria-pressed="false">
+            <svg viewBox="0 0 38 38" aria-hidden="true"><circle cx="19" cy="19" r="17" fill="#2a1f0c" stroke="#c99a4b" stroke-width="2"/><circle cx="19" cy="19" r="9" fill="none" stroke="#ffe2a6" stroke-width="2"/><path d="M19 10a9 9 0 0 1 0 18z" fill="#ffe2a6"/></svg>
+            <span><span class="t">Contrast lens</span><small>key 2 · −2 s per click</small></span>
+          </button>
+          <button id="tool-ruler" class="tool" type="button" aria-pressed="false">
+            <svg viewBox="0 0 38 38" aria-hidden="true"><circle cx="19" cy="19" r="17" fill="#2a1f0c" stroke="#c99a4b" stroke-width="2"/><g transform="rotate(-45 19 19)"><rect x="5" y="14" width="28" height="10" rx="1.5" fill="#ffe2a6"/><path d="M9 14v4M13 14v6M17 14v4M21 14v6M25 14v4M29 14v6" stroke="#2a1f0c" stroke-width="1.4"/></g></svg>
+            <span><span class="t">Calipers and Fitts</span><small>key 3 · −2 s per click</small></span>
+          </button>
+          <button id="tool-hand" class="tool" type="button" aria-pressed="false">
+            <svg viewBox="0 0 38 38" aria-hidden="true"><circle cx="19" cy="19" r="17" fill="#2a1f0c" stroke="#c99a4b" stroke-width="2"/><path d="M13 22V11a2 2 0 0 1 4 0v8m0-9a2 2 0 0 1 4 0v9m0-7a2 2 0 0 1 4 0v10c0 5-3 8-7 8s-6-2-8-6l-2-4a2 2 0 0 1 3-2l2 3" fill="#ffe2a6" stroke="#2a1f0c" stroke-width="1.2"/></svg>
+            <span><span class="t">The Hand</span><small>key 6 · touch the design · free</small></span>
+          </button>
+          <button id="tool-tab" class="tool" type="button" aria-pressed="false">
+            <svg viewBox="0 0 38 38" aria-hidden="true"><circle cx="19" cy="19" r="17" fill="#2a1f0c" stroke="#c99a4b" stroke-width="2"/><rect x="8" y="12" width="22" height="15" rx="3" fill="#ffe2a6"/><path d="M12 19.5h10m-3.5-3.5 3.5 3.5-3.5 3.5" stroke="#2a1f0c" fill="none" stroke-width="2"/><path d="M26 15v9" stroke="#2a1f0c" stroke-width="2"/></svg>
+            <span><span class="t">Route chart</span><small>key 4 · tab order · −3 s</small></span>
+          </button>
+          <button id="tool-cvd" class="tool" type="button" aria-pressed="false">
+            <svg viewBox="0 0 38 38" aria-hidden="true"><circle cx="19" cy="19" r="17" fill="#2a1f0c" stroke="#c99a4b" stroke-width="2"/><path d="M6 19Q19 8 32 19Q19 30 6 19Z" fill="#ffe2a6"/><circle cx="19" cy="19" r="5.5" fill="#2a1f0c"/><circle cx="19" cy="19" r="2.3" fill="#43b087"/></svg>
+            <span><span class="t">Prism glass</span><small>key 5 · vision filter · −3 s</small></span>
+          </button>
+        </div>
+        <output id="readout" class="readout" role="status" aria-live="polite">Take the booth to receive your first ship.</output>
+        <button id="btn-mara" class="mini" type="button" hidden>Ask Mara for a second opinion</button>
+        <button id="btn-appr" class="mini" type="button" hidden>Send the apprentice</button>
+        <button id="btn-leave" class="mini leave" type="button" hidden>Clock out early</button>
+        <button id="btn-reg" class="mini reg" type="button" hidden>Consult the Registry file</button>
+
+        <h3>Cite by name</h3>
+        <div class="cite-row">
+          <label for="region-select" class="vh">Element to cite</label>
+          <select id="region-select"></select>
+          <button id="region-cite" class="mini" type="button">Cite…</button>
+        </div>
+
+        <h3>Fault log (<output id="flag-count">0</output>)</h3>
+        <ol id="flag-log" class="flag-log"></ol>
+      </div>
+    </aside>
+  </main>
+
+  <footer class="foot">Hotkeys: 1–6 instruments · A clear berth · X turn back · Esc close. Everything here follows its own rules: 16 px text, shape plus colour plus words, full keyboard access.</footer>
+</div>
+
+<div id="toast" role="status" aria-live="polite"></div>
+
+<div id="flag-pop" class="pop" role="dialog" aria-labelledby="pop-title" hidden>
+  <div class="pop-head"><h3 id="pop-title">Element</h3><button id="pop-close" class="mini" type="button" aria-label="Close without citing">Close</button></div>
+  <p class="hint">Which rule does this element break?</p>
+  <div id="pop-cats"></div>
+  <button id="pop-remove" class="mini danger" type="button" hidden>Remove my citation</button>
+</div>
+
+<dialog id="modal" aria-labelledby="modal-title">
+  <div class="sheet" id="sheet">
+    <div id="modal-body"></div>
+    <div id="modal-actions" class="actions"></div>
+  </div>
+</dialog>
+
+<script>{{include parts/02-script.js}}</script>
+
+</body></html>

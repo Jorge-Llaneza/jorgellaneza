@@ -1,0 +1,2 @@
+ {const s2=document.createElement('style');s2.textContent='#sfmod .aipt svg{width:64px;height:80px;display:block;border-radius:12px;background:var(--card2);border:2px solid var(--bd)}#sfmod .ail{background:var(--card2);color:var(--fg);border-radius:12px 12px 12px 3px;padding:6px 10px;margin:5px 0;text-align:left;font-size:13px;line-height:1.35}#sfmod .ail b{display:block;color:var(--acc);font-size:12px}';document.head.appendChild(s2)}
+window.AIX={svg,shapes,S:R,R,C:()=>ctx().c,ctx,say,mi,paint,IND,CC,speak,nmK,miC,pv,TH,gone};

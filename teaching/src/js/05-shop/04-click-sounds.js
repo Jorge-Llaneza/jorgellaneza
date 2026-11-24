@@ -1,0 +1,16 @@
+/* ---------- click sound packs ---------- */
+const UISND={
+ pop(t,v){const o=AC.createOscillator(),g=AC.createGain();o.frequency.setValueAtTime(520,t);o.frequency.exponentialRampToValueAtTime(900,t+.06);g.gain.setValueAtTime(.14*v,t);g.gain.exponentialRampToValueAtTime(.001,t+.09);o.connect(g);g.connect(master);o.start(t);o.stop(t+.1)},
+ drum(t,v){const o=AC.createOscillator(),g=AC.createGain();o.frequency.setValueAtTime(170,t);o.frequency.exponentialRampToValueAtTime(48,t+.12);g.gain.setValueAtTime(.3*v,t);g.gain.exponentialRampToValueAtTime(.001,t+.16);o.connect(g);g.connect(master);o.start(t);o.stop(t+.18)},
+ type(t,v){const s=AC.createBufferSource();s.buffer=noiseBuf(.05);const f=AC.createBiquadFilter();f.type='highpass';f.frequency.value=1800;const g=AC.createGain();g.gain.setValueAtTime(.22*v,t);g.gain.exponentialRampToValueAtTime(.001,t+.04);s.connect(f);f.connect(g);g.connect(master);s.start(t);s.stop(t+.05)},
+ chip(t,v){[0,.05].forEach((d,i)=>{const o=AC.createOscillator(),g=AC.createGain();o.type='square';o.frequency.value=i?880:660;g.gain.setValueAtTime(.07*v,t+d);g.gain.exponentialRampToValueAtTime(.001,t+d+.05);o.connect(g);g.connect(master);o.start(t+d);o.stop(t+d+.06)})},
+ glass(t,v){[1568,2349].forEach((f,i)=>{const o=AC.createOscillator(),g=AC.createGain();o.frequency.value=f;g.gain.setValueAtTime(.09*v/(i+1),t);g.gain.exponentialRampToValueAtTime(.001,t+.35);o.connect(g);g.connect(master);o.start(t);o.stop(t+.4)})},
+ laser(t,v){const o=AC.createOscillator(),g=AC.createGain();o.type='sawtooth';o.frequency.setValueAtTime(1800,t);o.frequency.exponentialRampToValueAtTime(220,t+.14);g.gain.setValueAtTime(.1*v,t);g.gain.exponentialRampToValueAtTime(.001,t+.16);o.connect(g);g.connect(master);o.start(t);o.stop(t+.18)},
+ creak(t,v){const o=AC.createOscillator(),g=AC.createGain(),f=AC.createBiquadFilter();f.type='bandpass';f.Q.value=8;f.frequency.setValueAtTime(300,t);f.frequency.linearRampToValueAtTime(900,t+.22);o.type='sawtooth';o.frequency.setValueAtTime(70,t);o.frequency.linearRampToValueAtTime(130,t+.22);g.gain.setValueAtTime(.001,t);g.gain.linearRampToValueAtTime(.14*v,t+.05);g.gain.exponentialRampToValueAtTime(.001,t+.26);o.connect(f);f.connect(g);g.connect(master);o.start(t);o.stop(t+.3)},
+ bell(t,v){[392,587,1180].forEach((fq,i)=>{const o=AC.createOscillator(),g=AC.createGain();o.frequency.value=fq;g.gain.setValueAtTime(.1*v/(i+1),t);g.gain.exponentialRampToValueAtTime(.001,t+.7);o.connect(g);g.connect(master);o.start(t);o.stop(t+.75)})},
+ saber(t,v){const o=AC.createOscillator(),g=AC.createGain(),f=AC.createBiquadFilter();f.type='lowpass';f.frequency.value=700;o.type='sawtooth';o.frequency.setValueAtTime(90,t);o.frequency.exponentialRampToValueAtTime(190,t+.15);g.gain.setValueAtTime(.16*v,t);g.gain.exponentialRampToValueAtTime(.001,t+.22);o.connect(f);f.connect(g);g.connect(master);o.start(t);o.stop(t+.25)}};
+function uiClick(e){if(!M.set.snd||!(M.set.sndv>0))return;const b=e.target&&e.target.closest&&e.target.closest('button,a,summary,select,[role=tab],input[type=checkbox]');if(!b||b.disabled)return;
+ try{if(!audio())return;const f=UISND[M.set.snd];f&&f(AC.currentTime,M.set.sndv)}catch(x){}}
+function uiPreview(){try{if(!M.set.snd||!audio())return;const f=UISND[M.set.snd];f&&f(AC.currentTime,M.set.sndv||.6)}catch(x){}}
+document.addEventListener('click',uiClick,true);
+

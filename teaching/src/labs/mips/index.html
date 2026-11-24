@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html data-theme="light" lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>MIPS64 Pipeline Simulator</title>
+<style>{{include parts/01-style.css}}</style>
+<style id='mp-theme'>{{include parts/02-mp-theme.css}}</style></head>
+<body>
+<nav id="unitNav"><button data-u="u2">Unit 2 · CPU &amp; pipeline</button><button data-u="u3">Unit 3 · Memory hierarchy</button></nav>
+<div class="wrap" id="u2">
+<h1>▌MIPS64 pipeline simulator</h1>
+<p class="sub">Predict the diagram yourself, then compare it with the computed one. Turn features on and off in the menu.</p>
+
+
+<div class="card lsn" id="learnCard">
+  <details open>
+  <summary>🎓 Learn mode — one idea at a time, with before/after diagrams</summary>
+  <div class="pal tabs" id="lsnTabs" style="margin-top:12px"></div>
+  <div id="lsnBody"></div>
+  </details>
+</div>
+<div class="card bz" id="blitzCard">
+  <details open>
+  <summary>🎮 Pipeline Blitz — 10 rounds or endless, 3 lives</summary>
+  <div id="blitz" style="margin-top:12px"></div>
+  </details>
+</div>
+<div class="card">
+  <label for="pre">Examples (slides and Unit 2 exercises)</label>
+  <select id="pre" style="margin-bottom:10px;width:100%"></select>
+  <label for="code">Instructions (one per line, labels like <b>loop:</b>)</label>
+  <textarea id="code" spellcheck="false"></textarea>
+  <div class="mut" style="margin-top:6px;font-size:12px">Branches follow real register values (set them in the menu; all registers start at 0, <b>ld</b> loads 0). Force an outcome by ending a branch line with <b>; taken</b> or <b>; nt</b>. Loops are executed up to the instruction limit.</div>
+</div>
+
+<details class="card" open>
+  <summary>⚙ Settings menu — choose which features are active</summary>
+  <div class="menu">
+    <div class="grp"><h3>Data hazards</h3>
+      <label><input type="checkbox" id="fwd"> Forwarding paths</label>
+      <label><input type="checkbox" id="ren"> Register renaming (no WAW stalls)</label>
+    </div>
+    <div class="grp"><h3>Structural</h3>
+      <label><input type="checkbox" id="mem"> Single memory port (IF vs load/store MEM)</label>
+    </div>
+    <div class="grp"><h3>Control hazards</h3>
+      <label><input type="checkbox" id="early"> Early branches (resolved in ID)</label>
+      <select id="pred"><option value="stall">No prediction (stall fetch)</option><option value="nt">Always not taken</option><option value="bht">2-bit predictor (BHT/BTB, starts at 01)</option></select>
+    </div>
+    <div class="grp"><h3>Execution units</h3>
+      <label>Int mul/div latency <input type="number" id="mulLat" min="1" max="30" value="1"> cycles</label>
+      <label>Floating point (.d/.s) latency <input type="number" id="fpLat" min="1" max="30" value="1"> cycles</label>
+      <label><input type="checkbox" id="pipe"> Pipelined multi-cycle units (EX1…EXn)</label>
+    </div>
+    <div class="grp"><h3>Ordering</h3>
+      <label title="Slides: instruction states are issued (ready to EX), executed (finished EX) and retired (finished MEM + WB). With out-of-order execution on, the next instruction may enter EX while an earlier multi-cycle instruction (dmul, ddiv, floating point) is still executing in another unit, so it can finish before it. Off: it waits until the previous instruction leaves EX. It makes no difference when every EX takes 1 cycle."><input type="checkbox" id="ooo"> Out-of-order execution (a later instruction may execute while an earlier slow one is still in EX)</label>
+      <label title="Slides: out-of-order execution + enforce in-order retirement (MEM and WB) gives precise exceptions. Off: an instruction that finished EX early waits so that MEM/WB happen in program order. On: instructions retire as soon as they finish."><input type="checkbox" id="oooRet"> Out-of-order retirement (off = in-order MEM/WB, precise exceptions)</label>
+      <div class="mut" style="font-size:12px">States (slides): issued → executed → retired.</div>
+    </div>
+    <div class="grp"><h3>Display and program</h3>
+      <label>Clock cycles shown <input type="number" id="cyc" min="1" max="500" value="12"></label>
+      <label><input type="checkbox" id="auto" checked> Extend automatically to fit the solution</label>
+      <label>Max instructions executed <input type="number" id="maxI" min="1" max="500" value="60"></label>
+      <label>Initial registers <input type="text" id="init" placeholder="r1=8, r2=2" style="flex:1;min-width:120px"></label>
+    </div>
+  </div>
+</details>
+
+
+<details class="card" id="gymCard"><summary>🎯 Branch predictor gym: train the 2-bit counter</summary><div class="gym" id="gym" style="margin-top:10px"></div></details>
+<div class="card" id="pracCard">
+  <h2>🎲 Practice test — a new random exercise</h2>
+  <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center">
+    <select id="lvl"><optgroup label="Starter"><option value="1">1 · Warm-up: no hazards, just draw the pipeline</option><option value="2">2 · Easy: RAW stalls, no forwarding</option><option value="3">3 · Easy: forwarding on or off</option></optgroup><optgroup label="Medium"><option value="4">4 · Load-use hazard</option><option value="5">5 · Single memory port</option><option value="6">6 · Branches: work out taken or not</option></optgroup><optgroup label="Advanced"><option value="7">7 · Early branch and a small loop (trace it)</option><option value="8">8 · Slow multiply units</option><option value="9">9 · Loop with multiply and a predictor (2-bit counters)</option></optgroup><optgroup label="Expert"><option value="10">10 · Out-of-order, renaming, everything</option></optgroup></select>
+    <label style="margin:0">Seed <input type="number" id="seed" placeholder="random" style="width:110px"></label>
+    <button class="pri" id="newEx">New exercise</button>
+    <button id="retryEx">Retry this one</button>
+  </div>
+  <div id="exInfo" class="mut" style="margin-top:10px"></div>
+  <div id="score" style="margin-top:6px;font-weight:700"></div>
+</div>
+<div class="card bws" id="bwsCard" hidden><h2>Step 1 · Run the branches</h2><div id="bws"></div></div>
+<div class="card">
+  <h2>Your prediction</h2>
+  <div class="pal" id="pal"></div>
+  <div class="scroll"><div class="grid" id="mine"></div></div>
+  <div class="btns">
+    <button class="pri" id="chk">Check my answer</button>
+    <button id="hint">Hint</button>
+    <button id="rev">Show solution</button>
+    <button id="clr">Clear grid</button>
+  </div>
+  <div id="res"></div>
+</div>
+
+<details class="card" id="stCard">
+  <summary>🛑 Stall report: name the kind of each stall</summary>
+  <div class="mut" style="margin:8px 0">For every executed instruction, write how many clock cycles it is stalled by each kind of stall (leave blank for 0). <b>Data</b> = RAW/WAW dependence, <b>Structural</b> = a resource is busy (memory port, execution unit, MEM/WB slot), <b>Control</b> = branch/jump penalty (counted on the branch or jump itself). Each stall is counted once, on the instruction that suffers it (cascading delays of the instructions behind it are not counted again).</div>
+  <div class="scroll"><table class="stt" id="stTab"></table></div>
+  <div class="btns"><button class="pri" id="stChk">Check stalls</button><button id="stClr">Clear</button></div>
+  <div id="stRes"></div>
+</details>
+<div class="card" id="solCard" hidden>
+  <h2>Expected solution</h2>
+  <div class="stats" id="stats"></div>
+  <div class="scroll"><div class="grid ro" id="sol"></div></div>
+  <div id="why" class="mut" style="margin-top:10px"></div>
+</div>
+
+<details class="card">
+  <summary>🧮 Performance calculator (exercises 10–13, 15.1–15.3)</summary>
+  <div style="margin-top:10px">
+    <label for="stg">Stage times in ns, comma separated (sequential CPU executes them one after another)</label>
+    <input type="text" id="stg" value="50, 50, 60, 50, 40" style="width:100%">
+    <div class="btns"><button id="calc">Calculate</button></div>
+    <div class="out" id="calcOut"></div>
+    <label for="fq" style="margin-top:14px">Frequency ↔ cycle time and MIPS</label>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+      <input type="number" id="fq" value="2" step="any" style="width:100px"> GHz,
+      <input type="number" id="cpi" value="1" step="any" style="width:80px"> CPI
+      <button id="calc2">Calculate</button>
+    </div>
+    <div class="out" id="calc2Out"></div>
+  </div>
+</details>
+</div>
+
+<div class="wrap" id="u3" hidden>
+<h1>▌Memory hierarchy lab — Unit 3</h1>
+<p class="sub">Learn the cache and virtual-memory ideas step by step, practise with random exercises that are checked for you, and use the labs to run any access trace.</p>
+<div id="m3tabs"><button data-s="learn">📘 Learn</button><button data-s="prac">🎲 Practice</button><button data-s="cache">🧮 Cache lab</button><button data-s="paging">🗺️ Paging &amp; TLB lab</button><button data-s="mesi">🔁 MESI lab</button><button data-s="ref">📋 Formulas</button></div>
+
+<div id="m3s-learn" class="m3sec"><div class="card lsn" id="m3lsCard"><h2>Lessons</h2><div id="m3lsTabs" class="tabs" style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px"></div><div id="m3lsBody"></div></div></div>
+
+<div id="m3s-prac" class="m3sec">
+ <div class="card"><h2>🎲 Practice — a new random exercise</h2>
+  <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center">
+   <select id="m3Type"></select>
+   <select id="m3Lvl"><option value="1">Easy</option><option value="2" selected>Medium</option><option value="3">Hard</option></select>
+   <label style="margin:0">Seed <input type="number" id="m3Seed" placeholder="random" style="width:110px"></label>
+   <button class="pri" id="m3New">New exercise</button><button id="m3Retry">Retry this one</button>
+  </div>
+  <div id="m3exInfo" class="mut" style="margin-top:10px"></div><div id="m3score" style="font-weight:700;margin-top:4px"></div></div>
+ <div class="card" id="m3exCard"><div id="m3exBody"></div>
+  <div class="btns"><button class="pri" id="m3Chk">Check my answers</button><button id="m3Rev">Show solution</button></div>
+  <div id="m3exRes" style="font-weight:700;margin-top:10px"></div><div id="m3exSol" hidden></div></div>
+</div>
+
+<div id="m3s-cache" class="m3sec"><div class="card"><h2>🧮 Cache lab</h2>
+ <p class="mut">Describe the cache, write the access trace (one per line: <code>R 15C0</code>, <code>W 2080</code>, optional <code>C</code>/<code>D</code> for code/data in split caches; addresses in hex) and see every hit, miss, replacement and write-back.</p>
+ <label>Examples <select id="cl_pre"></select></label>
+ <div class="frm">
+  <label>Address bits<input type="number" id="cl_addr" value="16"></label>
+  <label>Cache size<span><input type="number" id="cl_size" value="32" style="width:80px"> <select id="cl_su"><option value="1">bytes</option><option value="1024">KiB</option><option value="1048576">MiB</option></select></span></label>
+  <label>Block (bytes / words)<input type="number" id="cl_block" value="8"></label>
+  <label>Placement<select id="cl_ways"><option value="1">direct-mapped</option><option value="2">2-way</option><option value="4">4-way</option><option value="8">8-way</option><option value="FA">fully associative</option></select></label>
+  <label>Replacement<select id="cl_repl"><option>LRU</option><option>FIFO</option></select></label>
+  <label>Write policy<select id="cl_write"><option value="wb">write-back</option><option value="wt">write-through</option></select></label>
+  <label>Write miss<span><input type="checkbox" id="cl_alloc" checked> write allocate</span></label>
+  <label>Split<span><input type="checkbox" id="cl_split"> code / data halves</span></label>
+  <label>tc (ns)<input type="number" step="any" id="cl_tc" value="1"></label>
+  <label>tp (ns)<input type="number" step="any" id="cl_tp" value="10"></label>
+  <label>Miss time<select id="cl_miss"><option value="single">one memory access (tp)</option><option value="block">whole block (block × tp)</option></select></label>
+ </div>
+ <textarea id="cl_trace" spellcheck="false"></textarea>
+ <div class="btns"><button class="pri" id="cl_run">Run trace</button></div>
+ <details style="margin-top:10px"><summary>Loop trace generator (arrays walked in order)</summary><div class="frm"><label>Array base address(es), hex<input type="text" id="cl_bases" value="2A530" style="width:170px"></label><label>Iterations<input type="number" id="cl_n" value="1024"></label><label>Element size (bytes)<input type="number" id="cl_e" value="4"></label><label>Access<select id="cl_lw"><option value="W">write</option><option value="R">read</option></select></label><button id="cl_gen">Fill the trace</button></div><p class="mut">One access per element, arrays interleaved per iteration (a[i], b[i], …). Example: Ex 37.5 → size 1 MiB… set 20 address bits, 4 KiB, 32 B lines, direct-mapped.</p></details>
+ <div id="cl_out" style="margin-top:12px"></div></div>
+ <div class="card"><h2>👁️ Step-by-step view</h2><div id="cl_vis_info"></div><div id="cl_vis"></div></div>
+ <div class="card"><h2>✍️ Solve it yourself</h2><p class="mut">Predict every access of the trace above (block, set, tag, hit/miss, replacement, memory writes) and the totals, then press Check. Cells turn green or red; Hint tells you what to look at.</p><div class="btns"><button class="pri" id="cl_mk">Make the exercise grid from this trace</button></div><div id="cl_sg" style="margin-top:10px"></div></div></div>
+
+<div id="m3s-paging" class="m3sec"><div class="card"><h2>🗺️ Paging &amp; TLB lab</h2>
+ <p class="mut">One page-table entry per line: <code>vpn → frame [ro|rw] [user|kernel]</code>, <code>vpn → disk X</code> (on disk) or <code>vpn → invalid</code>. R/W: <code>ro</code> = read only (bit R/W = 1). U/S: <code>kernel</code> = U/S 0. Pages not listed are invalid. Numbers in hex.</p>
+ <label>Examples <select id="pl_pre"></select></label>
+ <div class="frm"><label>Virtual address bits<input type="number" id="pl_v" value="32"></label><label>Physical address bits<input type="number" id="pl_p" value="20"></label><label>Page size (bytes)<input type="number" id="pl_page" value="4096"></label><label>Bytes per table entry<input type="number" id="pl_ent" value="1"></label></div>
+ <textarea id="pl_table" spellcheck="false"></textarea>
+ <div class="frm"><label>Virtual address (hex)<input type="text" id="pl_va" style="width:140px"></label><label>Access<select id="pl_mode"><option value="ur">user, read</option><option value="uw">user, write</option><option value="kr">kernel, read</option><option value="kw">kernel, write</option></select></label></div>
+ <div class="btns"><button class="pri" id="pl_run">Translate</button></div><div id="pl_out" style="margin-top:10px"></div>
+ <h3 style="margin-top:18px;font-size:13px">✍️ Solve it yourself</h3><p class="mut">List several accesses, one per line: <code>u r 800015AB</code> (u/k = user/kernel, r/w = read/write, address in hex), then build the grid and fill in page, offset, result, frame and physical address.</p><textarea id="pl_acc" spellcheck="false" style="min-height:90px"></textarea><div class="btns"><button class="pri" id="pl_mk">Make the exercise grid</button></div><div id="pl_sg" style="margin-top:10px"></div>
+ <h3 style="margin-top:18px;font-size:13px">TLB simulation</h3>
+ <div class="frm"><label>TLB entries<input type="number" id="pl_tn" value="2"></label><label>Virtual addresses accessed (hex)<input type="text" id="pl_ts" value="10000 10100 10200 11000 10300 10000" style="width:360px"></label><button id="pl_tlb">Run TLB</button></div><div id="pl_tout"></div></div></div>
+
+<div id="m3s-mesi" class="m3sec"><div class="card"><h2>🔁 MESI lab</h2>
+ <p class="mut">Two processors with identical private caches (write-back, LRU, write-invalidate MESI). One access per line: <code>P1 R 201A3</code>, <code>P2 W 201A8</code> (hex).</p>
+ <label>Examples <select id="ml_pre"></select></label>
+ <div class="frm"><label>Address bits<input type="number" id="ml_addr" value="20"></label><label>Cache size (bytes)<input type="number" id="ml_size" value="8192"></label><label>Line (bytes)<input type="number" id="ml_block" value="16"></label><label>Ways<input type="number" id="ml_ways" value="2"></label></div>
+ <textarea id="ml_ops" spellcheck="false"></textarea>
+ <div class="btns"><button class="pri" id="ml_run">Run</button></div><div id="ml_out" style="margin-top:10px"></div></div>
+ <div class="card"><h2>👁️ Step-by-step view</h2><div id="ml_vis"></div></div>
+ <div class="card"><h2>✍️ Solve it yourself</h2><p class="mut">Predict hit/miss, the state of the block in P1 and P2, whether memory is updated and any replaced block for each access above.</p><div class="btns"><button class="pri" id="ml_mk">Make the exercise grid</button></div><div id="ml_sg" style="margin-top:10px"></div></div></div>
+
+<div id="m3s-ref" class="m3sec"><div class="card"><h2>📋 Formulas &amp; recipes</h2>
+ <div class="formula"><b>Average read time</b> (cache + main memory + disk): t = A<sub>c</sub>·t<sub>c</sub> + (1−A<sub>c</sub>)·[ A<sub>p</sub>·B·t<sub>p</sub> + (1−A<sub>p</sub>)·t<sub>d</sub> ]. With A<sub>p</sub> = 1: A<sub>c</sub>·t<sub>c</sub> + (1−A<sub>c</sub>)·B·t<sub>p</sub>. B = words per cache block; t<sub>d</sub> is per block.</div>
+ <div class="formula"><b>Write-through</b> (simple model): write hit = t<sub>p</sub>; write miss without allocate = t<sub>p</sub>; with allocate = block fetch (as a read miss) + t<sub>p</sub>. Mean = %reads·t<sub>r</sub> + %writes·t<sub>w</sub>.</div>
+ <div class="formula"><b>Cost</b> = Σ size(MiB) × price(€/MiB).</div>
+ <div class="formula"><b>Cache geometry</b>: lines = size / block; sets = lines / ways (DM: ways = 1, FA: sets = 1); offset = log₂ block; index = log₂ sets; tag = address bits − index − offset; memory blocks = 2<sup>address bits</sup> / block.</div>
+ <div class="formula"><b>Hit/miss recipe</b>: block = address ÷ block size; set = block mod sets; tag = block ÷ sets. Hit if a valid line of the set has that tag. On a miss with a full set replace the LRU line; if it is dirty (write-back) its block is <i>updated</i> in memory. Dirty blocks still cached at the end are not updated.</div>
+ <div class="formula"><b>Paging</b>: offset = log₂ page; virtual pages = 2<sup>(virtual bits − offset)</sup> = page-table entries; frames = 2<sup>(physical bits − offset)</sup>; page table size = entries × bytes per entry; physical address = frame ‖ offset. Present = 0 with disk location → recoverable fault; no storage → fatal fault.</div>
+ <div class="formula"><b>V/P cache without synonyms</b>: cache size ≤ page size × ways.</div>
+ <div class="formula"><b>MESI</b>: read miss → E (no other copy) or S (others → S; an M owner writes back first); write → M and the others I (an M owner writes back first); write hit on S invalidates the others; E → M silently.</div>
+ <div class="formula"><b>Conventions in this lab</b>: addresses are of one addressable unit (bytes unless the exercise says words); one access per element in loop exercises; a miss costs t<sub>p</sub> (single access) or block×t<sub>p</sub> as selected in the Cache lab; “blocks updated” = blocks written to memory (write-backs of dirty replaced lines, or every write in write-through).</div>
+</div></div>
+</div>
+
+<script>{{include parts/03-script/}}</script>
+<script>{{include parts/04-script.js}}</script>
+<script>{{include parts/05-script.js}}</script>
+<a id="mpback" href="index.html" title="Back to menu">&#8592; Menu</a>
+<style>#mpback{position:fixed;left:10px;bottom:10px;z-index:99999;font:600 12px/1 ui-monospace,Menlo,Consolas,monospace;color:#fff;background:#c62828;border-radius:14px;padding:7px 11px;text-decoration:none;opacity:.85;box-shadow:0 1px 6px #0004}#mpback:hover{opacity:1}</style>
+<script>try{var d=document.documentElement;d.dataset.theme=matchMedia('(prefers-color-scheme:dark)').matches?'dark':'light'}catch(e){}</script>
+</body>
+</html>

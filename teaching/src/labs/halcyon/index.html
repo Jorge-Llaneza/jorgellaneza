@@ -1,0 +1,169 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light}[hidden]{display:none!important}html,body{margin:0}body{font:14px system-ui,sans-serif}img{max-width:100%}</style>
+<title>Halcyon Arcade</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@700;800&family=Hanken+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700&family=Cinzel:wght@600;800&family=Limelight&family=Barlow+Condensed:wght@500;700&display=swap">
+<style>{{include parts/01-style.css}}</style>
+
+<button class="skip" id="skip" type="button">Skip to content</button>
+<header class="top"><div class="wrap">
+  <div class="brand">
+    <svg viewBox="0 0 32 32" aria-hidden="true"><circle cx="16" cy="16" r="14" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 26 L14 9 H18 L20 26Z" fill="currentColor"/><path d="M13 16H19M12.6 21H19.4" stroke="var(--bg)" stroke-width="2"/><rect x="13.5" y="5" width="5" height="4" fill="var(--accent)"/></svg>
+    Halcyon Arcade
+  </div>
+  <nav class="nav" aria-label="Sections">
+    <button type="button" id="nav-games">Games</button>
+    <button type="button" id="nav-trophies">Trophies <span class="n" id="nav-count"></span></button>
+    <button type="button" id="nav-stats">Stats</button>
+    <button type="button" id="nav-friends">Friends</button>
+    <button type="button" id="nav-profile">Profile</button>
+  </nav>
+  <div class="tools" role="group" aria-label="Display settings">
+    <button type="button" id="t-theme" title="Theme: system, light or dark" aria-label="Change theme">Theme: auto</button>
+    <button type="button" id="t-motion" title="Turn animations off or on" aria-pressed="false">Motion: on</button>
+    <button type="button" id="t-sound" title="Trophy sound" aria-pressed="false">Sound: on</button>
+    <button type="button" id="t-lang" title="Language">Language: EN</button>
+  </div>
+</div></header>
+
+<main id="hub" class="wrap" tabindex="-1">
+  <section id="v-games">
+    <div class="hero">
+      <div>
+        <div class="kicker">Six games · one console · one service record</div>
+        <h1>Halcyon <span>Arcade</span></h1>
+        <p class="lede">Inspect interfaces, defuse a power bus, keep a CPU pipeline full, route packets, prove logic and read code. Every game you play earns trophies toward one rank.</p>
+      </div>
+      <aside class="record" aria-label="Service record">
+        <div class="rk">
+          <div class="emblem" id="emblem"></div>
+          <div><small>SERVICE RECORD</small><h3 id="rank-name">Cadet</h3></div>
+        </div>
+        <div>
+          <div class="bar"><i id="rank-bar" style="width:0"></i></div>
+          <small id="rank-next" style="font:500 12px var(--mono);color:var(--muted)"></small>
+        </div>
+        <div class="nums">
+          <div><b id="n-tro">0</b><span>Trophies</span></div>
+          <div><b id="n-played">0/6</b><span>Games tried</span></div>
+          <div><b id="n-time">0m</b><span>Time played</span></div>
+        </div>
+      </aside>
+    </div>
+    <div class="panel recap" id="recap" hidden></div>
+    <div class="deck" id="deck" aria-label="Today"></div>
+    <div class="panel ban" id="tipb" hidden></div>
+    <div class="panel ban" id="bkb" hidden></div>
+    <div class="cols2 wkrow"><div class="panel" id="wk" aria-live="polite"></div><div class="panel" id="bmk"></div></div>
+    <div class="panel assign" id="assign" hidden></div>
+    <div class="sect"><h2>Choose a game</h2>
+      <div class="finder"><label class="sr" for="q">Search games</label><input id="q" type="search" placeholder="Search: circuits, logic, algorithms" autocomplete="off">
+      <label class="sr" for="sort">Sort games</label><select id="sort"><option value="default">Sort: default</option><option value="played">Most played</option><option value="left">Least finished</option><option value="name">Name</option></select></div></div>
+    <div class="grid" id="grid"></div>
+    <p class="none" id="none" hidden>No game matches that search. Try a topic such as logic or electronics.</p>
+  </section>
+
+  <section id="v-trophies" hidden>
+    <div class="hero" style="padding-bottom:20px">
+      <div><div class="kicker">Hall of records</div><h1 style="font-size:clamp(40px,7vw,76px)">Trophies</h1>
+      <p class="lede">Trophies unlock from your saved progress in each game, plus a few for the arcade itself. Locked ones show how close you are.</p></div>
+      <aside class="record" id="rec2" aria-label="Summary"></aside>
+    </div>
+    <div class="chips" id="chips" role="group" aria-label="Filter by game"></div>
+    <div class="tgrid" id="tgrid"></div>
+  </section>
+
+  <section id="v-stats" hidden>
+    <div class="hero" style="padding-bottom:20px"><div><div class="kicker">Logbook</div><h1 style="font-size:clamp(40px,7vw,76px)">Stats</h1>
+      <p class="lede">Where your time went, which days you played, and the hardest trophies you hold.</p></div></div>
+    <div class="cols2">
+      <div class="panel"><h3 class="ph">Time per game</h3><div id="bars"></div></div>
+      <div class="panel"><h3 class="ph">Toughest trophies earned</h3><ol class="hard" id="hard"></ol></div>
+    </div>
+    <div class="panel" style="margin-bottom:20px"><h3 class="ph">Skills</h3><p class="note">Skills practiced in each game. The bar shows the share of that game’s trophies you hold.</p><div id="skills"></div></div>
+    <div class="panel" id="tl" style="margin-bottom:20px"></div>
+    <div class="panel" id="cmap" style="margin-bottom:20px"></div>
+    <div class="panel" style="margin-bottom:64px"><h3 class="ph">Play days, last 12 weeks</h3><div class="cal" id="cal" role="img" aria-label="Calendar of play days"></div>
+      <p class="legend"><span>Less</span><i style="--l:0"></i><i style="--l:1"></i><i style="--l:2"></i><i style="--l:3"></i><span>More</span></p></div>
+  </section>
+
+  <section id="v-profile" hidden>
+    <div class="hero" style="padding-bottom:20px"><div><div class="kicker">Inspector file</div><h1 style="font-size:clamp(40px,7vw,76px)">Profile</h1>
+      <p class="lede">Name yourself, pin up to three trophies from the Trophies page, and copy a save code to move your progress to another browser.</p></div></div>
+    <div class="cols2">
+      <div class="panel"><h3 class="ph">Your card</h3>
+        <label class="lbl" for="pname">Inspector name</label><input id="pname" type="text" maxlength="20" placeholder="Your name" autocomplete="off">
+        <label class="lbl" for="cframe">Card frame</label><select id="cframe" style="margin-bottom:14px"></select>
+        <canvas id="card" width="720" height="400" aria-label="Profile card"></canvas>
+        <div class="btns"><button type="button" class="btn" id="copycard">Copy card as text</button><span class="ok" id="ok1"></span></div></div>
+      <div class="panel"><h3 class="ph">Save code</h3>
+        <p class="note">This code holds your trophies, stats and every game’s saved progress. Keep it somewhere safe.</p>
+        <label class="lbl" for="exp">Your code</label><textarea id="exp" readonly rows="5"></textarea>
+        <div class="btns"><button type="button" class="btn" id="copyexp">Copy code</button><span class="ok" id="ok2"></span></div>
+        <label class="lbl" for="imp" style="margin-top:18px">Restore from a code</label><textarea id="imp" rows="4" placeholder="Paste a save code here"></textarea>
+        <div class="btns"><button type="button" class="btn danger" id="doimp">Restore progress</button><span class="ok" id="ok3"></span></div></div>
+    </div>
+    <div class="cols2" style="margin-top:20px">
+      <div class="panel"><h3 class="ph">Settings</h3>
+        <label class="lbl" for="s-text">Text size</label><select id="s-text" style="margin-bottom:12px"></select>
+        <label class="lbl" for="s-con">Contrast</label><select id="s-con" style="margin-bottom:12px"></select>
+        <label class="lbl" for="s-gg">Weekly goal: games</label><select id="s-gg" style="margin-bottom:12px"></select>
+        <label class="lbl" for="s-gm">Weekly goal: minutes</label><select id="s-gm" style="margin-bottom:12px"></select>
+        <label class="lbl" for="s-bk">Backup reminder</label><select id="s-bk" style="margin-bottom:12px"></select>
+        <p class="note" id="lastbk"></p><p class="note">Progress is saved on this device, in this browser only. Use the save code to move or back it up.</p></div>
+      <div class="panel"><h3 class="ph">Progress report</h3><canvas id="rep-c" width="720" height="440" aria-label="Progress report image"></canvas>
+        <div class="btns"><button type="button" class="btn" id="rep-img">Copy as image</button><button type="button" class="btn danger" id="rep-txt">Copy as text</button><span class="ok" id="ok12"></span></div></div>
+    </div>
+    <div style="height:24px"></div>
+  </section>
+  <section id="v-friends" hidden>
+    <div class="hero" style="padding-bottom:20px"><div><div class="kicker">Head to head</div><h1 style="font-size:clamp(40px,7vw,76px)">Friends</h1>
+      <p class="lede">Swap friend codes to compare ranks, trophies and time, then show off a versus card.</p></div></div>
+        <div id="fbody">
+    <div class="cols2">
+      <div class="panel"><h3 class="ph">Your friend code</h3>
+        <p class="note">A friend code holds your name, rank and trophy totals. It holds no saves. Send it to a friend and paste theirs here.</p>
+        <label class="lbl" for="fmine">Your code</label><textarea id="fmine" readonly rows="4"></textarea>
+        <div class="btns"><button type="button" class="btn" id="copyf">Copy code</button><span class="ok" id="ok7"></span></div></div>
+      <div class="panel"><h3 class="ph">Add a friend</h3>
+        <label class="lbl" for="fcode">Friend code</label><textarea id="fcode" rows="3" placeholder="Paste a friend code here"></textarea>
+        <div class="btns"><button type="button" class="btn" id="addfriend">Add friend</button><span class="ok" id="ok8"></span></div>
+        <ul class="fl" id="flist"></ul></div>
+    </div>
+    <div class="panel" id="chp" style="margin-bottom:20px"><h3 class="ph">Challenges</h3>
+      <p class="note">Challenge a friend to beat your number in one stat. Challenges run on trust: the games cannot check a friend’s score.</p>
+      <div class="cols2" style="margin-bottom:0"><div>
+        <label class="lbl" for="cm">Stat</label><select id="cm"></select>
+        <label class="lbl" for="cv" style="margin-top:10px">Number to beat</label><input id="cv" type="number" min="1" max="999999" value="10">
+        <div class="btns"><button type="button" class="btn" id="mkch">Create challenge</button><span class="ok" id="ok10"></span></div>
+        <label class="lbl" for="chout" style="margin-top:10px">Challenge code</label><textarea id="chout" readonly rows="2"></textarea></div>
+      <div><label class="lbl" for="chin">Accept a challenge</label><textarea id="chin" rows="3" placeholder="Paste a challenge code here"></textarea>
+        <div class="btns"><button type="button" class="btn" id="addch">Accept challenge</button><button type="button" class="btn danger" id="clrch">Clear finished</button><span class="ok" id="ok11"></span></div>
+        <ul class="al" id="chl" style="margin-top:14px"></ul></div></div></div>
+    <div class="panel" id="cmp" hidden style="margin-bottom:64px"></div>
+    </div>
+  </section>
+</main>
+<div id="rankup" role="dialog" aria-label="Rank up" hidden><div class="ru"><small>RANK UP</small><div class="emblem" id="ru-e"></div><b id="ru-n"></b><span id="ru-p"></span><em>Click to continue</em></div></div>
+
+<div id="player" role="dialog" aria-label="Game">
+  <div class="pbar">
+    <button class="back" id="back" type="button">← Back to hub</button>
+    <div class="now" id="now"></div>
+    <span class="score" id="pscore"></span>
+    <button class="back" id="qs" type="button" hidden></button>
+    <button class="back" id="nb" type="button" aria-pressed="false">Notes</button>
+    <button class="back" id="fs" type="button">Full screen</button>
+    <a id="ext" href="#" target="_blank" rel="noopener">Open on its own page</a>
+  </div>
+  <div class="pbody"><iframe id="frame" title="Game" allow="fullscreen; autoplay"></iframe>
+    <aside id="drawer" hidden aria-label="Notes and glossary"><div class="dtabs"><button type="button" id="dt-g" aria-pressed="true">Glossary</button><button type="button" id="dt-n" aria-pressed="false">Notes</button></div>
+      <div id="dg"></div><div id="dn" hidden><label class="sr" for="notes">Notes</label><textarea id="notes" maxlength="4000" placeholder="Write what you learned…"></textarea><span class="ok" id="oknote"></span></div></aside></div>
+  <div id="loading" aria-live="polite" hidden></div>
+</div>
+<div id="toasts" aria-live="polite"></div>
+
+<script id="gsrc" type="application/json">{{json games/}}</script>
+<script>window.__GAMES=JSON.parse(document.getElementById("gsrc").textContent);</script>
+<script>{{include parts/02-script/}}</script>
+
+</html>
